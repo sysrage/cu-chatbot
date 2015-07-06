@@ -6,9 +6,9 @@ module.exports = {
     servers: [
     {
         name: 'hatchery',
-        username: 'agoknee@chat.camelotunchained.com',
+        username: 'user@chat.camelotunchained.com',
         password: 'password',
-        nickname: 'Agoknee-Bot',
+        nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
         rooms: [
@@ -19,9 +19,9 @@ module.exports = {
     },
     {
         name: 'wyrmling',
-        username: 'agoknee@wyrmling.camelotunchained.com',
+        username: 'user@wyrmling.camelotunchained.com',
         password: 'password',
-        nickname: 'Agoknee-Bot',
+        nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
         rooms: [
@@ -34,6 +34,6 @@ module.exports = {
 
     // Users without CSE flag which can set MOTD messages
     motdAdmins: [
-    'agoknee'
+    'user'
     ]
 };
