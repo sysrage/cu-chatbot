@@ -13,4 +13,4 @@ Requires:
  - Node.js 11.x
  - node-xmpp
 
-Much thanks to Mehuge for his help with learning Node.js.
+Much thanks to Mehuge, reallifegobbo, and burfo for their help with learning Node.js.
