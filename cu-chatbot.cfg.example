@@ -1,0 +1,39 @@
+// Configuration file for cu-chatbot.js
+
+module.exports = {
+
+    // XMPP servers and chat rooms
+    servers: [
+    {
+        name: 'hatchery',
+        username: 'agoknee@chat.camelotunchained.com',
+        password: 'password',
+        nickname: 'Agoknee-Bot',
+        address: 'chat.camelotunchained.com',
+        service: 'conference',
+        rooms: [
+        { name: '_it', joined: 'no', motd: 'yes'},
+        { name: '_global', joined: 'no', motd: 'no'},
+        { name: '_combat', joined: 'no', motd: 'yes'},
+        ]
+    },
+    {
+        name: 'wyrmling',
+        username: 'agoknee@wyrmling.camelotunchained.com',
+        password: 'password',
+        nickname: 'Agoknee-Bot',
+        address: 'chat.camelotunchained.com',
+        service: 'conference',
+        rooms: [
+        { name: '_it', joined: 'no', motd: 'yes'},
+        { name: '_global', joined: 'no', motd: 'no'},
+        { name: '_combat', joined: 'no', motd: 'yes'},
+        ]
+    }
+    ],
+
+    // Users without CSE flag which can set MOTD messages
+    motdAdmins: [
+    'agoknee'
+    ]
+};
