@@ -7,6 +7,7 @@
 
 var sys = require('sys');
 var util = require('util');
+var path = require('path');
 var fs = require('fs');
 var xmpp = require('node-xmpp');
 
@@ -26,26 +27,32 @@ var chatCommands = [
         }
 
         if (params.length > 0) {
+            // User is trying to set a new MOTD.
             if (motdadmin === 'yes') {
-                util.log('set motd');
+                // User is allowed - Set new MOTD.
+                fs.writeFile(server.motdfile, "MOTD: " + params, function(err) {
+                    if (err) {
+                        return util.log('[ERROR] Unable to write to MOTD file.');
+                    }
+                    server.motd = "MOTD: " + params;
+                    util.log("[MOTD] New MOTD for server '" + server.name + "' set by user '" + sender + "'.");
+                });
             } else {
-                util.log('tell user they cannot set motd');
-            }
-
-            // send response
-            if (room === 'pm') {
-                sendPM(client, server, 'set motd', sender);
-            } else {
-                //
-                // sendChat(client, server, params, room);
+                // User is not allowed - Send error.
+                if (room === 'pm') {
+                    sendPM(client, server, "You do not have permission to set an MOTD.", sender);
+                } else {
+                    sendChat(client, server, "You do not have permission to set an MOTD.", room);
+                }
             }
         } else {
-            // send motd
+            // User requested current MOTD.
             if (room === 'pm') {
-                sendPM(client, server, 'display motd', sender);
+                sendPM(client, server, server.motd.toString(), sender);
+                util.log("[MOTD] MOTD sent to user '" + sender + "'.");
             } else {
-                //
-                // sendChat(client, server, params, room);
+                sendChat(client, server, server.motd.toString(), room);
+                util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
             }
         }
     }
@@ -72,7 +79,30 @@ var indexOfRoom = function(client, server, room) {
     return -1;
 };
 
+var getMOTD = function(server) {
+    fs.readFile(server.motdfile, function(err, data) {
+        if (err && err.code === 'ENOENT') {
+            fs.writeFile(server.motdfile, "MOTD: ", function(err) {
+                if (err) {
+                    return util.log('[ERROR] Unable to create MOTD file.');
+                }
+                util.log('[STATUS] MOTD file did not exist. Empty file created.');
+            });
+            server.motd = "MOTD: ";
+        } else {
+            server.motd = data;
+        }
+    });
+}
+
+// Timers
+// function foobar(el) { setTimeout(function() { foobar_cont(el); }, 5000); }
+// you need to give a var to the settimeout, so like snafu=setTimeout(...)  and then run clearTimeout(snafu);  to remove it
+
 config.servers.forEach(function(server) {
+    // Server initialization
+    getMOTD(server);
+
     // Connect to XMPP servers
     var client = [];
     client[server.name] = new xmpp.Client({
@@ -100,7 +130,7 @@ config.servers.forEach(function(server) {
     // Parse each stanza from Hatchery
     client[server.name].on('stanza', function(stanza) {
      
-        util.log('***** ' + stanza + ' *****');
+        // util.log('***** ' + stanza + ' *****');
 
         // Always log error stanzas
         if (stanza.attrs.type === 'error') {
@@ -166,7 +196,7 @@ config.servers.forEach(function(server) {
                 var userCommand = message.split(' ')[0].split('!')[1];
                 chatCommands.forEach(function(cmd) {
                     if (userCommand === cmd.command) {
-                        cmd.exec(client, server, room, sender, message);
+                        cmd.exec(client, server, room, sender, message, {motdadmin: motdadmin});
                     }
                 });
             }
