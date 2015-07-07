@@ -152,6 +152,7 @@ function sendPM(client, server, message, user) {
     client[server.name].send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
 }
 
+// function to read in the MOTD file
 function getMOTD(server) {
     fs.readFile(server.motdfile, function(err, data) {
         if (err && err.code === 'ENOENT') {
@@ -168,6 +169,7 @@ function getMOTD(server) {
     });
 }
 
+// function to read in the MOTD ignore list
 function getMOTDIgnore(server) {
     fs.readFile(server.nomotdfile, function(err, data) {
         if (err && err.code === 'ENOENT') {
@@ -205,6 +207,17 @@ function sendMOTD(client, server) {
     });
 }
 
+// Timer to verify client is still connected
+function timerConnected(client, server) { setInterval(function() { checkLastStanza(client, server); }, 100); }
+function checkLastStanza(client, server) {
+    epochTime = Math.floor((new Date).getTime() / 1000);
+    if (epochTime - server.lastStanza > 65) {
+        util.log("[ERROR] No stanza for 65 seconds on " + server.name + ". Reconnecting...");
+        server.lastStanza = epochTime;
+        client[server.name].end();
+    }
+}
+
 var client = [];
 config.servers.forEach(function(server) {
     // Server initialization
@@ -221,7 +234,7 @@ config.servers.forEach(function(server) {
 
     // Handle client errors
     client[server.name].on('error', function(err) {
-        util.log("[ERROR] Unknown: " + err);
+        util.log("[ERROR] Unknown " + err);
     });
 
     // Handle disconnect
@@ -250,12 +263,19 @@ config.servers.forEach(function(server) {
 
         // Start sending MOTDs
         timerMOTD(client, server);
+
+        // Start verifying connectivity
+        server.lastStanza = Math.floor((new Date).getTime() / 1000);
+        timerConnected(client, server);
     });
 
     // Parse each stanza from the XMPP server
     client[server.name].on('stanza', function(stanza) {
-     
+
         // util.log('***** ' + stanza + ' *****');
+
+        // Store time of last received stanza for checking connection status
+        server.lastStanza = Math.floor((new Date).getTime() / 1000);
 
         // Always log error stanzas
         if (stanza.attrs.type === 'error') {
