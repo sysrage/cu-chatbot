@@ -1,5 +1,9 @@
 // Configuration file for cu-chatbot.js
 
+// To read username and password from environment variables:
+//     username: process.env.CHAT_USERNAME + "@chat.camelotunchained.com",
+//     password: process.env.CHAT_PASSWORD
+
 module.exports = {
 
     // XMPP servers and chat rooms
@@ -11,10 +15,12 @@ module.exports = {
         nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
+        motdfile: './hatchery.motd',
+        nomotdfile: './hatchery.nomotd',
         rooms: [
-        { name: '_it', joined: 'no', motd: 'yes'},
-        { name: '_global', joined: 'no', motd: 'no'},
-        { name: '_combat', joined: 'no', motd: 'yes'},
+        { name: '_it', joined: false, motd: true},
+        { name: '_global', joined: false, motd: false},
+        { name: '_combat', joined: false, motd: true},
         ]
     },
     {
@@ -24,10 +30,12 @@ module.exports = {
         nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
+        motdfile: './wyrmling.motd',
+        nomotdfile: './wyrmling.nomotd',
         rooms: [
-        { name: '_it', joined: 'no', motd: 'yes'},
-        { name: '_global', joined: 'no', motd: 'no'},
-        { name: '_combat', joined: 'no', motd: 'yes'},
+        { name: '_it', joined: false, motd: true},
+        { name: '_global', joined: false, motd: false},
+        { name: '_combat', joined: false, motd: true},
         ]
     }
     ],
