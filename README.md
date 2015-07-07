@@ -1,16 +1,17 @@
 # cu-chatbot
 Chatbot for Camelot Unchained
 
-Originally based on https://gist.github.com/powdahound/940969
-
 This is a general-purpose bot written in Node.js for use with Camelot Unchained. There are currently two base functionalities:
- 1. Monitoring chat rooms for messages sent by CSE staff members and sending those to users not connected to the XMPP server.
- 2. Monitoring for users joining the XMPP server or game client and sending them a Message of the Day (MOTD).
+ 1. Monitoring for users joining the XMPP server or game client and sending them a Message of the Day (MOTD).
+ 2. Monitoring chat rooms for messages sent by CSE staff members and sending those messages to users not connected to the XMPP server.
 
-Any !command can also be dynamically added within the configuration file.
+Additional commands can easily be added in the chatCommands object at the top of the script.
 
 Requires:
  - Node.js 11.x
  - node-xmpp
+ - Camelot Unchained account
 
-Much thanks to Mehuge, reallifegobbo, and burfo for their help with learning Node.js.
+Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
+
+Originally based on https://gist.github.com/powdahound/940969
