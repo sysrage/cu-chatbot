@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ~/Documents/Git/sysrage/cu-chatbot/
+while [ $? ]; do
+	node cu-chatbot.js
+done
