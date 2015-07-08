@@ -19,7 +19,8 @@ var chatCommands = [
 {
     command: 'motd',
     exec: function(server, room, sender, message, extras) {
-        var params = message.replace(/^.motd[\ ]*/, '');
+        re = new RegExp('^.' + this.command +'[\ ]*');
+        var params = message.replace(re, '');
         if (extras && extras.motdadmin) {
             var motdadmin = extras.motdadmin;
         } else {
@@ -35,20 +36,12 @@ var chatCommands = [
                         return util.log("[ERROR] Unable to write to MOTD file.");
                     }
                     server.motd = "MOTD: " + params;
-                    if (room === 'pm') {
-                        sendPM(server, "MOTD for " + server.name + " set to: " + params, sender);
-                    } else {
-                        sendChat(server, "MOTD for " + server.name + " set to: " + params, room);
-                    }
+                    sendReply(server, room, sender, "MOTD for " + server.name + " set to: " + params);
                     util.log("[MOTD] New MOTD for server '" + server.name + "' set by user '" + sender + "'.");
                 });
             } else {
                 // User is not allowed - Send error.
-                if (room === 'pm') {
-                    sendPM(server, "You do not have permission to set an MOTD.", sender);
-                } else {
-                    sendChat(server, "You do not have permission to set an MOTD.", room);
-                }
+                sendReply(server, room, sender, "You do not have permission to set an MOTD.");
             }
         } else {
             // User requested current MOTD.
@@ -77,20 +70,12 @@ var chatCommands = [
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
-                if (room === 'pm') {
-                    sendPM(server, "User '" + sender + "' unsubscribed from " + server.name + " MOTD notices.", sender);
-                } else {
-                    sendChat(server, "User '" + sender + "' unsubscribed from " + server.name + " MOTD notices.", room);
-                }
+                sendReply(server, room, sender, "User '" + sender + "' unsubscribed from " + server.name + " MOTD notices.");
                 util.log("[MOTD] User '" + sender + "' added to '" + server.name + "' opt-out list.");
             });
         } else {
             // Tell user they already have MOTDs turned off
-            if (room === 'pm') {
-                sendPM(server, "User '" + sender + "' already unsubscribed from " + server.name + " MOTD notices.", sender);
-            } else {
-                sendChat(server, "User '" + sender + "' already unsubscribed from " + server.name + " MOTD notices.", room);
-            }
+            sendReply(server, room, sender, "User '" + sender + "' already unsubscribed from " + server.name + " MOTD notices.");
         }
     }
 },
@@ -116,29 +101,77 @@ var chatCommands = [
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
-                if (room === 'pm') {
-                    sendPM(server, "User '" + sender + "' subscribed to " + server.name + " MOTD notices.", sender);
-                } else {
-                    sendChat(server, "User '" + sender + "' subscribed to " + server.name + " MOTD notices.", room);
-                }
+                sendReply(server, room, sender, "User '" + sender + "' subscribed to " + server.name + " MOTD notices.");
                 util.log("[MOTD] User '" + sender + "' removed from '" + server.name + "' opt-out list.");
             });
         } else {
             // Tell user they already have MOTDs turned on
-            if (room === 'pm') {
-                sendPM(server, "User '" + sender + "' already subscribed to " + server.name + " MOTD notices.", sender);
-            } else {
-                sendChat(server, "User '" + sender + "' already subscribed to " + server.name + " MOTD notices.", room);
-            }
+            sendReply(server, room, sender, "User '" + sender + "' already subscribed to " + server.name + " MOTD notices.");
         }
     }
 },
 {
-    command: 'testing',
+    command: 'stopclient',
     exec: function(server, room, sender, message, extras) {
-        if (client[server.name].motdTimer) {
-            clearInterval(client[server.name].motdTimer);
-            client[server.name].motdTimer = null;            
+        re = new RegExp('^.' + this.command +'[\ ]*');
+        var params = message.replace(re, '');
+        var serverToStop = {};
+
+        if (extras && extras.motdadmin) {
+            // If user specified a server to stop, use that. Otherwise use the server the user is on.
+            if (params.length > 0) {
+                serverToStop.name = params;
+            } else {
+                serverToStop.name = server.name;
+            }
+
+            if (client[serverToStop.name]) {
+                // Client is running - Stop it
+                stopClient(serverToStop);
+                if (serverToStop.name !== server.name) {
+                    sendReply(server, room, sender, "Client for " + serverToStop.name + " has been stopped.");
+                }
+                util.log("[STATUS] Client for " + serverToStop.name + " stopped by user '" + sender + "'.");
+            } else {
+                // Client not running - Send error
+                sendReply(server, room, sender, "No client is running for server '"+ serverToStop.name + "'.");
+            }
+        } else {
+            // User is not allowed - Send error.
+            sendReply(server, room, sender, "You do not have permission to stop a client.");
+        }
+    }
+},
+{
+    command: 'startclient',
+    exec: function(server, room, sender, message, extras) {
+        re = new RegExp('^.' + this.command +'[\ ]*');
+        var params = message.replace(re, '');
+        var serverToStart = {};
+
+        if (extras && extras.motdadmin) {
+            // Show error if server was not specified
+            if (params.length < 1) {
+                sendReply(server, room, sender, "You must specify a server to start.");
+            } else {
+                serverToStart.name = params;
+                if (client[serverToStart.name]) {
+                    // Client is already running - Send error
+                    sendReply(server, room, sender, "A client for " + serverToStart.name + " is already running.");
+                } else {
+                    if (indexOfServer(serverToStart.name) < 1) {
+                        // No server exists - Send error
+                        sendReply(server, room, sender, "A server named '" + serverToStart.name + "' does not exist.");
+                    } else {
+                        startClient(config.servers[indexOfServer(serverToStart.name)]);
+                        sendReply(server, room, sender, "A client for " + serverToStart.name + " has been started.");
+                        util.log("[STATUS] Client for " + serverToStart.name + " started by user '" + sender + "'.");
+                    }
+                }
+            }
+        } else {
+            // User is not allowed - Send error.
+            sendReply(server, room, sender, "You do not have permission to start a client.");
         }
     }
 }
@@ -190,6 +223,15 @@ var indexOfRoom = function(server, room) {
     return -1;
 };
 
+// function to find the index of a server
+var indexOfServer = function(server) {
+    for (var i = 0; i < config.servers.length; i++) {
+        if (config.servers[i].name === server) return i;
+    }
+    return -1;
+};
+
+
 // function to check internet connectivity
 function checkInternet(server, cb) {
     require('dns').lookup(server.name, function(err) {
@@ -199,6 +241,15 @@ function checkInternet(server, cb) {
             cb(true);
         }
     })
+}
+
+// function to send a reply message
+function sendReply(server, room, sender, message) {
+    if (room === 'pm') {
+        sendPM(server, message, sender);
+    } else {
+        sendChat(server, message, room);
+    }
 }
 
 // function to send a message to a group chat
@@ -251,9 +302,8 @@ function stopClient(server) {
     client[server.name].xmpp.end();
     client[server.name].xmpp = undefined;
     clearInterval(client[server.name].motdTimer);
-    client[server.name].motdTimer = null;
     clearInterval(client[server.name].connTimer);
-    client[server.name].connTimer = null;
+    client[server.name] = undefined;
 }
 
 // function to start a new client for a particular server
