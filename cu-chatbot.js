@@ -67,7 +67,7 @@ var chatCommands = [
     exec: function(client, server, room, sender, message, extras) {
         var ignoredReceiver = false;
         server.motdIgnore.forEach(function(receiver) {
-            if (receiver == sender) ignoredReceiver = true;
+            if (receiver === sender) ignoredReceiver = true;
         });
 
         if (! ignoredReceiver) {
@@ -99,13 +99,16 @@ var chatCommands = [
     exec: function(client, server, room, sender, message, extras) {
         var ignoredReceiver = false;
         server.motdIgnore.forEach(function(receiver) {
-            if (receiver == sender) ignoredReceiver = true;
+            if (receiver === sender) ignoredReceiver = true;
         });
 
-        if (! ignoredReceiver) {
-            // Remove user to MOTD ignore list
+        if (ignoredReceiver) {
+            // Remove user from MOTD ignore list
             for (var i = 0; i < server.motdIgnore.length; i++) {
-                if (server.motdIgnore[i] === sender) index = i;
+                if (server.motdIgnore[i] === sender) {
+                    index = i;
+                    break;
+                }
             }
             server.motdIgnore.splice(index, 1);
 
@@ -200,7 +203,10 @@ function sendMOTD(client, server) {
         } else if ((receiver.sendTime > 0) && (epochTime - receiver.sendTime > 300)) {
             // User was sent MOTD 5 minutes ago, remove from receiver list so they can get it again.
             for (var i = 0; i < server.motdReceivers.length; i++) {
-                if (server.motdReceivers[i].name === receiver.name) index = i;
+                if (server.motdReceivers[i].name === receiver.name) {
+                    index = i;
+                    break;
+                }
             }
             server.motdReceivers.splice(index, 1);
         }
@@ -208,13 +214,22 @@ function sendMOTD(client, server) {
 }
 
 // Timer to verify client is still connected
-function timerConnected(client, server) { setInterval(function() { checkLastStanza(client, server); }, 100); }
+function timerConnected(client, server) { setInterval(function() { checkLastStanza(client, server); }, 1000); }
 function checkLastStanza(client, server) {
     epochTime = Math.floor((new Date).getTime() / 1000);
     if (epochTime - server.lastStanza > 65) {
         util.log("[ERROR] No stanza for 65 seconds on " + server.name + ". Reconnecting...");
         server.lastStanza = epochTime;
+
+        // This is ugly as hell but I can't figure out how to fix node-xmpp to reconnect properly
+        // client[server.name].connection.reconnect = false;
         client[server.name].end();
+        // client[server.name] = undefined;
+        // client[server.name] = new xmpp.Client({
+        //     jid: server.username + '/bot',
+        //     password: server.password,
+        //     reconnect: true
+        // });
     }
 }
 
@@ -232,9 +247,17 @@ config.servers.forEach(function(server) {
         reconnect: true
     });
 
+    client[server.name].connection.socket.setTimeout(0);
+    client[server.name].connection.socket.setKeepAlive(true, 10000);
+
     // Handle client errors
     client[server.name].on('error', function(err) {
-        util.log("[ERROR] Unknown " + err);
+        if (err.code === "EADDRNOTAVAIL" || err.code === "ETIMEDOUT") {
+            util.log("[ERROR] No internet connection available. Exiting.");
+            process.exit(1);
+        } else {
+            util.log("[ERROR] Unknown " + err);
+        }
     });
 
     // Handle disconnect
