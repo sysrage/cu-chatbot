@@ -19,14 +19,13 @@ var chatCommands = [
 {
     command: 'motd',
     exec: function(server, room, sender, message, extras) {
-        re = new RegExp('^.' + this.command +'[\ ]*');
-        var params = message.replace(re, '');
         if (extras && extras.motdadmin) {
             var motdadmin = extras.motdadmin;
         } else {
             var motdadmin = false;
         }
 
+        var params = getParams(this.command, message);
         if (params.length > 0) {
             // User is trying to set a new MOTD.
             if (motdadmin) {
@@ -178,59 +177,7 @@ var chatCommands = [
 ];
 
 /*****************************************************************************/
-
-// Timer to send MOTD messages to joining users.
-var timerMOTD = function(server) { return setInterval(function() { sendMOTD(server); }, 500); };
-function sendMOTD(server) {
-    server.motdReceivers.forEach(function(receiver) {
-        epochTime = Math.floor((new Date).getTime() / 1000);
-        if ((epochTime - receiver.joinTime > 2) && receiver.sendTime === 0) {
-            // User joined 2 seconds ago, send the MOTD.
-            receiver.sendTime = epochTime;
-            var user = receiver.name + '@' + server.address;
-            sendPM(server, server.motd.toString(), user);
-            util.log("[MOTD] MOTD sent to user '" + receiver.name + "' on " + server.name + ".");
-        } else if ((receiver.sendTime > 0) && (epochTime - receiver.sendTime > 300)) {
-            // User was sent MOTD 5 minutes ago, remove from receiver list so they can get it again.
-            for (var i = 0; i < server.motdReceivers.length; i++) {
-                if (server.motdReceivers[i].name === receiver.name) {
-                    index = i;
-                    break;
-                }
-            }
-            server.motdReceivers.splice(index, 1);
-        }
-    });
-}
-
-// Timer to verify client is still connected
-var timerConnected = function(server) { return setInterval(function() { checkLastStanza(server); }, 1000); };
-function checkLastStanza(server) {
-    epochTime = Math.floor((new Date).getTime() / 1000);
-    if (epochTime - server.lastStanza > 65) {
-        util.log("[ERROR] No stanza for 65 seconds on " + server.name + ". Reconnecting...");
-        server.lastStanza = epochTime;
-        stopClient(server);
-        startClient(server);
-    }
-}
-
-// function to find the index of a room
-var indexOfRoom = function(server, room) {
-    for (var i = 0; i < server.rooms.length; i++) {
-        if (server.rooms[i].name === room) return i;
-    }
-    return -1;
-};
-
-// function to find the index of a server
-var indexOfServer = function(server) {
-    for (var i = 0; i < config.servers.length; i++) {
-        if (config.servers[i].name === server) return i;
-    }
-    return -1;
-};
-
+/*****************************************************************************/
 
 // function to check internet connectivity
 function checkInternet(server, cb) {
@@ -241,25 +188,6 @@ function checkInternet(server, cb) {
             cb(true);
         }
     })
-}
-
-// function to send a reply message
-function sendReply(server, room, sender, message) {
-    if (room === 'pm') {
-        sendPM(server, message, sender);
-    } else {
-        sendChat(server, message, room);
-    }
-}
-
-// function to send a message to a group chat
-function sendChat(server, message, room) {
-    client[server.name].xmpp.send(new xmpp.Element('message', { to: room + '/' + server.nickname, type: 'groupchat' }).c('body').t(message));
-}
-
-// function to send a private message
-function sendPM(server, message, user) {
-    client[server.name].xmpp.send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
 }
 
 // function to read in the MOTD file
@@ -296,14 +224,86 @@ function getMOTDIgnore(server) {
     });
 }
 
-// function to stop a client for a particular server
-function stopClient(server) {
-    client[server.name].xmpp.connection.reconnect = false;
-    client[server.name].xmpp.end();
-    client[server.name].xmpp = undefined;
-    clearInterval(client[server.name].motdTimer);
-    clearInterval(client[server.name].connTimer);
-    client[server.name] = undefined;
+// function to get parameters from a message
+function getParams(command, message) {
+    re = new RegExp('^' + commandChar + command +'[\ ]*', 'i');
+    params = message.replace(re, '');
+    if (params.length > 0) {
+        return params;
+    } else {
+        return -1;
+    }
+}
+
+// function to find the index of a room
+var indexOfRoom = function(server, room) {
+    for (var i = 0; i < server.rooms.length; i++) {
+        if (server.rooms[i].name === room) return i;
+    }
+    return -1;
+};
+
+// function to find the index of a server
+var indexOfServer = function(server) {
+    for (var i = 0; i < config.servers.length; i++) {
+        if (config.servers[i].name === server) return i;
+    }
+    return -1;
+};
+
+// function to send a message to a group chat
+function sendChat(server, message, room) {
+    client[server.name].xmpp.send(new xmpp.Element('message', { to: room + '/' + server.nickname, type: 'groupchat' }).c('body').t(message));
+}
+
+// function to send a private message
+function sendPM(server, message, user) {
+    client[server.name].xmpp.send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
+}
+
+// function to send a reply message
+function sendReply(server, room, sender, message) {
+    if (room === 'pm') {
+        sendPM(server, message, sender);
+    } else {
+        sendChat(server, message, room);
+    }
+}
+
+// Timer to verify client is still connected
+var timerConnected = function(server) { return setInterval(function() { checkLastStanza(server); }, 1000); };
+function checkLastStanza(server) {
+    epochTime = Math.floor((new Date).getTime() / 1000);
+    if (epochTime - server.lastStanza > 65) {
+        util.log("[ERROR] No stanza for 65 seconds on " + server.name + ". Reconnecting...");
+        server.lastStanza = epochTime;
+        stopClient(server);
+        startClient(server);
+    }
+}
+
+// Timer to send MOTD messages to joining users.
+var timerMOTD = function(server) { return setInterval(function() { sendMOTD(server); }, 500); };
+function sendMOTD(server) {
+    server.motdReceivers.forEach(function(receiver) {
+        epochTime = Math.floor((new Date).getTime() / 1000);
+        if ((epochTime - receiver.joinTime > 2) && receiver.sendTime === 0) {
+            // User joined 2 seconds ago, send the MOTD.
+            receiver.sendTime = epochTime;
+            var user = receiver.name + '@' + server.address;
+            sendPM(server, server.motd.toString(), user);
+            util.log("[MOTD] MOTD sent to user '" + receiver.name + "' on " + server.name + ".");
+        } else if ((receiver.sendTime > 0) && (epochTime - receiver.sendTime > 300)) {
+            // User was sent MOTD 5 minutes ago, remove from receiver list so they can get it again.
+            for (var i = 0; i < server.motdReceivers.length; i++) {
+                if (server.motdReceivers[i].name === receiver.name) {
+                    index = i;
+                    break;
+                }
+            }
+            server.motdReceivers.splice(index, 1);
+        }
+    });
 }
 
 // function to start a new client for a particular server
@@ -454,9 +454,9 @@ function startClient(server) {
 
                     // If message matches a defined command, run it
                     if (message[0] === commandChar) {
-                        var userCommand = message.split(' ')[0].split(commandChar)[1];
+                        var userCommand = message.split(' ')[0].split(commandChar)[1].toLowerCase();
                         chatCommands.forEach(function(cmd) {
-                            if (userCommand === cmd.command) {
+                            if (userCommand === cmd.command.toLowerCase()) {
                                 cmd.exec(server, room, sender, message, {motdadmin: motdadmin});
                             }
                         });
@@ -518,6 +518,17 @@ function startClient(server) {
             });
         }
     });
+}
+
+// function to stop a client for a particular server
+function stopClient(server) {
+    client[server.name].xmpp.connection.reconnect = false;
+    client[server.name].xmpp.end();
+    client[server.name].xmpp = undefined;
+    clearInterval(client[server.name].motdTimer);
+    clearInterval(client[server.name].connTimer);
+    client[server.name] = undefined;
+    util.log("Client for " + server.name + " has been stopped.");
 }
 
 // Initial startup
