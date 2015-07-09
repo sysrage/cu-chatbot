@@ -9,7 +9,9 @@ var sys = require('sys');
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
+var request = require('request');
 var xmpp = require('node-xmpp');
+var pushover = require('node-pushover');
 
 var config = require('./cu-chatbot.cfg');
 
@@ -112,8 +114,7 @@ var chatCommands = [
 {
     command: 'stopclient',
     exec: function(server, room, sender, message, extras) {
-        re = new RegExp('^.' + this.command +'[\ ]*');
-        var params = message.replace(re, '');
+        var params = getParams(this.command, message);
         var serverToStop = {};
 
         if (extras && extras.motdadmin) {
@@ -144,8 +145,7 @@ var chatCommands = [
 {
     command: 'startclient',
     exec: function(server, room, sender, message, extras) {
-        re = new RegExp('^.' + this.command +'[\ ]*');
-        var params = message.replace(re, '');
+        var params = getParams(this.command, message);
         var serverToStart = {};
 
         if (extras && extras.motdadmin) {
@@ -251,6 +251,23 @@ var indexOfServer = function(server) {
     return -1;
 };
 
+// function to check if user is an MOTD admin
+var isMOTDAdmin = function(name) {
+    for (var i = 0; i < config.motdAdmins.length; i++) {
+        if (config.motdAdmins[i] === name) return true;
+    }
+    return false;
+};
+
+// function to check if a message matches test keywords
+var isTestMessage = function(message) {
+    for (var i = 0; i < config.testKeywords.length; i++) {
+        re = new RegExp(config.testKeywords[i], 'i');
+        if (message.search(re) != -1) return true;
+    }
+    return false;
+};
+
 // function to send a message to a group chat
 function sendChat(server, message, room) {
     client[server.name].xmpp.send(new xmpp.Element('message', { to: room + '/' + server.nickname, type: 'groupchat' }).c('body').t(message));
@@ -261,6 +278,11 @@ function sendPM(server, message, user) {
     client[server.name].xmpp.send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
 }
 
+// function to send Pushover message
+function sendPushover(user, title, message) {
+    push.send(user, title, message);
+}
+
 // function to send a reply message
 function sendReply(server, room, sender, message) {
     if (room === 'pm') {
@@ -268,6 +290,23 @@ function sendReply(server, room, sender, message) {
     } else {
         sendChat(server, message, room);
     }
+}
+
+// function to send SMS message
+function sendSMS(phone, message) {
+    var url = "http://textbelt.com/text?number=" + phone + "&message=" + message;
+    var req = {
+        headers: {'content-type' : 'application/x-www-form-urlencoded'},
+        url: 'http://textbelt.com/text',
+        body: 'number=' + phone + '&message=' + message
+    };
+    request.post(req, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            if (! JSON.parse(body).success) {
+                util.log("[ERROR] Error sending SMS: " + JSON.parse(body).message);
+            }
+        }
+    });
 }
 
 // Timer to verify client is still connected
@@ -388,9 +427,9 @@ function startClient(server) {
                 }
              
                 if (stanza.is('presence')) {
-                    /* --------------------------
-                       Handle channel joins/parts
-                       -------------------------- */
+/*****************************************************************************/
+// Handle channel joins/parts
+/*****************************************************************************/
                     if (stanza.getChild('x') !== undefined) {
                         var status = stanza.getChild('x').getChild('status');
                         var role = stanza.getChild('x').getChild('item').attrs.role;
@@ -425,32 +464,27 @@ function startClient(server) {
                         }
                     }
                 } else if (stanza.is('message') && stanza.attrs.type === 'groupchat') {
-                    /* --------------------------
-                       Handle group chat messages
-                       -------------------------- */
+/*****************************************************************************/
+// Handle group chat messages
+/*****************************************************************************/
                     var body = stanza.getChild('body');
                     // message without body is probably a topic change
                     if (! body) {
                         return;
                     }
-                    
-                    var motdadmin = false;
+
                     var message = body.getText();
                     var sender = stanza.attrs.from.split('/')[1];
+                    var senderName = sender.split('@')[0];
                     var room = stanza.attrs.from.split('/')[0];
                     if (stanza.getChild('cseflags')) {
                         var cse = stanza.getChild('cseflags').attrs.cse;
                     }
+                    var roomIsMonitored = server.rooms[indexOfRoom(server, room.split('@')[0])].monitor;
 
-                    if (cse === "cse") {
+                    if (cse === "cse" || isMOTDAdmin(senderName)) {
                         motdadmin = true;
-                    } else {
-                        config.motdAdmins.forEach(function(user) {
-                            if (sender === user) {
-                                motdadmin = true;
-                            }
-                        });
-                    }
+                    } else motdadmin = false;
 
                     // If message matches a defined command, run it
                     if (message[0] === commandChar) {
@@ -460,41 +494,45 @@ function startClient(server) {
                                 cmd.exec(server, room, sender, message, {motdadmin: motdadmin});
                             }
                         });
+                    } else if (cse === "cse" && roomIsMonitored) {
+//                    } else if (motdadmin && roomIsMonitored) {
+                        // Message is from CSE staff in a monitored room and isn't a command
+                        config.poReceiversAll.forEach(function(poID) {
+                            // sendPushover(poID, "[CSE IT]", senderName + ": " + message);
+                        });
+                        util.log("[CHAT] CSE chat message from " + senderName + " sent to users. (ALL)");
+
+                        if (isTestMessage(message)) {
+                            // Message is a test alert.
+                            config.poReceiversMin.forEach(function(poID) {
+                                // sendPushover(poID, "[CSE IT]", senderName + ": " + message);
+                            });
+                            config.smsReceiversMin.forEach(function(smsNumber) {
+                                // sendSMS(smsNumber, "<CSE IT> " + senderName + ": " + message);
+                            });
+                            util.log("[CHAT] CSE chat message from " + senderName + " sent to users. (MIN)");
+                        }
                     }
-
-                    // // Log each message
-                    // if (cse === "cse") {
-                    //     util.log("[CHAT-CSE] " + sender + "@" + server.name + "/" + room.split('@')[0] + ": " + message);
-                    // } else {
-                    //     util.log("[CHAT] " + sender + "@" + server.name + "/" + room.split('@')[0] + ": " + message);
-                    // }
-
                 } else if (stanza.is('message') && stanza.attrs.type === 'chat') {
-                    /* --------------------------
-                       Handle private messages
-                       -------------------------- */
+/*****************************************************************************/
+// Handle private messages
+/*****************************************************************************/
                     var body = stanza.getChild('body');
                     // message without body is probably a topic change
                     if (! body) {
                         return;
                     }
 
-                    var motdadmin = false;
                     var message = body.getText();
                     var sender = stanza.attrs.from;
+                    var senderName = sender.split('@')[0];
                     if (stanza.getChild('cseflags')) {
                         var cse = stanza.getChild('cseflags').attrs.cse;
                     }
 
-                    if (cse === "cse") {
+                    if (cse === "cse" || isMOTDAdmin(senderName)) {
                         motdadmin = true;
-                    } else {
-                        config.motdAdmins.forEach(function(user) {
-                            if (sender.split('@')[0] === user) {
-                                motdadmin = true;
-                            }
-                        });
-                    }
+                    } else motdadmin = false;
 
                     // If message matches a defined command, run it
                     if (message[0] === commandChar) {
@@ -505,14 +543,10 @@ function startClient(server) {
                             }
                         });
                     }
-
-                    // // Log each message
-                    // util.log("[PM] " + sender + "@" + server.name + ": " + message);
-
                 } else {
-                    /* --------------------------
-                       Ignore everything else
-                       -------------------------- */
+/*****************************************************************************/
+// Ignore everything else
+/*****************************************************************************/
                     return;
                 }
             });
@@ -532,6 +566,8 @@ function stopClient(server) {
 }
 
 // Initial startup
+var push = new pushover({token: config.poAppToken});
+
 var client = [];
 config.servers.forEach(function(server) {
     startClient(server);

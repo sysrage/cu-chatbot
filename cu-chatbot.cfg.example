@@ -18,9 +18,9 @@ module.exports = {
         motdfile: './hatchery.motd',
         nomotdfile: './hatchery.nomotd',
         rooms: [
-        { name: '_it', joined: false, motd: true},
-        { name: '_global', joined: false, motd: false},
-        { name: '_combat', joined: false, motd: true},
+        { name: '_it', joined: false, motd: true, monitor: true},
+        { name: '_global', joined: false, motd: false, monitor: true},
+        { name: '_combat', joined: false, motd: true, monitor: false},
         ]
     },
     {
@@ -33,9 +33,9 @@ module.exports = {
         motdfile: './wyrmling.motd',
         nomotdfile: './wyrmling.nomotd',
         rooms: [
-        { name: '_it', joined: false, motd: true},
-        { name: '_global', joined: false, motd: false},
-        { name: '_combat', joined: false, motd: true},
+        { name: '_it', joined: false, motd: true, monitor: false},
+        { name: '_global', joined: false, motd: false, monitor: false},
+        { name: '_combat', joined: false, motd: true, monitor: false},
         ]
     }
     ],
@@ -43,5 +43,33 @@ module.exports = {
     // Users without CSE flag which can set MOTD messages
     motdAdmins: [
     'user'
+    ],
+
+    // Keyword regular expressions to watch for which match test CSE messages
+    testKeywords: [
+    ".*impromptu.*",
+    ".* test .*",
+    ".* testing .*"
+    ],
+
+    // Pushover application token
+    poAppToken: "abcdEFGHijklmNOPqrStuVwxYZ",
+
+    // Pushover recipients for *all* CSE messages
+    poReceiversAll: [
+//    "zxyWVUTsrqPonmLKJihgfEDCBa", // Individual PO User
+    "abcdEFGHijklmNOPqrStuVwxYZ" // CSE IT Group - All
+    ],
+
+    // Pushover recipients for test CSE messages
+    poReceiversMin: [
+    "jklmNOPqrStuVwABCdefgHIxyZ" // CSE IT Group - Min
+    ],
+
+    // SMS recipients for test CSE messages
+    smsReceiversMin: [
+    "1234567890",   // SMS User 1
+    "3456789012",   // SMS User 2
+    "9012345678"    // SMS User 3
     ]
 };
