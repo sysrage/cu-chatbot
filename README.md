@@ -8,9 +8,10 @@ This is a general-purpose bot written in Node.js for use with Camelot Unchained.
 Additional commands can easily be added in the chatCommands object at the top of the script.
 
 Requires:
- - Node.js 11.x
- - node-xmpp
- - Camelot Unchained account
+ - [Node.js 11.x](https://nodejs.org/dist/v0.11.16/)
+ - [node-xmpp](https://github.com/node-xmpp/node-xmpp)
+ - [node-pushover](https://github.com/SamDecrock/node-pushover)
+ - [Camelot Unchained](http://camelotunchained.com/) account
 
 Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
 
