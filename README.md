@@ -11,6 +11,7 @@ Requires:
  - [Node.js 11.x](https://nodejs.org/dist/v0.11.16/)
  - [node-xmpp](https://github.com/node-xmpp/node-xmpp)
  - [node-pushover](https://github.com/SamDecrock/node-pushover)
+ - [request](https://github.com/request/request)
  - [Camelot Unchained](http://camelotunchained.com/) account
 
 Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
