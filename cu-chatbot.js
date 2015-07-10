@@ -338,7 +338,7 @@ function sendToAll(message) {
         sendPushover(poID, "[CSE IT]", message);
     });
     config.imsgReceiversAll.forEach(function(imsgID) {
-        sendiMessage(imsgID, message);
+        sendiMessage(imsgID, "[CSE IT] " + message);
     });
 }
 
@@ -351,7 +351,7 @@ function sendToMin(message) {
         sendSMS(smsNumber, "<CSE IT> " + message);
     });
     config.imsgReceiversMin.forEach(function(imsgID) {
-        sendiMessage(imsgID, message);
+        sendiMessage(imsgID, "[CSE IT] " + message);
     });
 }
 
