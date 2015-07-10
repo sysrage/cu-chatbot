@@ -57,13 +57,13 @@ module.exports = {
 
     // Pushover recipients for *all* CSE messages
     poReceiversAll: [
-//    "zxyWVUTsrqPonmLKJihgfEDCBa", // Individual PO User
-    "abcdEFGHijklmNOPqrStuVwxYZ" // CSE IT Group - All
+    // "zxyWVUTsrqPonmLKJihgfEDCBa", // Individual Pushover User
+    "abcdEFGHijklmNOPqrStuVwxYZ" // CSE IT Pushover Group - All
     ],
 
     // Pushover recipients for test CSE messages
     poReceiversMin: [
-    "jklmNOPqrStuVwABCdefgHIxyZ" // CSE IT Group - Min
+    "jklmNOPqrStuVwABCdefgHIxyZ" // CSE IT Pushover Group - Min
     ],
 
     // SMS recipients for test CSE messages
@@ -71,5 +71,16 @@ module.exports = {
     "1234567890",   // SMS User 1
     "3456789012",   // SMS User 2
     "9012345678"    // SMS User 3
+    ],
+
+    // iMessage recipients for *all* CSE messages
+    imsgReceiversAll: [
+    "1112223456"                        // iMessage User 1
+    ],
+
+    // iMessage recipients for test CSE messages
+    imsgReceiversMin: [
+    "9876543210",                       // iMessage User 2
+    "user@me.com",      // iMessage User 3
     ]
 };

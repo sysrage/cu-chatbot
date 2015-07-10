@@ -1,9 +1,21 @@
-// Camelot Unchained XMPP bot using node.js
-// To use, run `node cu-chat-bot.js`
+/* Camelot Unchained XMPP bot using node.js
 
-// Requires node-xmpp
-// Based on https://gist.github.com/powdahound/940969
-// Much thanks to Mehuge, reallifegobbo, and burfo for extensive help.
+To use, run `node cu-chat-bot.js`
+
+Requires:
+ - Node.js 11.x
+ - node-xmpp
+ - request
+ - Camelot Unchained account
+
+Optional:
+ - node-pushover - Needed to send Pushover notifications.
+ - node-applescript - Needed to send iMessage notifications. Requires OSX.
+
+Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
+
+Originally based on https://gist.github.com/powdahound/940969
+*/
 
 var sys = require('sys');
 var util = require('util');
@@ -11,11 +23,10 @@ var path = require('path');
 var fs = require('fs');
 var request = require('request');
 var xmpp = require('node-xmpp');
-var pushover = require('node-pushover');
 
 var config = require('./cu-chatbot.cfg');
 
-// Chat commands
+// Chat command definitions
 var commandChar = '!';
 var chatCommands = [
 {
@@ -112,7 +123,7 @@ var chatCommands = [
     }
 },
 {
-    command: 'stopclient',
+    command: 'clientoff',
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStop = {};
@@ -143,7 +154,7 @@ var chatCommands = [
     }
 },
 {
-    command: 'startclient',
+    command: 'clienton',
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStart = {};
@@ -273,13 +284,25 @@ function sendChat(server, message, room) {
     client[server.name].xmpp.send(new xmpp.Element('message', { to: room + '/' + server.nickname, type: 'groupchat' }).c('body').t(message));
 }
 
+// function to send iMessage notification
+function sendiMessage(user, message) {
+    var applescript = require('applescript');
+    applescript.execFile('imessage.applescript', ['imessage.applescript', user, message], function(err, rtn) {
+        if (err) {
+            util.log("[ERROR] Error sending iMessage: " + err);
+        }
+    });
+}
+
 // function to send a private message
 function sendPM(server, message, user) {
     client[server.name].xmpp.send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
 }
 
-// function to send Pushover message
+// function to send Pushover notification
 function sendPushover(user, title, message) {
+    var pushover = require('node-pushover');
+    var push = new pushover({token: config.poAppToken});
     push.send(user, title, message);
 }
 
@@ -292,7 +315,7 @@ function sendReply(server, room, sender, message) {
     }
 }
 
-// function to send SMS message
+// function to send SMS notification
 function sendSMS(phone, message) {
     var url = "http://textbelt.com/text?number=" + phone + "&message=" + message;
     var req = {
@@ -306,6 +329,29 @@ function sendSMS(phone, message) {
                 util.log("[ERROR] Error sending SMS: " + JSON.parse(body).message);
             }
         }
+    });
+}
+
+// function to send a notification to "ALL"
+function sendToAll(message) {
+    config.poReceiversAll.forEach(function(poID) {
+        sendPushover(poID, "[CSE IT]", message);
+    });
+    config.imsgReceiversAll.forEach(function(imsgID) {
+        sendiMessage(imsgID, message);
+    });
+}
+
+// function to send a notification to "MIN"
+function sendToMin(message) {
+    config.poReceiversMin.forEach(function(poID) {
+        sendPushover(poID, "[CSE IT]", message);
+    });
+    config.smsReceiversMin.forEach(function(smsNumber) {
+        sendSMS(smsNumber, "<CSE IT> " + message);
+    });
+    config.imsgReceiversMin.forEach(function(imsgID) {
+        sendiMessage(imsgID, message);
     });
 }
 
@@ -477,10 +523,11 @@ function startClient(server) {
                     var sender = stanza.attrs.from.split('/')[1];
                     var senderName = sender.split('@')[0];
                     var room = stanza.attrs.from.split('/')[0];
+                    var roomName = room.split('@')[0];
                     if (stanza.getChild('cseflags')) {
                         var cse = stanza.getChild('cseflags').attrs.cse;
                     }
-                    var roomIsMonitored = server.rooms[indexOfRoom(server, room.split('@')[0])].monitor;
+                    var roomIsMonitored = server.rooms[indexOfRoom(server, roomName)].monitor;
 
                     if (cse === "cse" || isMOTDAdmin(senderName)) {
                         motdadmin = true;
@@ -497,20 +544,13 @@ function startClient(server) {
                     } else if (cse === "cse" && roomIsMonitored) {
 //                    } else if (motdadmin && roomIsMonitored) {
                         // Message is from CSE staff in a monitored room and isn't a command
-                        config.poReceiversAll.forEach(function(poID) {
-                            // sendPushover(poID, "[CSE IT]", senderName + ": " + message);
-                        });
-                        util.log("[CHAT] CSE chat message from " + senderName + " sent to users. (ALL)");
+                        sendToAll(senderName + "@" + roomName + ": " + message);
+                        util.log("[CHAT] Message from " + senderName + "@" + roomName + " sent to users. (ALL)");
 
                         if (isTestMessage(message)) {
                             // Message is a test alert.
-                            config.poReceiversMin.forEach(function(poID) {
-                                // sendPushover(poID, "[CSE IT]", senderName + ": " + message);
-                            });
-                            config.smsReceiversMin.forEach(function(smsNumber) {
-                                // sendSMS(smsNumber, "<CSE IT> " + senderName + ": " + message);
-                            });
-                            util.log("[CHAT] CSE chat message from " + senderName + " sent to users. (MIN)");
+                            sendToMin(senderName + "@" + roomName + ": " + message);
+                            util.log("[CHAT] Message from " + senderName + "@" + roomName + " sent to users. (MIN)");
                         }
                     }
                 } else if (stanza.is('message') && stanza.attrs.type === 'chat') {
@@ -528,6 +568,12 @@ function startClient(server) {
                     var senderName = sender.split('@')[0];
                     if (stanza.getChild('cseflags')) {
                         var cse = stanza.getChild('cseflags').attrs.cse;
+                    }
+
+                    // If message is a server warning, send it out
+                    if (sender === server.address + "/Warning") {
+                        sendToAll("ADMIN NOTICE: " + message);
+                        util.log("[CHAT] Server warning message sent to users. (ALL)");
                     }
 
                     if (cse === "cse" || isMOTDAdmin(senderName)) {
@@ -566,8 +612,6 @@ function stopClient(server) {
 }
 
 // Initial startup
-var push = new pushover({token: config.poAppToken});
-
 var client = [];
 config.servers.forEach(function(server) {
     startClient(server);
