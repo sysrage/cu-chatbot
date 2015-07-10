@@ -29,8 +29,36 @@ var config = require('./cu-chatbot.cfg');
 // Chat command definitions
 var commandChar = '!';
 var chatCommands = [
-{
+{ // #### HELP COMMAND ####
+    command: 'help',
+    help: "\
+The command " + commandChar + "help displays help for using the various available bot commands.\n\
+\n\
+Usage: " + commandChar + "help [command]\n\
+\n\
+Available commands: help, motd, motdon, motdoff, clienton, clientoff",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            for (var i = 0; i < chatCommands.length; i++) {
+                if (chatCommands[i].command == params) {
+                    sendReply(server, room, sender, chatCommands[i].help);
+                }
+            }
+        } else {
+            sendReply(server, room, sender, this.help);
+        }
+    }
+},
+{ // #### MOTD COMMAND ####
     command: 'motd',
+    help: "\
+The command " + commandChar + "motd allows admins to set a Message of the Day (MOTD) and for users to view an MOTD.\n\
+\n\
+Usage: " + commandChar + "motd [server] [new MOTD]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         if (extras && extras.motdadmin) {
             var motdadmin = extras.motdadmin;
@@ -76,8 +104,14 @@ var chatCommands = [
         }
     }
 },
-{
+{ // #### MOTDOFF COMMAND ####
     command: 'motdoff',
+    help: "\
+The command " + commandChar + "motdoff allows users to stop receiving a Message of the Day for a particular server.\n\
+\n\
+Usage: " + commandChar + "motdoff [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
@@ -113,8 +147,14 @@ var chatCommands = [
         }
     }
 },
-{
+{ // #### MOTDON COMMAND ####
     command: 'motdon',
+    help: "\
+The command " + commandChar + "motdon allows users to start receiving a Message of the Day for a particular server.\n\
+\n\
+Usage: " + commandChar + "motdon [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
@@ -157,8 +197,14 @@ var chatCommands = [
         }
     }
 },
-{
+{ // #### CLIENTOFF COMMAND ####
     command: 'clientoff',
+    help: "\
+The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n\
+\n\
+Usage: " + commandChar + "clientoff [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStop = {};
@@ -188,8 +234,14 @@ var chatCommands = [
         }
     }
 },
-{
+{ // #### CLIENTON COMMAND ####
     command: 'clienton',
+    help: "\
+The command " + commandChar + "clienton allows admins to start the bot connecting to a particular server.\n\
+\n\
+Usage: " + commandChar + "clienton [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStart = {};
@@ -611,7 +663,7 @@ function startClient(server) {
 
                     // If message is a server warning, send it out
                     if (sender === server.address + "/Warning") {
-                        sendToAll("ADMIN NOTICE: " + message);
+                        sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
                         util.log("[CHAT] Server warning message sent to users. (ALL)");
                     }
 
