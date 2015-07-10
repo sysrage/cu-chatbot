@@ -1,4 +1,4 @@
-/* Camelot Unchained XMPP bot using node.js
+/* Camelot Unchained XMPP bot using Node.js
 
 To use, run `node cu-chat-bot.js`
 
@@ -39,17 +39,26 @@ var chatCommands = [
         }
 
         var params = getParams(this.command, message);
+        if (params.length > 0 && indexOfServer(getParams(this.command, message, 0)) > -1) {
+            // first parameter is a server name
+            var sn = params.split(' ')[0];
+            params = params.slice(sn.length + 1);
+            var targetServer = config.servers[indexOfServer(sn)];
+        } else {
+            var targetServer = server;
+        }
+
         if (params.length > 0) {
             // User is trying to set a new MOTD.
             if (motdadmin) {
                 // User is allowed - Set new MOTD.
-                fs.writeFile(server.motdfile, "MOTD: " + params, function(err) {
+                fs.writeFile(targetServer.motdfile, "MOTD: " + params, function(err) {
                     if (err) {
                         return util.log("[ERROR] Unable to write to MOTD file.");
                     }
-                    server.motd = "MOTD: " + params;
-                    sendReply(server, room, sender, "MOTD for " + server.name + " set to: " + params);
-                    util.log("[MOTD] New MOTD for server '" + server.name + "' set by user '" + sender + "'.");
+                    targetServer.motd = "MOTD: " + params;
+                    sendReply(server, room, sender, "MOTD for " + targetServer.name + " set to: " + params);
+                    util.log("[MOTD] New MOTD for server '" + targetServer.name + "' set by user '" + sender + "'.");
                 });
             } else {
                 // User is not allowed - Send error.
@@ -58,10 +67,10 @@ var chatCommands = [
         } else {
             // User requested current MOTD.
             if (room === 'pm') {
-                sendPM(server, server.motd.toString(), sender);
+                sendPM(server, targetServer.motd.toString(), sender);
                 util.log("[MOTD] MOTD sent to user '" + sender + "' on " + server.name + ".");
             } else {
-                sendChat(server, server.motd.toString(), room);
+                sendChat(server, targetServer.motd.toString(), room);
                 util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
             }
         }
@@ -71,23 +80,36 @@ var chatCommands = [
     command: 'motdoff',
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
-        server.motdIgnore.forEach(function(receiver) {
+        var params = getParams(this.command, message);
+        if (params.length > 0) {
+            if (indexOfServer(getParams(this.command, message, 0)) > -1) {
+                var sn = params.split(' ')[0];
+                var targetServer = config.servers[indexOfServer(sn)];
+            } else {
+                sendReply(server, room, sender, "No server exists named '" + params.split(' ')[0] + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server;
+        }
+
+        targetServer.motdIgnore.forEach(function(receiver) {
             if (receiver === sender) ignoredReceiver = true;
         });
 
         if (! ignoredReceiver) {
             // Add user to MOTD ignore list
-            server.motdIgnore.push(sender);
-            fs.writeFile(server.nomotdfile, JSON.stringify(server.motdIgnore), function(err) {
+            targetServer.motdIgnore.push(sender);
+            fs.writeFile(targetServer.nomotdfile, JSON.stringify(targetServer.motdIgnore), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
-                sendReply(server, room, sender, "User '" + sender + "' unsubscribed from " + server.name + " MOTD notices.");
-                util.log("[MOTD] User '" + sender + "' added to '" + server.name + "' opt-out list.");
+                sendReply(server, room, sender, "User '" + sender + "' unsubscribed from " + targetServer.name + " MOTD notices.");
+                util.log("[MOTD] User '" + sender + "' added to '" + targetServer.name + "' opt-out list.");
             });
         } else {
             // Tell user they already have MOTDs turned off
-            sendReply(server, room, sender, "User '" + sender + "' already unsubscribed from " + server.name + " MOTD notices.");
+            sendReply(server, room, sender, "User '" + sender + "' already unsubscribed from " + targetServer.name + " MOTD notices.");
         }
     }
 },
@@ -95,30 +117,43 @@ var chatCommands = [
     command: 'motdon',
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
-        server.motdIgnore.forEach(function(receiver) {
+        var params = getParams(this.command, message);
+        if (params.length > 0) {
+            if (indexOfServer(getParams(this.command, message, 0)) > -1) {
+                var sn = params.split(' ')[0];
+                var targetServer = config.servers[indexOfServer(sn)];
+            } else {
+                sendReply(server, room, sender, "No server exists named '" + params.split(' ')[0] + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server;
+        }
+
+        targetServer.motdIgnore.forEach(function(receiver) {
             if (receiver === sender) ignoredReceiver = true;
         });
 
         if (ignoredReceiver) {
             // Remove user from MOTD ignore list
-            for (var i = 0; i < server.motdIgnore.length; i++) {
-                if (server.motdIgnore[i] === sender) {
+            for (var i = 0; i < targetServer.motdIgnore.length; i++) {
+                if (targetServer.motdIgnore[i] === sender) {
                     index = i;
                     break;
                 }
             }
-            server.motdIgnore.splice(index, 1);
+            targetServer.motdIgnore.splice(index, 1);
 
-            fs.writeFile(server.nomotdfile, JSON.stringify(server.motdIgnore), function(err) {
+            fs.writeFile(targetServer.nomotdfile, JSON.stringify(targetServer.motdIgnore), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
-                sendReply(server, room, sender, "User '" + sender + "' subscribed to " + server.name + " MOTD notices.");
-                util.log("[MOTD] User '" + sender + "' removed from '" + server.name + "' opt-out list.");
+                sendReply(server, room, sender, "User '" + sender + "' subscribed to " + targetServer.name + " MOTD notices.");
+                util.log("[MOTD] User '" + sender + "' removed from '" + targetServer.name + "' opt-out list.");
             });
         } else {
             // Tell user they already have MOTDs turned on
-            sendReply(server, room, sender, "User '" + sender + "' already subscribed to " + server.name + " MOTD notices.");
+            sendReply(server, room, sender, "User '" + sender + "' already subscribed to " + targetServer.name + " MOTD notices.");
         }
     }
 },
@@ -236,11 +271,15 @@ function getMOTDIgnore(server) {
 }
 
 // function to get parameters from a message
-function getParams(command, message) {
+function getParams(command, message, index) {
     re = new RegExp('^' + commandChar + command +'[\ ]*', 'i');
     params = message.replace(re, '');
     if (params.length > 0) {
-        return params;
+        if (index === undefined) {
+            return params;
+        } else {
+            return params.split(' ')[index];
+        }
     } else {
         return -1;
     }
