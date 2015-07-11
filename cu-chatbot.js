@@ -370,6 +370,19 @@ var isTestMessage = function(message) {
     return false;
 };
 
+function random(howMany) {
+    chars = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+    var rnd = require('crypto').randomBytes(howMany)
+        , value = new Array(howMany)
+        , len = chars.length;
+
+    for (var i = 0; i < howMany; i++) {
+        value[i] = chars[rnd[i] % len]
+    };
+
+    return value.join('');
+}
+
 // function to send a message to a group chat
 function sendChat(server, message, room) {
     client[server.name].xmpp.send(new xmpp.Element('message', { to: room + '/' + server.nickname, type: 'groupchat' }).c('body').t(message));
@@ -499,7 +512,7 @@ function startClient(server) {
             // Connect to XMPP servers
             client[server.name] = {
                 xmpp: new xmpp.Client({
-                    jid: server.username + '/bot',
+                    jid: server.username + '/bot-' + random(6),
                     password: server.password,
                     reconnect: true
                 })
