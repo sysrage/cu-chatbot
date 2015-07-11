@@ -510,8 +510,10 @@ function startClient(server) {
 
             // Handle client errors
             client[server.name].xmpp.on('error', function(err) {
-                if (err.code === "EADDRNOTAVAIL" || err.code === "ETIMEDOUT" || err.code === "ENOTFOUND") {
+                if (err.code === "EADDRNOTAVAIL" || err.code === "ENOTFOUND") {
                     util.log("[ERROR] No internet connection available.");
+                } else if (err.code === "ETIMEDOUT") {
+                    util.log("[ERROR] Connection timed out (" + server.name + ").")
                 } else {
                     util.log("[ERROR] Unknown " + err);
                 }
@@ -694,6 +696,10 @@ function startClient(server) {
 // function to stop a client for a particular server
 function stopClient(server) {
     client[server.name].xmpp.connection.reconnect = false;
+    // client[server.name].xmpp.removeAllListeners('error');
+    client[server.name].xmpp.removeAllListeners('disconnect');
+    client[server.name].xmpp.removeAllListeners('online');
+    client[server.name].xmpp.removeAllListeners('stanza');
     client[server.name].xmpp.end();
     client[server.name].xmpp = undefined;
     clearInterval(client[server.name].motdTimer);
