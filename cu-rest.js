@@ -7,6 +7,7 @@ https://github.com/Mehuge/cu-ui/blob/mehuge-ui/mehuge/mehuge-rest.ts
 */
 
 var request = require('request');
+var util = require('util');
 
 var servers = [];
 var server = "";
@@ -74,7 +75,7 @@ restAPI.prototype.call = function(verb, params, callback) {
     function (error, response, body) {
         if (callback && typeof callback === "function"){
             if(error){
-                console.error('Unable to read API:', error);
+                util.log("[ERROR] Unable to read API (" + verb + "): " + error);
                 callback(error);
             }else{
                 callback(JSON.parse(body));
