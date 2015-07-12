@@ -24,6 +24,7 @@ var fs = require('fs');
 var request = require('request');
 var xmpp = require('node-xmpp');
 
+var cuRest = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
@@ -36,7 +37,7 @@ The command " + commandChar + "help displays help for using the various availabl
 \n\
 Usage: " + commandChar + "help [command]\n\
 \n\
-Available commands: help, motd, motdon, motdoff, clienton, clientoff",
+Available commands: ##HELPCOMMANDS##", 
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -54,7 +55,7 @@ Available commands: help, motd, motdon, motdoff, clienton, clientoff",
 { // #### MOTD COMMAND ####
     command: 'motd',
     help: "\
-The command " + commandChar + "motd allows admins to set a Message of the Day (MOTD) and for users to view an MOTD.\n\
+The command " + commandChar + "motd allows admins to set a Message of the Day (MOTD) and for users to view the MOTD for a server.\n\
 \n\
 Usage: " + commandChar + "motd [server] [new MOTD]\n\
 \n\
@@ -271,15 +272,108 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             sendReply(server, room, sender, "You do not have permission to start a client.");
         }
     }
+},
+{ // #### PLAYERS COMMAND ####
+    command: 'players',
+    help: "\
+The command " + commandChar + "players displays current players on a server.\n\
+\n\
+Usage: " + commandChar + "players [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        client[targetServer].cuRest.getPlayers(function(data) {
+            var players = data;
+            var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+            sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":\n   Arthurians: " + players.arthurians + "\n   TuathaDeDanann: " + players.tuathaDeDanann + "\n   Vikings: " + players.vikings);
+        });
+    }
+},
+{ // #### SERVERS COMMAND ####
+    command: 'servers',
+    help: "\
+The command " + commandChar + "servers displays currently available servers.\n\
+\n\
+Usage: " + commandChar + "servers",
+    exec: function(server, room, sender, message, extras) {
+
+        client[server.name].cuRest.getServers(function(data) {
+            var servers = [];
+            var totalServers = 0;
+            var serverList = "";
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].name !== "localhost") {
+                    servers.push({name: data[i].name, host: data[i].host, playerMaximum: data[i].playerMaximum, accessLevel: data[i].accessLevel});
+                    if (totalServers > 0) serverList = serverList + ", ";
+                    serverList = serverList + data[i].name;
+                    totalServers++;
+                }
+            }
+            sendReply(server, room, sender, "There are currently " + totalServers + " servers online: " + serverList);
+        });
+    }
+},
+{ // #### EVENTS COMMAND ####
+    command: 'events',
+    help: "\
+The command " + commandChar + "events displays scheduled events for a server.\n\
+\n\
+Usage: " + commandChar + "events [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        client[targetServer].cuRest.getEvents(function(data) {
+            if (data.length < 1) {
+                sendReply(server, room, sender, "There are currently no events scheduled for this server.");
+            } else {
+                data.forEach(function(e) {
+                    util.log(e);
+                });
+            }
+        });
+    }
 }
 ];
+
+var commandList = "";
+chatCommands.forEach(function(cmd) {
+    if (commandList.length > 0) commandList = commandList + ", ";
+    commandList = commandList + cmd.command;
+});
+chatCommands[0].help = chatCommands[0].help.replace("##HELPCOMMANDS##", commandList);
 
 /*****************************************************************************/
 /*****************************************************************************/
 
 // function to check internet connectivity
 function checkInternet(server, cb) {
-    require('dns').lookup(server.name, function(err) {
+    require('dns').lookup(server.address, function(err) {
         if (err && err.code == "ENOTFOUND") {
             cb(false);
         } else {
@@ -562,6 +656,9 @@ function startClient(server) {
                 // Start verifying connectivity
                 server.lastStanza = Math.floor((new Date).getTime() / 1000);
                 client[server.name].connTimer = timerConnected(server);
+
+                // Connect to REST API
+                client[server.name].cuRest = new cuRest({server:server.name});
             });
 
             // Parse each stanza from the XMPP server
