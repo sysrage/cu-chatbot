@@ -295,10 +295,14 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             var targetServer = server.name;
         }
 
-        client[targetServer].cuRest.getPlayers(function(data) {
-            var players = data;
-            var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-            sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":\n   Arthurians: " + players.arthurians + "\n   TuathaDeDanann: " + players.tuathaDeDanann + "\n   Vikings: " + players.vikings);
+        client[targetServer].cuRest.getPlayers(function(data, error) {
+            if (! error) {
+                var players = data;
+                var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+                sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":\n   Arthurians: " + players.arthurians + "\n   TuathaDeDanann: " + players.tuathaDeDanann + "\n   Vikings: " + players.vikings);
+            } else {
+                sendReply(server, room, sender, "Error accessing API. Server may be down.");
+            }
         });
     }
 },
@@ -310,19 +314,23 @@ The command " + commandChar + "servers displays currently available servers.\n\
 Usage: " + commandChar + "servers",
     exec: function(server, room, sender, message, extras) {
 
-        client[server.name].cuRest.getServers(function(data) {
-            var servers = [];
-            var totalServers = 0;
-            var serverList = "";
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].name !== "localhost") {
-                    servers.push({name: data[i].name, host: data[i].host, playerMaximum: data[i].playerMaximum, accessLevel: data[i].accessLevel});
-                    if (totalServers > 0) serverList = serverList + ", ";
-                    serverList = serverList + data[i].name;
-                    totalServers++;
+        client[server.name].cuRest.getServers(function(data, error) {
+            if (! error) {
+                var servers = [];
+                var totalServers = 0;
+                var serverList = "";
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name !== "localhost") {
+                        servers.push({name: data[i].name, host: data[i].host, playerMaximum: data[i].playerMaximum, accessLevel: data[i].accessLevel});
+                        if (totalServers > 0) serverList = serverList + ", ";
+                        serverList = serverList + data[i].name;
+                        totalServers++;
+                    }
                 }
+                sendReply(server, room, sender, "There are currently " + totalServers + " servers online: " + serverList);
+            } else {
+                sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
-            sendReply(server, room, sender, "There are currently " + totalServers + " servers online: " + serverList);
         });
     }
 },
@@ -348,13 +356,17 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             var targetServer = server.name;
         }
 
-        client[targetServer].cuRest.getEvents(function(data) {
-            if (data.length < 1) {
-                sendReply(server, room, sender, "There are currently no events scheduled for this server.");
+        client[targetServer].cuRest.getEvents(function(data, error) {
+            if (! error) {
+                if (data.length < 1) {
+                    sendReply(server, room, sender, "There are currently no events scheduled for this server.");
+                } else {
+                    data.forEach(function(e) {
+                        util.log(e);
+                    });
+                }
             } else {
-                data.forEach(function(e) {
-                    util.log(e);
-                });
+                sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
         });
     }
@@ -381,27 +393,32 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             var targetServer = server.name;
         }
 
-        client[targetServer].cuRest.getControlGame(null, function(data) {
-            var artScore = data.arthurianScore;
-            var tuaScore = data.tuathaDeDanannScore;
-            var vikScore = data.vikingScore;
-            var timeLeft = data.timeLeft;
-            var minLeft = Math.floor(timeLeft / 60);
-            var secLeft = Math.floor(timeLeft % 60);
-            if (data.gameState === 1) {
-                var gameState = "Over";                
-            } else if (data.gameState === 2) {
-                var gameState = "Waiting For Players";                
-            } else if (data.gameState === 3) {
-                var gameState = "Active";                
-            }
+        client[targetServer].cuRest.getControlGame(null, function(data, error) {
+            if (! error) {
+                var artScore = data.arthurianScore;
+                var tuaScore = data.tuathaDeDanannScore;
+                var vikScore = data.vikingScore;
+                var timeLeft = data.timeLeft;
+                var minLeft = Math.floor(timeLeft / 60);
+                var secLeft = Math.floor(timeLeft % 60);
+                if (data.gameState === 1) {
+                    var gameState = "Over";                
+                } else if (data.gameState === 2) {
+                    var gameState = "Waiting For Players";                
+                } else if (data.gameState === 3) {
+                    var gameState = "Active";                
+                }
 
-            sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
+                sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
+            } else {
+                sendReply(server, room, sender, "Error accessing API. Server may be down.");
+            }
         });
     }
 }
 ];
 
+// Add list of available commands to the output of !help
 var commandList = "";
 chatCommands.forEach(function(cmd) {
     if (commandList.length > 0) commandList = commandList + ", ";
