@@ -52,10 +52,21 @@ Available commands: ##HELPCOMMANDS##",
         }
     }
 },
+{ // #### BOTINFO COMMAND ####
+    command: 'botinfo',
+    help: "\
+The command " + commandChar + "botinfo displays information about this chatbot.\n\
+\n\
+Usage: " + commandChar + "botinfo", 
+    exec: function(server, room, sender, message, extras) {
+
+        sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for the help.");
+    }
+},
 { // #### MOTD COMMAND ####
     command: 'motd',
     help: "\
-The command " + commandChar + "motd allows admins to set a Message of the Day (MOTD) and for users to view the MOTD for a server.\n\
+The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n\
 \n\
 Usage: " + commandChar + "motd [server] [new MOTD]\n\
 \n\
