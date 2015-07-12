@@ -9,7 +9,7 @@ https://github.com/Mehuge/cu-ui/blob/mehuge-ui/mehuge/mehuge-rest.ts
 var request = require('request');
 
 var servers = [];
-var server = "Hatchery";
+var server = "";
 
 function restAPI(options) {
     if(!options.server) {
@@ -70,7 +70,6 @@ restAPI.prototype.call = function(verb, params, callback) {
         method: params.type || "GET",
         qs: params.query,
         timeout: params.timeout,
-
     },
     function (error, response, body) {
         if (callback && typeof callback === "function"){
@@ -88,10 +87,6 @@ restAPI.prototype.call = function(verb, params, callback) {
             return JSON.parse(body);            
         }
     });
-};
-
-restAPI.prototype.selectServer = function(name) {
-    server = name;
 };
 
 restAPI.prototype.getServers = function(callback) {

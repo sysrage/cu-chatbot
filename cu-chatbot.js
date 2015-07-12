@@ -358,6 +358,47 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             }
         });
     }
+},
+{ // #### CONTROLGAME COMMAND ####
+    command: 'score',
+    help: "\
+The command " + commandChar + "score displays information for the control game running a server.\n\
+\n\
+Usage: " + commandChar + "score [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        client[targetServer].cuRest.getControlGame(null, function(data) {
+            var artScore = data.arthurianScore;
+            var tuaScore = data.tuathaDeDanannScore;
+            var vikScore = data.vikingScore;
+            var timeLeft = data.timeLeft;
+            var minLeft = Math.floor(timeLeft / 60);
+            var secLeft = Math.floor(timeLeft % 60);
+            if (data.gameState === 1) {
+                var gameState = "Over";                
+            } else if (data.gameState === 2) {
+                var gameState = "Waiting For Players";                
+            } else if (data.gameState === 3) {
+                var gameState = "Active";                
+            }
+
+            sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
+        });
+    }
 }
 ];
 
