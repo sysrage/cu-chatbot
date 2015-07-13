@@ -17,11 +17,14 @@ module.exports = {
         service: 'conference',
         motdfile: './hatchery.motd',
         nomotdfile: './hatchery.nomotd',
+        gamefile: './hatchery.game',
+        playerfile: './hatchery.player',
         rooms: [
-        { name: '_it', joined: false, motd: true, monitor: true},
-        { name: '_global', joined: false, motd: false, monitor: true},
-        { name: '_combat', joined: false, motd: true, monitor: false},
-        ]
+        { name: '_it', joined: false, motd: true, monitor: true, announce: true},
+        { name: '_global', joined: false, motd: false, monitor: true, announce: true},
+        { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
+        ],
+        roundTime: 1800
     },
     {
         name: 'wyrmling',
@@ -33,10 +36,11 @@ module.exports = {
         motdfile: './wyrmling.motd',
         nomotdfile: './wyrmling.nomotd',
         rooms: [
-        { name: '_it', joined: false, motd: true, monitor: false},
-        { name: '_global', joined: false, motd: false, monitor: false},
-        { name: '_combat', joined: false, motd: true, monitor: false},
-        ]
+        { name: '_it', joined: false, motd: true, monitor: false, announce: true},
+        { name: '_global', joined: false, motd: false, monitor: false, announce: true},
+        { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
+        ],
+        roundTime: 1800
     }
     ],
 
