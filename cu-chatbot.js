@@ -458,6 +458,43 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
         sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:\nArthurian Wins: " + gameStats[server.name].artWins + "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins + "\nViking Wins: " + gameStats[server.name].vikWins);
         util.log(client[server.name].currentGame)
     }
+},
+{ // #### LEADERBOARD COMMAND ####
+    command: 'leaderboard',
+    help: "\
+The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n\
+\n\
+Usage: " + commandChar + "leaderboard [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        var playersSortedByKills = playerStats.sort(function(a, b) {
+            if (a.kills > b.kills) return 1;
+            if (a.kills < b.kills) return -1;
+            return 0;
+        });
+        var playersSortedByDeaths = playerStats.sort(function(a, b) {
+            if (a.deaths > b.deaths) return 1;
+            if (a.deaths < b.deaths) return -1;
+            return 0;
+        });
+
+        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Kills:\n   #1 " + playersSortedByKills[0] + "\n   #2 " + playersSortedByKills[1] + "\n   #3 " + playersSortedByKills[2] + "\n   #4 " + playersSortedByKills[3] + "\n   #5 " + playersSortedByKills[4] + "\n   #6 " + playersSortedByKills[5] + "\n   #7 " + playersSortedByKills[6] + "\n   #8 " + playersSortedByKills[7] + "\n   #9 " + playersSortedByKills[8] + "\n   #10 " + playersSortedByKills[9])
+        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Deaths:\n   #1 " + playersSortedByDeaths[0] + "\n   #2 " + playersSortedByDeaths[1] + "\n   #3 " + playersSortedByDeaths[2] + "\n   #4 " + playersSortedByDeaths[3] + "\n   #5 " + playersSortedByDeaths[4] + "\n   #6 " + playersSortedByDeaths[5] + "\n   #7 " + playersSortedByDeaths[6] + "\n   #8 " + playersSortedByDeaths[7] + "\n   #9 " + playersSortedByDeaths[8] + "\n   #10 " + playersSortedByDeaths[9])
+    }
 }
 ];
 
