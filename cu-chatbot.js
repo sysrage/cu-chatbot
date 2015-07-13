@@ -692,7 +692,7 @@ function controlGame(server) {
                     var timeLeft = cgData.timeLeft;
                     var minLeft = Math.floor(timeLeft / 60);
                     var secLeft = Math.floor(timeLeft % 60);
-                    var gameState = cgData.gameState; // 1 = Over / 2 = Waiting / 3 = Active
+                    var gameState = cgData.gameState; // 1 = Over / 2 = Basic Game / 3 = Advanced Game
 
                     var artCount = pData.arthurians;
                     var tuaCount = pData.tuathaDeDanann;
@@ -719,7 +719,7 @@ function controlGame(server) {
                             // }]
                         }
 
-                        if (gameState === 3) {
+                        if (gameState === 2 || gameState === 3) {
                             client[server.name].currentGame.startTime = epochTime - timeLeft;
                             if (epochTime - gameStats[server.name].lastStartTime > server.roundTime) gameStats[server.name].gameNumber++;
                         } else {
@@ -729,7 +729,7 @@ function controlGame(server) {
                         client[server.name].lastBegTime = epochTime;
                     }
 
-                    if ((gameState === 1 || gameState === 2) && ! client[server.name].currentGame.ended) {
+                    if ((gameState === 1) && ! client[server.name].currentGame.ended) {
                         // Game we were monitoring has ended. Save stats.
                         if (artScore > tuaScore) {
                             if (artScore > vikScore) {
@@ -756,7 +756,6 @@ function controlGame(server) {
                             if (err) {
                                 return util.log("[ERROR] Unable to write to game stats file.");
                             }
-                            util.log("[GAME] Round ended on " + server.name + ". Game statistics saved.");
                         });
 
                         // Write playerStats to disk
@@ -764,9 +763,11 @@ function controlGame(server) {
 
                         client[server.name].lastBegTime = epochTime;
                         client[server.name].currentGame.ended = true;
+
+                        util.log("[GAME] A round has ended on " + server.name + ". Game and player statistics saved.");
                     }
 
-                    if (gameState === 3 && client[server.name].currentGame.ended) {
+                    if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
                         // New game has started
                         client[server.name].currentGame = {
                             startTime: epochTime - timeLeft,
@@ -788,6 +789,7 @@ function controlGame(server) {
 
                         // increase game counter
                         gameStats[server.name].gameNumber++;
+                        util.log("[GAME] A new round (" + gameStats[server.name].gameNumber + ") has started on " + server.name);
                     }
 
                     // The following will beg for users to join the game.
@@ -1083,7 +1085,6 @@ function stopClient(server) {
     client[server.name] = undefined;
     gameStats[server.name] = undefined;
     playerStats[server.name] = undefined;
-    util.log("Client for " + server.name + " has been stopped.");
 }
 
 // Initial startup
