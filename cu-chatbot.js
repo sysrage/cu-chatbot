@@ -413,11 +413,11 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
                 var minLeft = Math.floor(timeLeft / 60);
                 var secLeft = Math.floor(timeLeft % 60);
                 if (data.gameState === 1) {
-                    var gameState = "Over";                
+                    var gameState = "Game Over";                
                 } else if (data.gameState === 2) {
-                    var gameState = "Waiting For Players";                
+                    var gameState = "Basic Game Active";                
                 } else if (data.gameState === 3) {
-                    var gameState = "Active";                
+                    var gameState = "Advanced Game Active";                
                 }
 
                 sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
