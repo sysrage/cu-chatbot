@@ -421,6 +421,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
                 }
 
                 sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
+                sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:\nArthurian Wins: " + gameStats[server.name].artWins + "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins + "\nViking Wins: " + gameStats[server.name].vikWins);
             } else {
                 sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
