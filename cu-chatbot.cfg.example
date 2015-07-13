@@ -35,6 +35,8 @@ module.exports = {
         service: 'conference',
         motdfile: './wyrmling.motd',
         nomotdfile: './wyrmling.nomotd',
+        gamefile: './wyrmling.game',
+        playerfile: './wyrmling.player',
         rooms: [
         { name: '_it', joined: false, motd: true, monitor: false, announce: true},
         { name: '_global', joined: false, motd: false, monitor: false, announce: true},
