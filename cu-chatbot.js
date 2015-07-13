@@ -92,7 +92,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             // User is trying to set a new MOTD.
             if (motdadmin) {
                 // User is allowed - Set new MOTD.
-                fs.writeFile(targetServer.motdfile, "MOTD: " + params, function(err) {
+                fs.writeFile(targetServer.motdFile, "MOTD: " + params, function(err) {
                     if (err) {
                         return util.log("[ERROR] Unable to write to MOTD file.");
                     }
@@ -146,7 +146,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
         if (! ignoredReceiver) {
             // Add user to MOTD ignore list
             targetServer.motdIgnore.push(sender);
-            fs.writeFile(targetServer.nomotdfile, JSON.stringify(targetServer.motdIgnore), function(err) {
+            fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
@@ -196,7 +196,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             }
             targetServer.motdIgnore.splice(index, 1);
 
-            fs.writeFile(targetServer.nomotdfile, JSON.stringify(targetServer.motdIgnore), function(err) {
+            fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
                 }
@@ -382,7 +382,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
         });
     }
 },
-{ // #### CONTROLGAME COMMAND ####
+{ // #### SCORE COMMAND ####
     command: 'score',
     help: "\
 The command " + commandChar + "score displays information for the control game running a server.\n\
@@ -413,7 +413,7 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
                 var minLeft = Math.floor(timeLeft / 60);
                 var secLeft = Math.floor(timeLeft % 60);
                 if (data.gameState === 1) {
-                    var gameState = "Game Over";                
+                    var gameState = "Waiting For Next Round";                
                 } else if (data.gameState === 2) {
                     var gameState = "Basic Game Active";                
                 } else if (data.gameState === 3) {
@@ -421,11 +421,42 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
                 }
 
                 sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
-                sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:\nArthurian Wins: " + gameStats[server.name].artWins + "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins + "\nViking Wins: " + gameStats[server.name].vikWins);
             } else {
                 sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
         });
+    }
+},
+{ // #### WINS COMMAND ####
+    command: 'wins',
+    help: "\
+The command " + commandChar + "wins displays realm standings for a server.\n\
+\n\
+Usage: " + commandChar + "wins [server]\n\
+\n\
+If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        var firstGame = gameStats[server.name].firstGame;
+        var gameNumber = gameStats[server.name].gameNumber;
+        var artWins = gameStats[server.name].artWins;
+        var tuaWins = gameStats[server.name].tuaWins;
+        var vikWins = gameStats[server.name].vikWins;
+
+        sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:\nArthurian Wins: " + gameStats[server.name].artWins + "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins + "\nViking Wins: " + gameStats[server.name].vikWins);
+        util.log(client[server.name].currentGame)
     }
 }
 ];
@@ -454,7 +485,7 @@ function checkInternet(server, cb) {
 
 // function to read in the saved game stats
 function getGameStats(server) {
-    fs.readFile(server.gamefile, function(err, data) {
+    fs.readFile(server.gameFile, function(err, data) {
         if (err && err.code === 'ENOENT') {
             gameStats[server.name] = {
                 firstGame: Math.floor((new Date).getTime() / 1000),
@@ -465,7 +496,7 @@ function getGameStats(server) {
                 vikWins: 0
             };
 
-            fs.writeFile(server.gamefile, JSON.stringify(gameStats[server.name]), function(err) {
+            fs.writeFile(server.gameFile, JSON.stringify(gameStats[server.name]), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to create game stats file.");
                 }
@@ -479,9 +510,9 @@ function getGameStats(server) {
 
 // function to read in the MOTD file
 function getMOTD(server) {
-    fs.readFile(server.motdfile, function(err, data) {
+    fs.readFile(server.motdFile, function(err, data) {
         if (err && err.code === 'ENOENT') {
-            fs.writeFile(server.motdfile, "MOTD: ", function(err) {
+            fs.writeFile(server.motdFile, "MOTD: ", function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to create MOTD file.");
                 }
@@ -496,10 +527,10 @@ function getMOTD(server) {
 
 // function to read in the MOTD ignore list
 function getMOTDIgnore(server) {
-    fs.readFile(server.nomotdfile, function(err, data) {
+    fs.readFile(server.nomotdFile, function(err, data) {
         if (err && err.code === 'ENOENT') {
             server.motdIgnore = [];
-            fs.writeFile(server.nomotdfile, JSON.stringify(server.motdIgnore), function(err) {
+            fs.writeFile(server.nomotdFile, JSON.stringify(server.motdIgnore), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to create MOTD Ignore file.");
                 }
@@ -528,11 +559,11 @@ function getParams(command, message, index) {
 
 // function to read in the saved player stats
 function getPlayerStats(server) {
-    fs.readFile(server.playerfile, function(err, data) {
+    fs.readFile(server.playerFile, function(err, data) {
         if (err && err.code === 'ENOENT') {
             playerStats[server.name] = [];
 
-            fs.writeFile(server.playerfile, JSON.stringify(playerStats[server.name]), function(err) {
+            fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
                 if (err) {
                     return util.log("[ERROR] Unable to create player stats file.");
                 }
@@ -682,10 +713,10 @@ function checkLastStanza(server) {
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
     // Poll API for latest control game data.
-    client[server.name].cuRest.getControlGame(null, function(cgData, error) {
-        if (! error) {
-            client[server.name].cuRest.getPlayers(function(pData, error) {
-                if (! error) {
+    client[server.name].cuRest.getControlGame(null, function(cgData, cgError) {
+        if (! cgError) {
+            client[server.name].cuRest.getPlayers(function(pData, pError) {
+                if (! pError) {
                     var epochTime = Math.floor((new Date).getTime() / 1000);
                     var artScore = cgData.arthurianScore;
                     var tuaScore = cgData.tuathaDeDanannScore;
@@ -709,15 +740,7 @@ function controlGame(server) {
                             tuaScore: tuaScore,
                             vikScore: vikScore,
                             killCount: [],
-                            deathCount: [],
-                            // killCount = [{
-                            //     playerName: '',
-                            //     kills: 0
-                            // }],
-                            // deathCount = [{
-                            //     playerName: '',
-                            //     deaths: 0
-                            // }]
+                            deathCount: []
                         }
 
                         if (gameState === 2 || gameState === 3) {
@@ -753,18 +776,50 @@ function controlGame(server) {
                         gameStats[server.name].lastStartTime = client[server.name].currentGame.startTime;
 
                         // Write gameStats to disk
-                        fs.writeFile(server.gamefile, JSON.stringify(gameStats[server.name]), function(err) {
+                        fs.writeFile(server.gameFile, JSON.stringify(gameStats[server.name]), function(err) {
                             if (err) {
                                 return util.log("[ERROR] Unable to write to game stats file.");
                             }
                         });
 
                         // Write playerStats to disk
-                        // ****
+                        client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
+                            // Parse each killCount entry
+                            var existingPlayer = false;
+                            for (var i = 0; i < playerStats[server.name].length; i++) {
+                                if (playerStats[server.name][i].name === killCountEntry.playerName) {
+                                    playerStats[server.name][i].kills += killCountEntry.kills;
+                                    playerStats[server.name][i].gamesPlayed++;
+                                    existingPlayer = true;
+                                }
+                            }
+                            if (! existingPlayer) playerStats[server.name].push({playerName: killCountEntry.playerName, kills: killCountEntry.kills, deaths: 0, gamesPlayed: 1});
+                        });
 
-                        client[server.name].lastBegTime = epochTime;
+                        client[server.name].currentGame.killCount.forEach(function(deathCountEntry) {
+                            // Parse each deathCount entry
+                            var existingPlayer = false;
+                            for (var i = 0; i < playerStats[server.name].length; i++) {
+                                if (playerStats[server.name][i].name === deathCountEntry.playerName) {
+                                    playerStats[server.name][i].deaths += deathCountEntry.deaths;
+                                    var onlyDied = true;
+                                    client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
+                                        if (killCountEntry.playerName === deathCountEntry.playerName) onlyDied = false;
+                                    });
+                                    if (onlyDied) playerStats[server.name][i].gamesPlayed++;
+                                    existingPlayer = true;
+                                }
+                            }
+                            if (! existingPlayer) playerStats[server.name].push({playerName: deathCountEntry.playerName, kills: 0, deaths: deathCountEntry.deaths, gamesPlayed: 1});
+                        });
+
+                        fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
+                            if (err) {
+                                return util.log("[ERROR] Unable to write to player stats file.");
+                            }
+                        });
+
                         client[server.name].currentGame.ended = true;
-
                         util.log("[GAME] A round has ended on " + server.name + ". Game and player statistics saved.");
                     }
 
@@ -777,15 +832,7 @@ function controlGame(server) {
                             tuaScore: tuaScore,
                             vikScore: vikScore,
                             killCount: [],
-                            deathCount: [],
-                            // killCount = [{
-                            //     playerName: '',
-                            //     kills: 0
-                            // }],
-                            // deathCount = [{
-                            //     playerName: '',
-                            //     deaths: 0
-                            // }]
+                            deathCount: []
                         }
 
                         // increase game counter
@@ -793,8 +840,8 @@ function controlGame(server) {
                         util.log("[GAME] A new round (" + gameStats[server.name].gameNumber + ") has started on " + server.name);
                     }
 
-                    // The following will beg for users to join the game.
-                    // if ((gameState === 1 || gameState === 2) && ((epochTime - gameStats[server.name].lastStartTime) > 3600) && ((epochTime - client[server.name].lastBegTime) > 3600) && (totalPlayers > 0)) {
+                    // Beg for users to join the game.
+                    // if ((gameState === 1) && ((epochTime - gameStats[server.name].lastStartTime) > 3600) && ((epochTime - client[server.name].lastBegTime) > 3600) && (totalPlayers > 0)) {
                     //     // Game hasn't started for over an hour, we haven't sent a beg notice for an hour, and at least 1 player is in game
                     //     server.rooms.forEach(function(r) {
                     //         if (r.announce === true) {
@@ -806,7 +853,6 @@ function controlGame(server) {
 
                     /////////////////////////
 
-                    // if lastSave was less than 30 min ago, still same game
                     // if lastSave was more than 30 min ago, save and start over
                     // if timeLeft > config.gameLength show an error and increase gameLength?
 
@@ -832,6 +878,8 @@ function controlGame(server) {
 // Timer to send MOTD messages to joining users.
 var timerMOTD = function(server) { return setInterval(function() { sendMOTD(server); }, 500); };
 function sendMOTD(server) {
+    // sendChat(server, "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", "agotest@conference.chat.camelotunchained.com");
+
     server.motdReceivers.forEach(function(receiver) {
         var epochTime = Math.floor((new Date).getTime() / 1000);
         if ((epochTime - receiver.joinTime > 2) && receiver.sendTime === 0) {
@@ -1014,15 +1062,40 @@ function startClient(server) {
                             }
                         });
                     } else if (cse === "cse" && roomIsMonitored) {
-//                    } else if (motdadmin && roomIsMonitored) {
                         // Message is from CSE staff in a monitored room and isn't a command
                         sendToAll(senderName + "@" + roomName + ": " + message);
                         util.log("[CHAT] Message from " + senderName + "@" + roomName + " sent to users. (ALL)");
 
                         if (isTestMessage(message)) {
-                            // Message is a test alert.
+                            // Message is a test alert from CSE staff
                             sendToMin(senderName + "@" + roomName + ": " + message);
                             util.log("[CHAT] Message from " + senderName + "@" + roomName + " sent to users. (MIN)");
+                        }
+                    } else if (stanza.attrs.from === server.combatBot) {
+                        // Message is kill spam
+                        var killerName = message.match(/^(.*) killed (.*)\.$/)[1];
+                        var killedName = message.match(/^(.*) killed (.*)\.$/)[2];
+
+                        if (killerName !== killedName) {
+                            // Update killCount list
+                            var existingPlayer = false;
+                            for (var i = 0; i < client[server.name].currentGame.killCount; i++) {
+                                if (client[server.name].currentGame.killCount[i].playerName === killerName) {
+                                    client[server.name].currentGame.killCount[i].kills++;
+                                    existingPlayer = true;
+                                }
+                            }
+                            if (! existingPlayer) client[server.name].currentGame.killCount.push({playerName: killerName, kills: 1});
+
+                            // Update deathCount list
+                            var existingPlayer = false;
+                            for (var i = 0; i < client[server.name].currentGame.deathCount; i++) {
+                                if (client[server.name].currentGame.deathCount[i].playerName === killedName) {
+                                    client[server.name].currentGame.deathCount[i].deaths++;
+                                    existingPlayer = true;
+                                }
+                            }
+                            if (! existingPlayer) client[server.name].currentGame.deathCount.push({playerName: killedName, deaths: 1});
                         }
                     }
                 } else if (stanza.is('message') && stanza.attrs.type === 'chat') {
@@ -1083,6 +1156,7 @@ function stopClient(server) {
     client[server.name].xmpp = undefined;
     clearInterval(client[server.name].motdTimer);
     clearInterval(client[server.name].connTimer);
+    clearInterval(client[server.name].gameTimer);
     client[server.name] = undefined;
     gameStats[server.name] = undefined;
     playerStats[server.name] = undefined;

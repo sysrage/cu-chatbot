@@ -15,16 +15,17 @@ module.exports = {
         nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
-        motdfile: './hatchery.motd',
-        nomotdfile: './hatchery.nomotd',
-        gamefile: './hatchery.game',
-        playerfile: './hatchery.player',
+        motdFile: './hatchery.motd',
+        nomotdFile: './hatchery.nomotd',
+        gameFile: './hatchery.game',
+        playerFile: './hatchery.player',
         rooms: [
         { name: '_it', joined: false, motd: true, monitor: true, announce: true},
         { name: '_global', joined: false, motd: false, monitor: true, announce: true},
         { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
         ],
-        roundTime: 1800
+        roundTime: 1800,
+        combatBot: "_combat@conference.chat.camelotunchained.com/combatbot"
     },
     {
         name: 'wyrmling',
@@ -33,16 +34,17 @@ module.exports = {
         nickname: 'CU-Bot',
         address: 'chat.camelotunchained.com',
         service: 'conference',
-        motdfile: './wyrmling.motd',
-        nomotdfile: './wyrmling.nomotd',
-        gamefile: './wyrmling.game',
-        playerfile: './wyrmling.player',
+        motdFile: './wyrmling.motd',
+        nomotdFile: './wyrmling.nomotd',
+        gameFile: './wyrmling.game',
+        playerFile: './wyrmling.player',
         rooms: [
         { name: '_it', joined: false, motd: true, monitor: false, announce: true},
         { name: '_global', joined: false, motd: false, monitor: false, announce: true},
         { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
         ],
-        roundTime: 1800
+        roundTime: 1800,
+        combatBot: "_combat@conference.chat.camelotunchained.com/combatbot"
     }
     ],
 
