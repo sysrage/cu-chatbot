@@ -32,12 +32,9 @@ var commandChar = '!';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
-    help: "\
-The command " + commandChar + "help displays help for using the various available bot commands.\n\
-\n\
-Usage: " + commandChar + "help [command]\n\
-\n\
-Available commands: ##HELPCOMMANDS##", 
+    help: "The command " + commandChar + "help displays help for using the various available bot commands.\n" +
+        "\nUsage: " + commandChar + "help [command]\n" +
+        "\nAvailable commands: ##HELPCOMMANDS##", 
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -54,23 +51,19 @@ Available commands: ##HELPCOMMANDS##",
 },
 { // #### BOTINFO COMMAND ####
     command: 'botinfo',
-    help: "\
-The command " + commandChar + "botinfo displays information about this chatbot.\n\
-\n\
-Usage: " + commandChar + "botinfo", 
+    help: "The command " + commandChar + "botinfo displays information about this chatbot.\n" +
+        "\n" + "Usage: " + commandChar + "botinfo", 
     exec: function(server, room, sender, message, extras) {
 
-        sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for their help.");
+        sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot" +
+            "\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for their help.");
     }
 },
 { // #### MOTD COMMAND ####
     command: 'motd',
-    help: "\
-The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n\
-\n\
-Usage: " + commandChar + "motd [server] [new MOTD]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n" +
+        "\nUsage: " + commandChar + "motd [server] [new MOTD]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         if (extras && extras.motdadmin) {
             var motdadmin = extras.motdadmin;
@@ -118,12 +111,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### MOTDOFF COMMAND ####
     command: 'motdoff',
-    help: "\
-The command " + commandChar + "motdoff allows users to stop receiving a Message of the Day for a particular server.\n\
-\n\
-Usage: " + commandChar + "motdoff [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "motdoff allows users to stop receiving a Message of the Day for a particular server.\n" +
+        "\nUsage: " + commandChar + "motdoff [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
@@ -161,12 +151,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### MOTDON COMMAND ####
     command: 'motdon',
-    help: "\
-The command " + commandChar + "motdon allows users to start receiving a Message of the Day for a particular server.\n\
-\n\
-Usage: " + commandChar + "motdon [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "motdon allows users to start receiving a Message of the Day for a particular server.\n" +
+        "\nUsage: " + commandChar + "motdon [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
@@ -211,12 +198,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### CLIENTOFF COMMAND ####
     command: 'clientoff',
-    help: "\
-The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n\
-\n\
-Usage: " + commandChar + "clientoff [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n" +
+        "\nUsage: " + commandChar + "clientoff [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStop = {};
@@ -248,12 +232,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### CLIENTON COMMAND ####
     command: 'clienton',
-    help: "\
-The command " + commandChar + "clienton allows admins to start the bot connecting to a particular server.\n\
-\n\
-Usage: " + commandChar + "clienton [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "clienton allows admins to start the bot connecting to a particular server.\n" +
+        "\nUsage: " + commandChar + "clienton [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         var serverToStart = {};
@@ -286,12 +267,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### PLAYERS COMMAND ####
     command: 'players',
-    help: "\
-The command " + commandChar + "players displays current players on a server.\n\
-\n\
-Usage: " + commandChar + "players [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "players displays current players on a server.\n" +
+        "\nUsage: " + commandChar + "players [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -310,7 +288,10 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             if (! error) {
                 var players = data;
                 var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":\n   Arthurians: " + players.arthurians + "\n   TuathaDeDanann: " + players.tuathaDeDanann + "\n   Vikings: " + players.vikings);
+                sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":" +
+                    "\n   Arthurians: " + players.arthurians +
+                    "\n   TuathaDeDanann: " + players.tuathaDeDanann +
+                    "\n   Vikings: " + players.vikings);
             } else {
                 sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
@@ -319,10 +300,8 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### SERVERS COMMAND ####
     command: 'servers',
-    help: "\
-The command " + commandChar + "servers displays currently available servers.\n\
-\n\
-Usage: " + commandChar + "servers",
+    help: "The command " + commandChar + "servers displays currently available servers.\n" +
+        "\nUsage: " + commandChar + "servers",
     exec: function(server, room, sender, message, extras) {
 
         client[server.name].cuRest.getServers(function(data, error) {
@@ -347,12 +326,9 @@ Usage: " + commandChar + "servers",
 },
 { // #### EVENTS COMMAND ####
     command: 'events',
-    help: "\
-The command " + commandChar + "events displays scheduled events for a server.\n\
-\n\
-Usage: " + commandChar + "events [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "events displays scheduled events for a server.\n" +
+        "\nUsage: " + commandChar + "events [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -384,12 +360,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### SCORE COMMAND ####
     command: 'score',
-    help: "\
-The command " + commandChar + "score displays information for the control game running a server.\n\
-\n\
-Usage: " + commandChar + "score [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "score displays information for the control game running a server.\n" +
+        "\nUsage: " + commandChar + "score [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -420,7 +393,11 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
                     var gameState = "Advanced Game Active";                
                 }
 
-                sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round.\nGame State: " + gameState + "\nArthurian Score: " + artScore + "\nTuathaDeDanann Score: " + tuaScore + "\nViking Score: " + vikScore);
+                sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
+                    "\nGame State: " + gameState +
+                    "\nArthurian Score: " + artScore +
+                    "\nTuathaDeDanann Score: " + tuaScore +
+                    "\nViking Score: " + vikScore);
             } else {
                 sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
@@ -429,12 +406,9 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
 },
 { // #### WINS COMMAND ####
     command: 'wins',
-    help: "\
-The command " + commandChar + "wins displays realm standings for a server.\n\
-\n\
-Usage: " + commandChar + "wins [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "wins displays realm standings for a server.\n" +
+        "\nUsage: " + commandChar + "wins [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -455,18 +429,18 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
         var tuaWins = gameStats[server.name].tuaWins;
         var vikWins = gameStats[server.name].vikWins;
 
-        sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:\nArthurian Wins: " + gameStats[server.name].artWins + "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins + "\nViking Wins: " + gameStats[server.name].vikWins);
+        sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:" +
+            "\nArthurian Wins: " + gameStats[server.name].artWins +
+            "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins +
+            "\nViking Wins: " + gameStats[server.name].vikWins);
         util.log(client[server.name].currentGame)
     }
 },
 { // #### LEADERBOARD COMMAND ####
     command: 'leaderboard',
-    help: "\
-The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n\
-\n\
-Usage: " + commandChar + "leaderboard [server]\n\
-\n\
-If [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    help: "The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n" +
+        "\nUsage: " + commandChar + "leaderboard [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -492,8 +466,28 @@ If [server] is specified, all actions will apply to that server. Otherwise, they
             return 0;
         });
 
-        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Kills:\n   #1 " + playersSortedByKills[0] + "\n   #2 " + playersSortedByKills[1] + "\n   #3 " + playersSortedByKills[2] + "\n   #4 " + playersSortedByKills[3] + "\n   #5 " + playersSortedByKills[4] + "\n   #6 " + playersSortedByKills[5] + "\n   #7 " + playersSortedByKills[6] + "\n   #8 " + playersSortedByKills[7] + "\n   #9 " + playersSortedByKills[8] + "\n   #10 " + playersSortedByKills[9])
-        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Deaths:\n   #1 " + playersSortedByDeaths[0] + "\n   #2 " + playersSortedByDeaths[1] + "\n   #3 " + playersSortedByDeaths[2] + "\n   #4 " + playersSortedByDeaths[3] + "\n   #5 " + playersSortedByDeaths[4] + "\n   #6 " + playersSortedByDeaths[5] + "\n   #7 " + playersSortedByDeaths[6] + "\n   #8 " + playersSortedByDeaths[7] + "\n   #9 " + playersSortedByDeaths[8] + "\n   #10 " + playersSortedByDeaths[9])
+        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Kills:" +
+            "\n   #1 " + playersSortedByKills[0] +
+            "\n   #2 " + playersSortedByKills[1] +
+            "\n   #3 " + playersSortedByKills[2] +
+            "\n   #4 " + playersSortedByKills[3] +
+            "\n   #5 " + playersSortedByKills[4] +
+            "\n   #6 " + playersSortedByKills[5] +
+            "\n   #7 " + playersSortedByKills[6] +
+            "\n   #8 " + playersSortedByKills[7] +
+            "\n   #9 " + playersSortedByKills[8] +
+            "\n   #10 " + playersSortedByKills[9]);
+        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Deaths:" +
+            "\n   #1 " + playersSortedByDeaths[0] +
+            "\n   #2 " + playersSortedByDeaths[1] +
+            "\n   #3 " + playersSortedByDeaths[2] +
+            "\n   #4 " + playersSortedByDeaths[3] +
+            "\n   #5 " + playersSortedByDeaths[4] +
+            "\n   #6 " + playersSortedByDeaths[5] +
+            "\n   #7 " + playersSortedByDeaths[6] +
+            "\n   #8 " + playersSortedByDeaths[7] +
+            "\n   #9 " + playersSortedByDeaths[8] +
+            "\n   #10 " + playersSortedByDeaths[9]);
     }
 }
 ];
@@ -510,12 +504,12 @@ chatCommands[0].help = chatCommands[0].help.replace("##HELPCOMMANDS##", commandL
 /*****************************************************************************/
 
 // function to check internet connectivity
-function checkInternet(server, cb) {
+function checkInternet(server, callback) {
     require('dns').lookup(server.address, function(err) {
         if (err && err.code == "ENOTFOUND") {
-            cb(false);
+            callback(false);
         } else {
-            cb(true);
+            callback(true);
         }
     })
 }
