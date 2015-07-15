@@ -790,8 +790,8 @@ function controlGame(server) {
                     var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
                     // Update stored player count to be used for !who data (see .on "join")
-                    client[server.name].lastPlayerCount = client[server.name].playerCount;
-                    client[server.name].playerCount = totalPlayers;
+                    //client[server.name].lastPlayerCount = client[server.name].playerCount;
+                    //client[server.name].playerCount = totalPlayers;
 
                     if (! client[server.name].currentGame) {
                         // Bot was just started, do some initialization
@@ -1052,7 +1052,7 @@ function startClient(server) {
             // Parse each stanza from the XMPP server
             client[server.name].xmpp.on('stanza', function(stanza) {
 
-                // util.log('***** ' + stanza + ' *****');
+                 util.log('***** ' + stanza + ' *****');
 
                 // Store time of last received stanza for checking connection status
                 server.lastStanza = Math.floor((new Date).getTime() / 1000);
