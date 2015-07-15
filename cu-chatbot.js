@@ -510,11 +510,11 @@ var chatCommands = [
         }
 
         var playerList = "";
-        server.playersInGame.forEach(function(p) {
+        client[targetServer].playersInGame.forEach(function(p) {
             playerList = p + "\n";
         });
 
-        sendReply(server, room, sender, "There are currently " + server.playerCount + " players on " + server.name + ":\n" + playerList);
+        sendReply(server, room, sender, "There are currently " + client[targetServer].playersInGame.length + " players on " + targetServer + ":\n" + playerList);
     }
 }
 ];
@@ -790,8 +790,8 @@ function controlGame(server) {
                     var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
                     // Update stored player count to be used for !who data (see .on "join")
-                    server.lastPlayerCount = server.playerCount;
-                    server.playerCount = totalPlayers;
+                    client[server.name].lastPlayerCount = client[server.name].playerCount;
+                    client[server.name].playerCount = totalPlayers;
 
                     if (! client[server.name].currentGame) {
                         // Bot was just started, do some initialization
@@ -978,9 +978,6 @@ function startClient(server) {
             getGameStats(server);
             getPlayerStats(server);
             server.motdReceivers = [];
-            server.playerCount = 0;
-            server.lastPlayerCount = 0;
-            server.playersInGame = [];
 
             // Connect to XMPP servers
             client[server.name] = {
@@ -1028,6 +1025,11 @@ function startClient(server) {
                     );
                     util.log("[STATUS] Client joined '" + room.name + "' on " + server.name + ".");
                 });
+
+                // Initialize !who data
+                client[server.name].playerCount = 0;
+                client[server.name].lastPlayerCount = 0;
+                client[server.name].playersInGame = [];
 
                 // Start sending MOTDs
                 client[server.name].motdTimer = timerMOTD(server);
@@ -1096,11 +1098,11 @@ function startClient(server) {
                                     var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
                                     // Update stored player count to be used for !who data (see .on "join")
-                                    server.lastPlayerCount = server.playerCount;
-                                    server.playerCount = totalPlayers;
+                                    client[server.name].lastPlayerCount = client[server.name].playerCount;
+                                    client[server.name].playerCount = totalPlayers;
 
-                                    if (server.playerCount > server.lastPlayerCount) {
-                                        server.playersInGame.push(senderName);
+                                    if (client[server.name].playerCount > client[server.name].lastPlayerCount) {
+                                        client[server.name].playersInGame.push(senderName);
                                     }
                                 }
                             });
@@ -1113,12 +1115,12 @@ function startClient(server) {
                                     var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
                                     // Update stored player count to be used for !who data (see .on "join")
-                                    server.lastPlayerCount = server.playerCount;
-                                    server.playerCount = totalPlayers;
+                                    client[server.name].lastPlayerCount = client[server.name].playerCount;
+                                    client[server.name].playerCount = totalPlayers;
 
-                                    if (server.playerCount < server.lastPlayerCount) {
-                                        for (var i = 0; i < server.playersInGame.length; i++) {
-                                            if (server.playersInGame[i] === senderName) server.playersInGame.splice(i, 1);
+                                    if (client[server.name].playerCount < client[server.name].lastPlayerCount) {
+                                        for (var i = 0; i < client[server.name].playersInGame.length; i++) {
+                                            if (client[server.name].playersInGame[i] === senderName) client[server.name].playersInGame.splice(i, 1);
                                         }
                                     }
                                 }
