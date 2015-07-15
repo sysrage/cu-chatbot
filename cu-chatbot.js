@@ -511,7 +511,7 @@ var chatCommands = [
 
         var playerList = "";
         client[targetServer].playersInGame.forEach(function(p) {
-            playerList = p + "\n";
+            playerList = playerList + p + "\n";
         });
 
         sendReply(server, room, sender, "There are currently " + client[targetServer].playersInGame.length + " players on " + targetServer + ":\n" + playerList);
