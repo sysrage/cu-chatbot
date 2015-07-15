@@ -1113,22 +1113,10 @@ function startClient(server) {
                         }
 
                         if (server.rooms[roomIndex].joined && room === "_combat" && role === 'none') {
-                            // User left _combat. Do some checks and remove from !who list.
-                            client[server.name].cuRest.getPlayers(function(pData, pError) {
-                                if (! pError) {
-                                    var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
-
-                                    // Update stored player count to be used for !who data (see .on "join")
-                                    client[server.name].lastPlayerCount = client[server.name].playerCount;
-                                    client[server.name].playerCount = totalPlayers;
-
-                                    if (client[server.name].playerCount < client[server.name].lastPlayerCount) {
-                                        for (var i = 0; i < client[server.name].playersInGame.length; i++) {
-                                            if (client[server.name].playersInGame[i] === senderName) client[server.name].playersInGame.splice(i, 1);
-                                        }
-                                    }
-                                }
-                            });
+                            // User left _combat. Remove from !who list.
+                            for (var i = 0; i < client[server.name].playersInGame.length; i++) {
+                                if (client[server.name].playersInGame[i] === senderName) client[server.name].playersInGame.splice(i, 1);
+                            }
                         }
 
                         // Status code 110 means initial nicklist on room join is complete
