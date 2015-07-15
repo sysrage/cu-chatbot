@@ -274,7 +274,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -333,7 +333,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -367,7 +367,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -413,7 +413,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -445,7 +445,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -499,7 +499,7 @@ var chatCommands = [
         var params = getParams(this.command, message);
 
         if (params.length > 0) {
-            if (client[params]) {
+            if (client[params] && client[params].connected) {
                 targetServer = params;
             } else {
                 sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
@@ -988,6 +988,8 @@ function startClient(server) {
                 })
             };
 
+            client[server.name].connected = false;
+
             // client[server.name].xmpp.connection.socket.setTimeout(0);
             // client[server.name].xmpp.connection.socket.setKeepAlive(true, 10000);
 
@@ -1007,16 +1009,18 @@ function startClient(server) {
                 server.rooms.forEach(function(room) {
                     room.joined = false;
                 });
+                client[server.name].connected = false;
                 util.log("[STATUS] Client disconnected from " + server.name + ". Reconnecting...");
             });
 
             // Once connected, set available presence and join rooms
             client[server.name].xmpp.on('online', function() {
                 util.log("[STATUS] Client connected to server: " + server.name);
-             
+                client[server.name].connected = true;
+
                 // Set ourselves as online
                 client[server.name].xmpp.send(new xmpp.Element('presence', { type: 'available' }).c('show').t('chat'));
-             
+
                 // Join rooms (and request no chat history)
                 server.rooms.forEach(function(room) {
                     var roomJID = room.name + '@' + server.service + '.' + server.address;
