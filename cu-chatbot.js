@@ -489,6 +489,33 @@ var chatCommands = [
             "\n   #9 " + playersSortedByDeaths[8] +
             "\n   #10 " + playersSortedByDeaths[9]);
     }
+},
+{ // #### WHO COMMAND ####
+    command: 'who',
+    help: "The command " + commandChar + "who displays current players logged in to a server.\n" +
+        "\nUsage: " + commandChar + "who [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+
+        if (params.length > 0) {
+            if (client[params]) {
+                targetServer = params;
+            } else {
+                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server.name;
+        }
+
+        var playerList = "";
+        server.playersInGame.forEach(function(p) {
+            playerList = p + "\n";
+        });
+
+        sendReply(server, room, sender, "There are currently " + server.playerCount + " players on " + server.name + ":" + playerList);
+    }
 }
 ];
 
@@ -762,6 +789,10 @@ function controlGame(server) {
                     var vikCount = pData.vikings;
                     var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
+                    // Update stored player count to be used for !who data (see .on "join")
+                    server.lastPlayerCount = server.playerCount;
+                    server.playerCount = totalPlayers;
+
                     if (! client[server.name].currentGame) {
                         // Bot was just started, do some initialization
                         client[server.name].currentGame = {
@@ -947,6 +978,9 @@ function startClient(server) {
             getGameStats(server);
             getPlayerStats(server);
             server.motdReceivers = [];
+            server.playerCount = 0;
+            server.lastPlayerCount = 0;
+            server.playersInGame = [];
 
             // Connect to XMPP servers
             client[server.name] = {
@@ -1053,6 +1087,42 @@ function startClient(server) {
                                 server.motdReceivers.push({ name: senderName, joinTime: Math.floor((new Date).getTime() / 1000), sendTime: 0 });
                             }
                             util.log("[STATUS] User '" + senderName + "' joined '" + room + "' on " + server.name + ".");
+                        }
+
+                        if (server.rooms[roomIndex].joined && room === "_combat" && role !== 'none') {
+                            // User joined _combat. Do some checks and add to !who list.
+                            client[server.name].cuRest.getPlayers(function(pData, pError) {
+                                if (! pError) {
+                                    var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
+
+                                    // Update stored player count to be used for !who data (see .on "join")
+                                    server.lastPlayerCount = server.playerCount;
+                                    server.playerCount = totalPlayers;
+
+                                    if (server.playerCount > server.lastPlayerCount) {
+                                        server.playersInGame.push(senderName);
+                                    }
+                                }
+                            });
+                        }
+
+                        if (server.rooms[roomIndex].joined && room === "_combat" && role === 'none') {
+                            // User left _combat. Do some checks and remove from !who list.
+                            client[server.name].cuRest.getPlayers(function(pData, pError) {
+                                if (! pError) {
+                                    var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
+
+                                    // Update stored player count to be used for !who data (see .on "join")
+                                    server.lastPlayerCount = server.playerCount;
+                                    server.playerCount = totalPlayers;
+
+                                    if (server.playerCount < server.lastPlayerCount) {
+                                        for (var i = 0; i < server.playersInGame.length; i++) {
+                                            if (server.playersInGame[i] === senderName) server.playersInGame.splice(i, 1);
+                                        }
+                                    }
+                                }
+                            });
                         }
 
                         // Status code 110 means initial nicklist on room join is complete
