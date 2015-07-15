@@ -514,7 +514,7 @@ var chatCommands = [
             playerList = p + "\n";
         });
 
-        sendReply(server, room, sender, "There are currently " + server.playerCount + " players on " + server.name + ":" + playerList);
+        sendReply(server, room, sender, "There are currently " + server.playerCount + " players on " + server.name + ":\n" + playerList);
     }
 }
 ];
