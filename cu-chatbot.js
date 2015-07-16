@@ -649,6 +649,21 @@ var indexOfServer = function(server) {
     return -1;
 };
 
+// function to check if game server is up
+var isGameServerUp = function(server, callback) {
+    client[server.name].cuRest.getServers(function(data, error) {
+        if (! error) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].name.toLowerCase() === server.name.toLowerCase()) callback(true);
+            }
+            callback(false);
+        } else {
+            util.log("[ERROR] Unable to poll server list API.");
+            callback(false);
+        }
+    });
+}
+
 // function to check if user is an MOTD admin
 var isMOTDAdmin = function(name) {
     for (var i = 0; i < config.motdAdmins.length; i++) {
@@ -770,183 +785,177 @@ function checkLastStanza(server) {
 // Time to monitor control game.
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
-    // Check to make sure game server is up.
-    client[server.name].cuRest.getServers(function(data, error) {
-        if (! error) {
-            var gameServerUp = false;
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].name !== server.name) gameServerUp = true;
-            }
-            if (! gameServerUp) return;
-        } else {
-            util.log("[ERROR] Unable to pull server list.");
+    // Check to make sure game server is up. If not, skip this iteration of the timer.
+    isGameServerUp(server, function(up) {
+        if (! up) {
+            client[server.name].currentGame = {ended: true};
             return;
-        }
-    });
+        } else {
+            // Poll API for latest control game data.
+            client[server.name].cuRest.getControlGame(null, function(cgData, cgError) {
+                if (! cgError) {
+                    client[server.name].cuRest.getPlayers(function(pData, pError) {
+                        if (! pError) {
+                            var epochTime = Math.floor((new Date).getTime() / 1000);
+                            var artScore = cgData.arthurianScore;
+                            var tuaScore = cgData.tuathaDeDanannScore;
+                            var vikScore = cgData.vikingScore;
+                            var timeLeft = cgData.timeLeft;
+                            var minLeft = Math.floor(timeLeft / 60);
+                            var secLeft = Math.floor(timeLeft % 60);
+                            var gameState = cgData.gameState; // 1 = Over / 2 = Basic Game / 3 = Advanced Game
 
-    // Poll API for latest control game data.
-    client[server.name].cuRest.getControlGame(null, function(cgData, cgError) {
-        if (! cgError) {
-            client[server.name].cuRest.getPlayers(function(pData, pError) {
-                if (! pError) {
-                    var epochTime = Math.floor((new Date).getTime() / 1000);
-                    var artScore = cgData.arthurianScore;
-                    var tuaScore = cgData.tuathaDeDanannScore;
-                    var vikScore = cgData.vikingScore;
-                    var timeLeft = cgData.timeLeft;
-                    var minLeft = Math.floor(timeLeft / 60);
-                    var secLeft = Math.floor(timeLeft % 60);
-                    var gameState = cgData.gameState; // 1 = Over / 2 = Basic Game / 3 = Advanced Game
+                            var artCount = pData.arthurians;
+                            var tuaCount = pData.tuathaDeDanann;
+                            var vikCount = pData.vikings;
+                            var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
-                    var artCount = pData.arthurians;
-                    var tuaCount = pData.tuathaDeDanann;
-                    var vikCount = pData.vikings;
-                    var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
+                            if (! client[server.name].currentGame) {
+                                // Bot was just started, do some initialization
+                                client[server.name].currentGame = {
+                                    startTime: 0,
+                                    ended: false,
+                                    artScore: artScore,
+                                    tuaScore: tuaScore,
+                                    vikScore: vikScore,
+                                    killCount: [],
+                                    deathCount: []
+                                };
 
-                    if (! client[server.name].currentGame) {
-                        // Bot was just started, do some initialization
-                        client[server.name].currentGame = {
-                            startTime: 0,
-                            ended: false,
-                            artScore: artScore,
-                            tuaScore: tuaScore,
-                            vikScore: vikScore,
-                            killCount: [],
-                            deathCount: []
-                        }
+                                if (gameState === 2 || gameState === 3) {
+                                    client[server.name].currentGame.startTime = epochTime - timeLeft;
+                                    if (epochTime - gameStats[server.name].lastStartTime > server.roundTime) gameStats[server.name].gameNumber++;
+                                } else {
+                                    client[server.name].currentGame.ended = true;
+                                }
 
-                        if (gameState === 2 || gameState === 3) {
-                            client[server.name].currentGame.startTime = epochTime - timeLeft;
-                            if (epochTime - gameStats[server.name].lastStartTime > server.roundTime) gameStats[server.name].gameNumber++;
-                        } else {
-                            client[server.name].currentGame.ended = true;
-                        }
+                                client[server.name].lastBegTime = epochTime;
+                            }
 
-                        client[server.name].lastBegTime = epochTime;
-                    }
-
-                    if ((gameState === 1) && ! client[server.name].currentGame.ended) {
-                        // Game we were monitoring has ended. Save stats.
-                        if (artScore === tuaScore && artScore === vikScore) {
-                            // Three way tie
-                            gameStats[server.name].artWins++;
-                            gameStats[server.name].tuaWins++;
-                            gameStats[server.name].vikWins++;
-                        } else if (artScore === tuaScore && artScore > vikScore) {
-                            // Arthurians and TDD tie
-                            gameStats[server.name].artWins++;
-                            gameStats[server.name].tuaWins++;
-                        } else if (artScore === vikScore && artScore > tuaScore) {
-                            // Arthurians and Vikings tie
-                            gameStats[server.name].artWins++;
-                            gameStats[server.name].vikWins++;
-                        } else if (tuaScore === vikScore && tuaScore > artScore) {
-                            // TDD and Vikings tie
-                            gameStats[server.name].tuaWins++;
-                            gameStats[server.name].vikWins++;
-                        } else {
-                            if (artScore > tuaScore) {
-                                if (artScore > vikScore) {
-                                    // Arthurians win
+                            if ((gameState === 1) && ! client[server.name].currentGame.ended) {
+                                // Game we were monitoring has ended. Save stats.
+                                if (artScore === tuaScore && artScore === vikScore) {
+                                    // Three way tie
                                     gameStats[server.name].artWins++;
-                                } else {
-                                    // Vikings win
-                                    gameStats[server.name].vikWins++;
-                                }
-                            } else {
-                                if (tuaScore > vikScore) {
-                                    // TDD win
                                     gameStats[server.name].tuaWins++;
-                                } else {
-                                    // Vikings win
                                     gameStats[server.name].vikWins++;
+                                } else if (artScore === tuaScore && artScore > vikScore) {
+                                    // Arthurians and TDD tie
+                                    gameStats[server.name].artWins++;
+                                    gameStats[server.name].tuaWins++;
+                                } else if (artScore === vikScore && artScore > tuaScore) {
+                                    // Arthurians and Vikings tie
+                                    gameStats[server.name].artWins++;
+                                    gameStats[server.name].vikWins++;
+                                } else if (tuaScore === vikScore && tuaScore > artScore) {
+                                    // TDD and Vikings tie
+                                    gameStats[server.name].tuaWins++;
+                                    gameStats[server.name].vikWins++;
+                                } else {
+                                    if (artScore > tuaScore) {
+                                        if (artScore > vikScore) {
+                                            // Arthurians win
+                                            gameStats[server.name].artWins++;
+                                        } else {
+                                            // Vikings win
+                                            gameStats[server.name].vikWins++;
+                                        }
+                                    } else {
+                                        if (tuaScore > vikScore) {
+                                            // TDD win
+                                            gameStats[server.name].tuaWins++;
+                                        } else {
+                                            // Vikings win
+                                            gameStats[server.name].vikWins++;
+                                        }
+                                    }
                                 }
+
+                                gameStats[server.name].lastStartTime = client[server.name].currentGame.startTime;
+
+                                // Write gameStats to disk
+                                fs.writeFile(server.gameFile, JSON.stringify(gameStats[server.name]), function(err) {
+                                    if (err) {
+                                        return util.log("[ERROR] Unable to write to game stats file.");
+                                    }
+                                });
+
+                                // Write playerStats to disk
+                                client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
+                                    // Parse each killCount entry
+                                    var existingPlayer = false;
+                                    for (var i = 0; i < playerStats[server.name].length; i++) {
+                                        if (playerStats[server.name][i].name === killCountEntry.playerName) {
+                                            playerStats[server.name][i].kills += killCountEntry.kills;
+                                            playerStats[server.name][i].gamesPlayed++;
+                                            existingPlayer = true;
+                                        }
+                                    }
+                                    if (! existingPlayer) playerStats[server.name].push({playerName: killCountEntry.playerName, kills: killCountEntry.kills, deaths: 0, gamesPlayed: 1});
+                                });
+
+                                client[server.name].currentGame.killCount.forEach(function(deathCountEntry) {
+                                    // Parse each deathCount entry
+                                    var existingPlayer = false;
+                                    for (var i = 0; i < playerStats[server.name].length; i++) {
+                                        if (playerStats[server.name][i].name === deathCountEntry.playerName) {
+                                            playerStats[server.name][i].deaths += deathCountEntry.deaths;
+                                            var onlyDied = true;
+                                            client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
+                                                if (killCountEntry.playerName === deathCountEntry.playerName) onlyDied = false;
+                                            });
+                                            if (onlyDied) playerStats[server.name][i].gamesPlayed++;
+                                            existingPlayer = true;
+                                        }
+                                    }
+                                    if (! existingPlayer) playerStats[server.name].push({playerName: deathCountEntry.playerName, kills: 0, deaths: deathCountEntry.deaths, gamesPlayed: 1});
+                                });
+
+                                fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
+                                    if (err) {
+                                        return util.log("[ERROR] Unable to write to player stats file.");
+                                    }
+                                });
+
+                                client[server.name].currentGame.ended = true;
+                                util.log("[GAME] A round has ended on " + server.name + ". Game and player statistics saved.");
                             }
+
+                            if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
+                                // New game has started
+                                client[server.name].currentGame = {
+                                    startTime: epochTime - timeLeft,
+                                    ended: false,
+                                    artScore: artScore,
+                                    tuaScore: tuaScore,
+                                    vikScore: vikScore,
+                                    killCount: [],
+                                    deathCount: []
+                                }
+
+                                // increase game counter
+                                gameStats[server.name].gameNumber++;
+                                util.log("[GAME] A new round (" + gameStats[server.name].gameNumber + ") has started on " + server.name);
+                            }
+
+                            // Beg for users to join the game.
+                            // if ((gameState === 1) && ((epochTime - gameStats[server.name].lastStartTime) > 3600) && ((epochTime - client[server.name].lastBegTime) > 3600) && (totalPlayers > 0)) {
+                            //     // Game hasn't started for over an hour, we haven't sent a beg notice for an hour, and at least 1 player is in game
+                            //     server.rooms.forEach(function(r) {
+                            //         if (r.announce === true) {
+                            //             sendChat(server, "Players are waiting for a new round to begin on " + server.name + ". Join the battle!", r.name + "@" + server.service + "." + server.address);
+                            //         }
+                            //     });
+                            //     client[server.name].lastBegTime = epochTime;
+                            // }
                         }
-
-                        gameStats[server.name].lastStartTime = client[server.name].currentGame.startTime;
-
-                        // Write gameStats to disk
-                        fs.writeFile(server.gameFile, JSON.stringify(gameStats[server.name]), function(err) {
-                            if (err) {
-                                return util.log("[ERROR] Unable to write to game stats file.");
-                            }
-                        });
-
-                        // Write playerStats to disk
-                        client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
-                            // Parse each killCount entry
-                            var existingPlayer = false;
-                            for (var i = 0; i < playerStats[server.name].length; i++) {
-                                if (playerStats[server.name][i].name === killCountEntry.playerName) {
-                                    playerStats[server.name][i].kills += killCountEntry.kills;
-                                    playerStats[server.name][i].gamesPlayed++;
-                                    existingPlayer = true;
-                                }
-                            }
-                            if (! existingPlayer) playerStats[server.name].push({playerName: killCountEntry.playerName, kills: killCountEntry.kills, deaths: 0, gamesPlayed: 1});
-                        });
-
-                        client[server.name].currentGame.killCount.forEach(function(deathCountEntry) {
-                            // Parse each deathCount entry
-                            var existingPlayer = false;
-                            for (var i = 0; i < playerStats[server.name].length; i++) {
-                                if (playerStats[server.name][i].name === deathCountEntry.playerName) {
-                                    playerStats[server.name][i].deaths += deathCountEntry.deaths;
-                                    var onlyDied = true;
-                                    client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
-                                        if (killCountEntry.playerName === deathCountEntry.playerName) onlyDied = false;
-                                    });
-                                    if (onlyDied) playerStats[server.name][i].gamesPlayed++;
-                                    existingPlayer = true;
-                                }
-                            }
-                            if (! existingPlayer) playerStats[server.name].push({playerName: deathCountEntry.playerName, kills: 0, deaths: deathCountEntry.deaths, gamesPlayed: 1});
-                        });
-
-                        fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
-                            if (err) {
-                                return util.log("[ERROR] Unable to write to player stats file.");
-                            }
-                        });
-
-                        client[server.name].currentGame.ended = true;
-                        util.log("[GAME] A round has ended on " + server.name + ". Game and player statistics saved.");
-                    }
-
-                    if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
-                        // New game has started
-                        client[server.name].currentGame = {
-                            startTime: epochTime - timeLeft,
-                            ended: false,
-                            artScore: artScore,
-                            tuaScore: tuaScore,
-                            vikScore: vikScore,
-                            killCount: [],
-                            deathCount: []
-                        }
-
-                        // increase game counter
-                        gameStats[server.name].gameNumber++;
-                        util.log("[GAME] A new round (" + gameStats[server.name].gameNumber + ") has started on " + server.name);
-                    }
-
-                    // Beg for users to join the game.
-                    // if ((gameState === 1) && ((epochTime - gameStats[server.name].lastStartTime) > 3600) && ((epochTime - client[server.name].lastBegTime) > 3600) && (totalPlayers > 0)) {
-                    //     // Game hasn't started for over an hour, we haven't sent a beg notice for an hour, and at least 1 player is in game
-                    //     server.rooms.forEach(function(r) {
-                    //         if (r.announce === true) {
-                    //             sendChat(server, "Players are waiting for a new round to begin on " + server.name + ". Join the battle!", r.name + "@" + server.service + "." + server.address);
-                    //         }
-                    //     });
-                    //     client[server.name].lastBegTime = epochTime;
-                    // }
+                    });
+                } else {
+                    // Unable to pull API data. Server is likely down.
+                    var gameState = -1;
+                    util.log("[ERROR] Server is up but controlgame API is not responding.");
                 }
             });
-        } else {
-            // Unable to pull API data. Server is likely down.
-            var gameState = -1;
-            util.log("[ERROR] Server is up but controlgame API is not responding.");
         }
     });
 }
