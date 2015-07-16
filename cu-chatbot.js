@@ -817,21 +817,40 @@ function controlGame(server) {
 
                     if ((gameState === 1) && ! client[server.name].currentGame.ended) {
                         // Game we were monitoring has ended. Save stats.
-                        if (artScore > tuaScore) {
-                            if (artScore > vikScore) {
-                                // Arthurians win
-                                gameStats[server.name].artWins++;
-                            } else {
-                                // Vikings win
-                                gameStats[server.name].vikWins++;
-                            }
+                        if (artScore === tuaScore && artScore === vikScore) {
+                            // Three way tie
+                            gameStats[server.name].artWins++;
+                            gameStats[server.name].tuaWins++;
+                            gameStats[server.name].vikWins++;
+                        } else if (artScore === tuaScore && artScore > vikScore) {
+                            // Arthurians and TDD tie
+                            gameStats[server.name].artWins++;
+                            gameStats[server.name].tuaWins++;
+                        } else if (artScore === vikScore && artScore > tuaScore) {
+                            // Arthurians and Vikings tie
+                            gameStats[server.name].artWins++;
+                            gameStats[server.name].vikWins++;
+                        } else if (tuaScore === vikScore && tuaScore > artScore) {
+                            // TDD and Vikings tie
+                            gameStats[server.name].tuaWins++;
+                            gameStats[server.name].vikWins++;
                         } else {
-                            if (tuaScore > vikScore) {
-                                // TDD win
-                                gameStats[server.name].tuaWins++;
+                            if (artScore > tuaScore) {
+                                if (artScore > vikScore) {
+                                    // Arthurians win
+                                    gameStats[server.name].artWins++;
+                                } else {
+                                    // Vikings win
+                                    gameStats[server.name].vikWins++;
+                                }
                             } else {
-                                // Vikings win
-                                gameStats[server.name].vikWins++;
+                                if (tuaScore > vikScore) {
+                                    // TDD win
+                                    gameStats[server.name].tuaWins++;
+                                } else {
+                                    // Vikings win
+                                    gameStats[server.name].vikWins++;
+                                }
                             }
                         }
 
@@ -1052,7 +1071,7 @@ function startClient(server) {
             // Parse each stanza from the XMPP server
             client[server.name].xmpp.on('stanza', function(stanza) {
 
-                 util.log('***** ' + stanza + ' *****');
+                 // util.log('***** ' + stanza + ' *****');
 
                 // Store time of last received stanza for checking connection status
                 server.lastStanza = Math.floor((new Date).getTime() / 1000);
