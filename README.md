@@ -1,4 +1,4 @@
-# cu-chatbot
+# cu-chatbot.js
 Chatbot for Camelot Unchained
 
 This is a general-purpose bot written in Node.js for use with Camelot Unchained. The following functionalities exist:
@@ -21,3 +21,6 @@ Optional:
 Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
 
 Originally based on https://gist.github.com/powdahound/940969
+
+# server.js
+OpenShift server script which provides a web interface to game statistics and starts the chatbot.
