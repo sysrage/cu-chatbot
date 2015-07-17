@@ -28,7 +28,7 @@ var cuRest = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
-var commandChar = '.';
+var commandChar = '!';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
