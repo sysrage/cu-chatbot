@@ -28,13 +28,13 @@ var cuRest = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
-var commandChar = '!';
+var commandChar = '.';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
     help: "The command " + commandChar + "help displays help for using the various available bot commands.\n" +
         "\nUsage: " + commandChar + "help [command]\n" +
-        "\nAvailable commands: ##HELPCOMMANDS##", 
+        "\nAvailable commands: ##HELPCOMMANDS##",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
 
@@ -455,39 +455,35 @@ var chatCommands = [
             var targetServer = server.name;
         }
 
-        var playersSortedByKills = playerStats.sort(function(a, b) {
-            if (a.kills > b.kills) return 1;
-            if (a.kills < b.kills) return -1;
-            return 0;
-        });
-        var playersSortedByDeaths = playerStats.sort(function(a, b) {
-            if (a.deaths > b.deaths) return 1;
-            if (a.deaths < b.deaths) return -1;
-            return 0;
-        });
+        for (var i = 0; i < 10; i++) {
+            if (! playerStats[i]) playerStats[i] = {name: 'Nobody', kills: 0, deaths: 0};
+        }
+
+        var playersSortedByKills = playerStats.concat().sort(function(a, b) { return b.kills - a.kills; });
+        var playersSortedByDeaths = playerStats.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
         sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Kills:" +
-            "\n   #1 " + playersSortedByKills[0] +
-            "\n   #2 " + playersSortedByKills[1] +
-            "\n   #3 " + playersSortedByKills[2] +
-            "\n   #4 " + playersSortedByKills[3] +
-            "\n   #5 " + playersSortedByKills[4] +
-            "\n   #6 " + playersSortedByKills[5] +
-            "\n   #7 " + playersSortedByKills[6] +
-            "\n   #8 " + playersSortedByKills[7] +
-            "\n   #9 " + playersSortedByKills[8] +
-            "\n   #10 " + playersSortedByKills[9]);
+            "\n   #1 " + playersSortedByKills[0].name + ' - ' + playersSortedByKills[0].kills +
+            "\n   #2 " + playersSortedByKills[1].name + ' - ' + playersSortedByKills[1].kills +
+            "\n   #3 " + playersSortedByKills[2].name + ' - ' + playersSortedByKills[2].kills +
+            "\n   #4 " + playersSortedByKills[3].name + ' - ' + playersSortedByKills[3].kills +
+            "\n   #5 " + playersSortedByKills[4].name + ' - ' + playersSortedByKills[4].kills +
+            "\n   #6 " + playersSortedByKills[5].name + ' - ' + playersSortedByKills[5].kills +
+            "\n   #7 " + playersSortedByKills[6].name + ' - ' + playersSortedByKills[6].kills +
+            "\n   #8 " + playersSortedByKills[7].name + ' - ' + playersSortedByKills[7].kills +
+            "\n   #9 " + playersSortedByKills[8].name + ' - ' + playersSortedByKills[8].kills +
+            "\n   #10 " + playersSortedByKills[9].name + ' - ' + playersSortedByKills[9].kills);
         sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Deaths:" +
-            "\n   #1 " + playersSortedByDeaths[0] +
-            "\n   #2 " + playersSortedByDeaths[1] +
-            "\n   #3 " + playersSortedByDeaths[2] +
-            "\n   #4 " + playersSortedByDeaths[3] +
-            "\n   #5 " + playersSortedByDeaths[4] +
-            "\n   #6 " + playersSortedByDeaths[5] +
-            "\n   #7 " + playersSortedByDeaths[6] +
-            "\n   #8 " + playersSortedByDeaths[7] +
-            "\n   #9 " + playersSortedByDeaths[8] +
-            "\n   #10 " + playersSortedByDeaths[9]);
+            "\n   #1 " + playersSortedByDeaths[0].name + ' - ' + playersSortedByDeaths[0].deaths +
+            "\n   #2 " + playersSortedByDeaths[1].name + ' - ' + playersSortedByDeaths[1].deaths +
+            "\n   #3 " + playersSortedByDeaths[2].name + ' - ' + playersSortedByDeaths[2].deaths +
+            "\n   #4 " + playersSortedByDeaths[3].name + ' - ' + playersSortedByDeaths[3].deaths +
+            "\n   #5 " + playersSortedByDeaths[4].name + ' - ' + playersSortedByDeaths[4].deaths +
+            "\n   #6 " + playersSortedByDeaths[5].name + ' - ' + playersSortedByDeaths[5].deaths +
+            "\n   #7 " + playersSortedByDeaths[6].name + ' - ' + playersSortedByDeaths[6].deaths +
+            "\n   #8 " + playersSortedByDeaths[7].name + ' - ' + playersSortedByDeaths[7].deaths +
+            "\n   #9 " + playersSortedByDeaths[8].name + ' - ' + playersSortedByDeaths[8].deaths +
+            "\n   #10 " + playersSortedByDeaths[9].name + ' - ' + playersSortedByDeaths[9].deaths);
     }
 },
 { // #### WHO COMMAND ####
