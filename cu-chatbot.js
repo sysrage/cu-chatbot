@@ -618,11 +618,14 @@ var indexOfServer = function(server) {
 };
 
 // function to check if game server is up
-var isGameServerUp = function(server, callback) {
+function isGameServerUp(server, callback) {
     server.cuRest.getServers(function(data, error) {
         if (! error) {
             for (var i = 0; i < data.length; i++) {
-                if (data[i].name.toLowerCase() === server.name.toLowerCase()) callback(true);
+                if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
+                    callback(true);
+                    return;
+                }
             }
             callback(false);
         } else {
