@@ -3,7 +3,7 @@
 var express = require('express');
 var fs      = require('fs');
 
-var cuRest = require('./cu-rest.js');
+var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 
@@ -162,7 +162,7 @@ var SampleApp = function() {
             pageContent = "";
             config.servers.forEach(function(s, index) {
                 server[s.name] = s;
-                server[s.name].rAPI = new cuRest({server: s.name});
+                server[s.name].rAPI = new cuRestAPI(s.name);
                 server[s.name].rAPI.getControlGame(null, function(data, error) {
                     if (! error) {
                         var artScore = data.arthurianScore;

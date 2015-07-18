@@ -423,16 +423,16 @@ var chatCommands = [
             var targetServer = server;
         }
 
-        var firstGame = gameStats[server.name].firstGame;
-        var gameNumber = gameStats[server.name].gameNumber;
-        var artWins = gameStats[server.name].artWins;
-        var tuaWins = gameStats[server.name].tuaWins;
-        var vikWins = gameStats[server.name].vikWins;
+        var firstGame = gameStats[targetServer.name].firstGame;
+        var gameNumber = gameStats[targetServer.name].gameNumber;
+        var artWins = gameStats[targetServer.name].artWins;
+        var tuaWins = gameStats[targetServer.name].tuaWins;
+        var vikWins = gameStats[targetServer.name].vikWins;
 
-        sendReply(server, room, sender, "Out of " + gameStats[server.name].gameNumber + " games played, each realm has won as follows:" +
-            "\nArthurian Wins: " + gameStats[server.name].artWins +
-            "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins +
-            "\nViking Wins: " + gameStats[server.name].vikWins);
+        sendReply(server, room, sender, "Out of " + gameStats[targetServer.name].gameNumber + " games played, each realm has won as follows:" +
+            "\nArthurian Wins: " + gameStats[targetServer.name].artWins +
+            "\nTuathaDeDanann Wins: " + gameStats[targetServer.name].tuaWins +
+            "\nViking Wins: " + gameStats[targetServer.name].vikWins);
     }
 },
 { // #### LEADERBOARD COMMAND ####
@@ -455,13 +455,13 @@ var chatCommands = [
         }
 
         for (var i = 0; i < 10; i++) {
-            if (! playerStats[i]) playerStats[i] = {name: 'Nobody', kills: 0, deaths: 0};
+            if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {name: 'Nobody', kills: 0, deaths: 0};
         }
 
-        var playersSortedByKills = playerStats.concat().sort(function(a, b) { return b.kills - a.kills; });
-        var playersSortedByDeaths = playerStats.concat().sort(function(a, b) { return b.deaths - a.deaths; });
+        var playersSortedByKills = playerStats[targetServer.name].concat().sort(function(a, b) { return b.kills - a.kills; });
+        var playersSortedByDeaths = playerStats[targetServer.name].concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Kills:" +
+        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
             "\n   #1 " + playersSortedByKills[0].name + ' - ' + playersSortedByKills[0].kills +
             "\n   #2 " + playersSortedByKills[1].name + ' - ' + playersSortedByKills[1].kills +
             "\n   #3 " + playersSortedByKills[2].name + ' - ' + playersSortedByKills[2].kills +
@@ -472,7 +472,7 @@ var chatCommands = [
             "\n   #8 " + playersSortedByKills[7].name + ' - ' + playersSortedByKills[7].kills +
             "\n   #9 " + playersSortedByKills[8].name + ' - ' + playersSortedByKills[8].kills +
             "\n   #10 " + playersSortedByKills[9].name + ' - ' + playersSortedByKills[9].kills);
-        sendReply(server, room, sender, "Current Leaderbord for " + server.name + " - Deaths:" +
+        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
             "\n   #1 " + playersSortedByDeaths[0].name + ' - ' + playersSortedByDeaths[0].deaths +
             "\n   #2 " + playersSortedByDeaths[1].name + ' - ' + playersSortedByDeaths[1].deaths +
             "\n   #3 " + playersSortedByDeaths[2].name + ' - ' + playersSortedByDeaths[2].deaths +
