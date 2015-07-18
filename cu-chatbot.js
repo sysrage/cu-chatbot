@@ -436,7 +436,7 @@ var chatCommands = [
         var tuaWins = gameStats[targetServer.name].tuaWins;
         var vikWins = gameStats[targetServer.name].vikWins;
 
-        sendReply(server, room, sender, "Out of " + gameStats[targetServer.name].gameNumber + " games played, each realm has won as follows:" +
+        sendReply(server, room, sender, "Out of " + gameStats[targetServer.name].gameNumber + " games played on " + targetServer.name + ", each realm has won as follows:" +
             "\nArthurian Wins: " + gameStats[targetServer.name].artWins +
             "\nTuathaDeDanann Wins: " + gameStats[targetServer.name].tuaWins +
             "\nViking Wins: " + gameStats[targetServer.name].vikWins);
@@ -973,13 +973,6 @@ function startClient(server) {
             setTimeout(function() { startClient(server); }, 2000);
             return;
         } else {
-            // Server initialization
-            getMOTD(server);
-            getMOTDIgnore(server);
-            getGameStats(server);
-            getPlayerStats(server);
-            server.motdReceivers = [];
-
             // Connect to XMPP servers
             client[server.name] = {
                 xmpp: new xmpp.Client({
@@ -1222,8 +1215,6 @@ function stopClient(server) {
     clearInterval(client[server.name].connTimer);
     clearInterval(client[server.name].gameTimer);
     client[server.name] = undefined;
-    gameStats[server.name] = undefined;
-    playerStats[server.name] = undefined;
 }
 
 // Initial startup
@@ -1233,6 +1224,13 @@ var playerStats = [];
 config.servers.forEach(function(server) {
     // Connect to REST API
     server.cuRest = new cuRestAPI(server.name);
+
+    // Server initialization
+    getMOTD(server);
+    getMOTDIgnore(server);
+    getGameStats(server);
+    getPlayerStats(server);
+    server.motdReceivers = [];
 
     // Start XMPP client
     startClient(server);
