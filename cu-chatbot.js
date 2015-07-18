@@ -118,11 +118,11 @@ var chatCommands = [
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            if (indexOfServer(getParams(this.command, message, 0)) > -1) {
-                var sn = params.split(' ')[0];
-                var targetServer = config.servers[indexOfServer(sn)];
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "No server exists named '" + params.split(' ')[0] + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
@@ -158,11 +158,11 @@ var chatCommands = [
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            if (indexOfServer(getParams(this.command, message, 0)) > -1) {
-                var sn = params.split(' ')[0];
-                var targetServer = config.servers[indexOfServer(sn)];
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "No server exists named '" + params.split(' ')[0] + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
@@ -272,23 +272,23 @@ var chatCommands = [
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-
         if (params.length > 0) {
-            if (client[params] && client[params].connected) {
-                targetServer = params;
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
-            var targetServer = server.name;
+            var targetServer = server;
         }
 
-        client[targetServer].cuRest.getPlayers(function(data, error) {
+        targetServer.cuRest.getPlayers(function(data, error) {
             if (! error) {
                 var players = data;
                 var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer + ":" +
+                sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer.name + ":" +
                     "\n   Arthurians: " + players.arthurians +
                     "\n   TuathaDeDanann: " + players.tuathaDeDanann +
                     "\n   Vikings: " + players.vikings);
@@ -304,7 +304,7 @@ var chatCommands = [
         "\nUsage: " + commandChar + "servers",
     exec: function(server, room, sender, message, extras) {
 
-        client[server.name].cuRest.getServers(function(data, error) {
+        server.cuRest.getServers(function(data, error) {
             if (! error) {
                 var servers = [];
                 var totalServers = 0;
@@ -331,22 +331,22 @@ var chatCommands = [
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-
         if (params.length > 0) {
-            if (client[params] && client[params].connected) {
-                targetServer = params;
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
-            var targetServer = server.name;
+            var targetServer = server;
         }
 
-        client[targetServer].cuRest.getEvents(function(data, error) {
+        targetServer.cuRest.getEvents(function(data, error) {
             if (! error) {
                 if (data.length < 1) {
-                    sendReply(server, room, sender, "There are currently no events scheduled for this server.");
+                    sendReply(server, room, sender, "There are currently no events scheduled for " + targetServer.name + ".");
                 } else {
                     data.forEach(function(e) {
                         util.log(e);
@@ -365,19 +365,19 @@ var chatCommands = [
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-
         if (params.length > 0) {
-            if (client[params] && client[params].connected) {
-                targetServer = params;
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
-            var targetServer = server.name;
+            var targetServer = server;
         }
 
-        client[targetServer].cuRest.getControlGame(null, function(data, error) {
+        targetServer.cuRest.getControlGame(null, function(data, error) {
             if (! error) {
                 var artScore = data.arthurianScore;
                 var tuaScore = data.tuathaDeDanannScore;
@@ -411,16 +411,16 @@ var chatCommands = [
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-
         if (params.length > 0) {
-            if (client[params] && client[params].connected) {
-                targetServer = params;
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
-            var targetServer = server.name;
+            var targetServer = server;
         }
 
         var firstGame = gameStats[server.name].firstGame;
@@ -433,7 +433,6 @@ var chatCommands = [
             "\nArthurian Wins: " + gameStats[server.name].artWins +
             "\nTuathaDeDanann Wins: " + gameStats[server.name].tuaWins +
             "\nViking Wins: " + gameStats[server.name].vikWins);
-        util.log(client[server.name].currentGame)
     }
 },
 { // #### LEADERBOARD COMMAND ####
@@ -443,16 +442,16 @@ var chatCommands = [
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-
         if (params.length > 0) {
-            if (client[params] && client[params].connected) {
-                targetServer = params;
+            var sn = params.split(' ')[0];
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
             } else {
-                sendReply(server, room, sender, "Not currently monitoring server '" + params + "'.");
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
                 return;
             }
         } else {
-            var targetServer = server.name;
+            var targetServer = server;
         }
 
         for (var i = 0; i < 10; i++) {
@@ -620,7 +619,7 @@ var indexOfServer = function(server) {
 
 // function to check if game server is up
 var isGameServerUp = function(server, callback) {
-    client[server.name].cuRest.getServers(function(data, error) {
+    server.cuRest.getServers(function(data, error) {
         if (! error) {
             for (var i = 0; i < data.length; i++) {
                 if (data[i].name.toLowerCase() === server.name.toLowerCase()) callback(true);
@@ -755,15 +754,15 @@ function checkLastStanza(server) {
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
     // Check to make sure game server is up. If not, skip this iteration of the timer.
-    if (client[server.name]) isGameServerUp(server, function(up) {
+    isGameServerUp(server, function(up) {
         if (! up) {
             client[server.name].currentGame = {ended: true};
             return;
         } else {
             // Poll API for latest control game data.
-            client[server.name].cuRest.getControlGame(null, function(cgData, cgError) {
+            server.cuRest.getControlGame(null, function(cgData, cgError) {
                 if (! cgError) {
-                    client[server.name].cuRest.getPlayers(function(pData, pError) {
+                    server.cuRest.getPlayers(function(pData, pError) {
                         if (! pError) {
                             var epochTime = Math.floor((new Date).getTime() / 1000);
                             var artScore = cgData.arthurianScore;
@@ -1029,9 +1028,6 @@ function startClient(server) {
                 server.lastStanza = Math.floor((new Date).getTime() / 1000);
                 client[server.name].connTimer = timerConnected(server);
 
-                // Connect to REST API
-                client[server.name].cuRest = new cuRest({server:server.name});
-
                 // Start watching Control Game
                 client[server.name].gameTimer = timerControlGame(server);
             });
@@ -1225,5 +1221,9 @@ var client = [];
 var gameStats = [];
 var playerStats = [];
 config.servers.forEach(function(server) {
+    // Connect to REST API
+    server.cuRest = new cuRest({server:server.name});
+
+    // Start XMPP client
     startClient(server);
 });
