@@ -72,13 +72,17 @@ var chatCommands = [
         }
 
         var params = getParams(this.command, message);
-        if (params.length > 0 && indexOfServer(getParams(this.command, message, 0)) > -1) {
-            // first parameter is a server name
-            var sn = params.split(' ')[0];
-            params = params.slice(sn.length + 1);
-            var targetServer = config.servers[indexOfServer(sn)];
+        if (params.length > 0) {
+            var sn = params.split(' ')[0].toLowerCase();            
+            if (indexOfServer(sn) > -1) {
+                // first parameter is a server name
+                params = params.slice(sn.length + 1);
+                var targetServer = config.servers[indexOfServer(sn)];
+            } else {
+                var targetServer = server;
+            }
         } else {
-            var targetServer = server;
+            targetServer = server;
         }
 
         if (params.length > 0) {
@@ -118,7 +122,7 @@ var chatCommands = [
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -158,7 +162,7 @@ var chatCommands = [
         var ignoredReceiver = false;
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -202,27 +206,30 @@ var chatCommands = [
         "\nUsage: " + commandChar + "clientoff [server]\n" +
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
-        var params = getParams(this.command, message);
-        var serverToStop = {};
-
         if (extras && extras.motdadmin) {
-            // If user specified a server to stop, use that. Otherwise use the server the user is on.
+            var params = getParams(this.command, message);
             if (params.length > 0) {
-                serverToStop.name = params;
+                var sn = params.split(' ')[0].toLowerCase();
+                if (indexOfServer(sn) > -1) {
+                    targetServer = config.servers[indexOfServer(sn)];
+                } else {
+                    sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+                    return;
+                }
             } else {
-                serverToStop.name = server.name;
+                var targetServer = server;
             }
 
-            if (client[serverToStop.name]) {
+            if (client[targetServer.name]) {
                 // Client is running - Stop it
-                stopClient(serverToStop);
-                if (serverToStop.name !== server.name) {
-                    sendReply(server, room, sender, "Client for " + serverToStop.name + " has been stopped.");
+                stopClient(targetServer);
+                if (targetServer.name !== server.name) {
+                    sendReply(server, room, sender, "Client for " + targetServer.name + " has been stopped.");
                 }
-                util.log("[STATUS] Client for " + serverToStop.name + " stopped by user '" + sender + "'.");
+                util.log("[STATUS] Client for " + targetServer.name + " stopped by user '" + sender + "'.");
             } else {
                 // Client not running - Send error
-                sendReply(server, room, sender, "No client is running for server '"+ serverToStop.name + "'.");
+                sendReply(server, room, sender, "No client is running for server '"+ targetServer.name + "'.");
             }
         } else {
             // User is not allowed - Send error.
@@ -236,32 +243,32 @@ var chatCommands = [
         "\nUsage: " + commandChar + "clienton [server]\n" +
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
-        var params = getParams(this.command, message);
-        var serverToStart = {};
-
         if (extras && extras.motdadmin) {
-            // Show error if server was not specified
-            if (params.length < 1) {
-                sendReply(server, room, sender, "You must specify a server to start.");
-            } else {
-                serverToStart.name = params;
-                if (client[serverToStart.name]) {
-                    // Client is already running - Send error
-                    sendReply(server, room, sender, "A client for " + serverToStart.name + " is already running.");
+            var params = getParams(this.command, message);
+            if (params.length > 0) {
+                var sn = params.split(' ')[0].toLowerCase();
+                if (indexOfServer(sn) > -1) {
+                    targetServer = config.servers[indexOfServer(sn)];
                 } else {
-                    if (indexOfServer(serverToStart.name) < 1) {
-                        // No server exists - Send error
-                        sendReply(server, room, sender, "A server named '" + serverToStart.name + "' does not exist.");
-                    } else {
-                        startClient(config.servers[indexOfServer(serverToStart.name)]);
-                        sendReply(server, room, sender, "A client for " + serverToStart.name + " has been started.");
-                        util.log("[STATUS] Client for " + serverToStart.name + " started by user '" + sender + "'.");
-                    }
+                    sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+                    return;
                 }
+            } else {
+                sendReply(server, room, sender, "You must specify a client to start.");
+                return;
+            }
+
+            if (client[targetServer.name]) {
+                // Client is already running - Send error
+                sendReply(server, room, sender, "A client for " + targetServer.name + " is already running.");
+            } else {
+                startClient(targetServer);
+                sendReply(server, room, sender, "A client for " + targetServer.name + " has been started.");
+                util.log("[STATUS] Client for " + targetServer.name + " started by user '" + sender + "'.");
             }
         } else {
             // User is not allowed - Send error.
-            sendReply(server, room, sender, "You do not have permission to start a client.");
+            sendReply(server, room, sender, "You do not have permission to stop a client.");
         }
     }
 },
@@ -273,7 +280,7 @@ var chatCommands = [
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -332,7 +339,7 @@ var chatCommands = [
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -366,7 +373,7 @@ var chatCommands = [
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -412,7 +419,7 @@ var chatCommands = [
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
@@ -443,7 +450,7 @@ var chatCommands = [
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0];
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 targetServer = config.servers[indexOfServer(sn)];
             } else {
