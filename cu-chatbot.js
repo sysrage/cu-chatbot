@@ -782,7 +782,7 @@ function checkLastStanza(server) {
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
     // Check to make sure game server is up. If not, skip this iteration of the timer.
-    isGameServerUp(server, function(up) {
+    if (client[server.name]) isGameServerUp(server, function(up) {
         if (! up) {
             client[server.name].currentGame = {ended: true};
             return;
