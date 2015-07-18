@@ -10,15 +10,13 @@ var request = require('request');
 var util = require('util');
 
 var servers = [];
-var server = "";
 
-function restAPI(options) {
-    if(!options.server) {
-        server = "Hatchery";
+function restAPI(name) {
+    if(!name) {
+        this.server = "Hatchery";
     } else {
-        server = options.server;
+        this.server = name;
     }
-
     return this;
 }
 
@@ -39,7 +37,7 @@ function getServerInfo(server) {
     };
 }
 
-function getServerURI(verb) {
+function getServerURI(server, verb) {
     var host = "";
     var port = 8000;
     var protocol = "http:";
@@ -60,8 +58,8 @@ function getServerURI(verb) {
     return protocol + "//" + host + ":" + port + "/api/";
 }
 
-restAPI.prototype.call = function(verb, params, callback) {
-    var serverURI = getServerURI(verb);
+restAPI.prototype.call = function(server, verb, params, callback) {
+    var serverURI = getServerURI(server, verb);
 
     // Raw call to the CU REST API
     params = params || {};
@@ -91,63 +89,63 @@ restAPI.prototype.call = function(verb, params, callback) {
 };
 
 restAPI.prototype.getServers = function(callback) {
-    return restAPI.prototype.call("servers", {}, callback);
+    return restAPI.prototype.call(this.server, "servers", {}, callback);
 };
 
 restAPI.prototype.getFactions = function(callback) {
-    return restAPI.prototype.call("game/factions", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/factions", { timeout: 2000 }, callback);
 };
 
 restAPI.prototype.getRaces = function(callback) {
-    return restAPI.prototype.call("game/races", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/races", { timeout: 2000 }, callback);
 };
 
 restAPI.prototype.getPlayers = function(callback) {
-    return restAPI.prototype.call("game/players", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/players", { timeout: 2000 }, callback);
 };
 
 restAPI.prototype.getControlGame = function(query, callback) {
-    return restAPI.prototype.call("game/controlgame", { query: query, timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/controlgame", { query: query, timeout: 2000 }, callback);
 };
 
 restAPI.prototype.getBanes = function(callback) {
-    return restAPI.prototype.call("game/banes", {}, callback);
+    return restAPI.prototype.call(this.server, "game/banes", {}, callback);
 };
 
 restAPI.prototype.getBoons = function(callback) {
-    return restAPI.prototype.call("game/boons", {}, callback);
+    return restAPI.prototype.call(this.server, "game/boons", {}, callback);
 };
 
 restAPI.prototype.getAttributes = function(callback) {
-    return restAPI.prototype.call("game/attributes", {}, callback);
+    return restAPI.prototype.call(this.server, "game/attributes", {}, callback);
 };
 
 restAPI.prototype.getCharacters = function(loginToken, callback) {
-    return restAPI.prototype.call("characters", { query: { loginToken: loginToken } }, callback);
+    return restAPI.prototype.call(this.server, "characters", { query: { loginToken: loginToken } }, callback);
 };
 
 restAPI.prototype.getAbilities = function(callback) {
-    return restAPI.prototype.call("abilities", {}, callback);
+    return restAPI.prototype.call(this.server, "abilities", {}, callback);
 };
 
 restAPI.prototype.getCraftedAbilities = function(query, callback) {
-    return restAPI.prototype.call("craftedabilities", { query: query }, callback);
+    return restAPI.prototype.call(this.server, "craftedabilities", { query: query }, callback);
 };
 
 restAPI.prototype.getPatchNotes = function(callback) {
-    return restAPI.prototype.call("patchnotes", {}, callback);
+    return restAPI.prototype.call(this.server, "patchnotes", {}, callback);
 };
 
 restAPI.prototype.getBanners = function(callback) {
-    return restAPI.prototype.call("banners", {}, callback);
+    return restAPI.prototype.call(this.server, "banners", {}, callback);
 };
 
 restAPI.prototype.getEvents = function(callback) {
-    return restAPI.prototype.call("scheduledevents", {}, callback);
+    return restAPI.prototype.call(this.server, "scheduledevents", {}, callback);
 };
 
 restAPI.prototype.getKills = function(query, callback) {
-    return restAPI.prototype.call("kills", { query: query }, callback);
+    return restAPI.prototype.call(this.server, "kills", { query: query }, callback);
 };
 
 module.exports = restAPI;

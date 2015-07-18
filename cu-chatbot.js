@@ -24,7 +24,7 @@ var fs = require('fs');
 var request = require('request');
 var xmpp = require('node-xmpp');
 
-var cuRest = require('./cu-rest.js');
+var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
@@ -1222,7 +1222,7 @@ var gameStats = [];
 var playerStats = [];
 config.servers.forEach(function(server) {
     // Connect to REST API
-    server.cuRest = new cuRest({server:server.name});
+    server.cuRest = new cuRestAPI(server.name);
 
     // Start XMPP client
     startClient(server);
