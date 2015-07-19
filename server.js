@@ -78,7 +78,9 @@ var SampleApp = function() {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
             //  allows us to run/test the app locally.
             console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
+            // self.ipaddress = "127.0.0.1";
             self.ipaddress = "127.0.0.1";
+
         };
     };
 
@@ -203,51 +205,53 @@ var SampleApp = function() {
                             var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
                             var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-                            server[s.name].leaderboard = '<table width="100%"><tr>' +
-                                '<td width="50%"><b>Kills:</b>' +
-                                "<br /><b>&nbsp;&nbsp;#1</b> " + playersSortedByKills[0].name + ' - ' + playersSortedByKills[0].kills +
-                                "<br /><b>&nbsp;&nbsp;#2</b> " + playersSortedByKills[1].name + ' - ' + playersSortedByKills[1].kills +
-                                "<br /><b>&nbsp;&nbsp;#3</b> " + playersSortedByKills[2].name + ' - ' + playersSortedByKills[2].kills +
-                                "<br /><b>&nbsp;&nbsp;#4</b> " + playersSortedByKills[3].name + ' - ' + playersSortedByKills[3].kills +
-                                "<br /><b>&nbsp;&nbsp;#5</b> " + playersSortedByKills[4].name + ' - ' + playersSortedByKills[4].kills +
-                                "<br /><b>&nbsp;&nbsp;#6</b> " + playersSortedByKills[5].name + ' - ' + playersSortedByKills[5].kills +
-                                "<br /><b>&nbsp;&nbsp;#7</b> " + playersSortedByKills[6].name + ' - ' + playersSortedByKills[6].kills +
-                                "<br /><b>&nbsp;&nbsp;#8</b> " + playersSortedByKills[7].name + ' - ' + playersSortedByKills[7].kills +
-                                "<br /><b>&nbsp;&nbsp;#9</b> " + playersSortedByKills[8].name + ' - ' + playersSortedByKills[8].kills +
-                                "<br /><b>&nbsp;&nbsp;#10</b> " + playersSortedByKills[9].name + ' - ' + playersSortedByKills[9].kills +
-
-                                '</td><td width="50%"><b>Deaths:</b>' +
-                                "<br /><b>&nbsp;&nbsp;#1</b> " + playersSortedByDeaths[0].name + ' - ' + playersSortedByDeaths[0].deaths +
-                                "<br /><b>&nbsp;&nbsp;#2</b> " + playersSortedByDeaths[1].name + ' - ' + playersSortedByDeaths[1].deaths +
-                                "<br /><b>&nbsp;&nbsp;#3</b> " + playersSortedByDeaths[2].name + ' - ' + playersSortedByDeaths[2].deaths +
-                                "<br /><b>&nbsp;&nbsp;#4</b> " + playersSortedByDeaths[3].name + ' - ' + playersSortedByDeaths[3].deaths +
-                                "<br /><b>&nbsp;&nbsp;#5</b> " + playersSortedByDeaths[4].name + ' - ' + playersSortedByDeaths[4].deaths +
-                                "<br /><b>&nbsp;&nbsp;#6</b> " + playersSortedByDeaths[5].name + ' - ' + playersSortedByDeaths[5].deaths +
-                                "<br /><b>&nbsp;&nbsp;#7</b> " + playersSortedByDeaths[6].name + ' - ' + playersSortedByDeaths[6].deaths +
-                                "<br /><b>&nbsp;&nbsp;#8</b> " + playersSortedByDeaths[7].name + ' - ' + playersSortedByDeaths[7].deaths +
-                                "<br /><b>&nbsp;&nbsp;#9</b> " + playersSortedByDeaths[8].name + ' - ' + playersSortedByDeaths[8].deaths +
-                                "<br /><b>&nbsp;&nbsp;#10</b> " + playersSortedByDeaths[9].name + ' - ' + playersSortedByDeaths[9].deaths +
-                                "</td></tr></table>";
-
-                            pageContent = pageContent +
-                                    '<tr><td colspan="3"><center><h2 style="color:#C0C0C0; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</h2></center></td></tr><tr>' +
-                                    '<td valign="top" width="30%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
-                                        '<tr><td bgcolor="#F3E2A9"><center><p style="color: #61380B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px; text-shadow: 1px 1px 2px #000000;">Current Score</p></center></td></tr>' +
-                                        '<tr><td>' + server[s.name].score + '</td></tr>' +
-                                    '</table></td>' +
-                                    '<td valign="top" width="40%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
-                                        '<tr><td bgcolor="#F3E2A9"><center><p style="color: #61380B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px; text-shadow: 1px 1px 2px #000000;">Leader Board</p></center></td></tr>' +
-                                        '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
-                                    '</table></td>' +
-                                    '<td valign="top" width="30%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
-                                        '<tr><td bgcolor="#F3E2A9"><center><p style="color: #61380B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px; text-shadow: 1px 1px 2px #000000;">Realm History</p></center></td></tr>' +
-                                        '<tr><td>' + server[s.name].wins + '</td></tr>' +
-                                    '</table></td></tr>';
-
-                            if ((config.servers.length -1) === index) {
-                                res.setHeader('Content-Type', 'text/html');
-                                res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                            server[s.name].leaderboard = '<center><table width="95%" style="border-collapse: collapse;">' +
+                                '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle">Kills</p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle">Deaths</p></center></td></tr>';
+                            for (var i = 0; i < 10; i++) {
+                                server[s.name].leaderboard = server[s.name].leaderboard +
+                                    '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].name + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
+                                    '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].name + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
                             }
+                            server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
+
+
+                            server[s.name].rAPI.getPlayers(function(data, error) {
+                                if (! error) {
+                                    var players = data;
+                                    var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+                                    server[s.name].players = "<b>Current Player Count:</b> " + totalPlayers +
+                                        "<br /><b>Arthurians:</b> " + players.arthurians +
+                                        "<br /><b>TuathaDeDanann:</b> " + players.tuathaDeDanann +
+                                        "<br /><b>Vikings:</b> " + players.vikings;
+                                } else {
+                                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                                }
+
+                                pageContent = pageContent +
+                                        '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</h2></center></td></tr><tr>' +
+                                        '<td valign="top" width="33%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
+                                            '<tr><td>' + server[s.name].score + '</td></tr>' +
+                                        '</table></td>' +
+                                        '<td valign="top" width="34%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
+                                            '<tr><td>' + server[s.name].players + '</td></tr>' +
+                                        '</table></td>' +
+                                        '<td valign="top" width="33%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
+                                            '<tr><td>' + server[s.name].wins + '</td></tr>' +
+                                        '</table></td></tr>' +
+
+                                        '<tr><td colspan="3" valign="top" width="40%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
+                                            '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
+                                        '</table></td></tr>';
+
+                                if ((config.servers.length -1) === index) {
+                                    res.setHeader('Content-Type', 'text/html');
+                                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                                }
+                            });
                         });
                     });
                 });
