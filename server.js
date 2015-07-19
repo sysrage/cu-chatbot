@@ -181,25 +181,25 @@ var SampleApp = function() {
                             var gameState = "Advanced Game Active";                
                         }
 
-                        server[s.name].score = "<b>Game State:</b> " + gameState +
-                            "<br /><b>Time Remaining:</b> " + minLeft + " min. " + secLeft + " sec." +
-                            "<br /><b>Arthurian Score:</b> " + artScore +
-                            "<br /><b>TuathaDeDanann Score:</b> " + tuaScore +
-                            "<br /><b>Viking Score:</b> " + vikScore;
+                        server[s.name].score = '<b>Game State:</b> ' + gameState +
+                            '<br /><b>Time Remaining:</b> ' + minLeft + ' min. ' + secLeft + ' sec.<br />' +
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Score:</b> ' + artScore +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Score:</b> ' + tuaScore +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Score:</b> ' + vikScore;
                     } else {
                         server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
                     }
 
                     getGameStats(server[s.name], function(gs) {
-                        server[s.name].wins = "<b>Total Rounds Played:</b> " + gs.gameNumber +
-                            "<br /><b>Arthurian Wins:</b> " + gs.artWins +
-                            "<br /><b>TuathaDeDanann Wins:</b> " + gs.tuaWins +
-                            "<br /><b>Viking Wins:</b> " + gs.vikWins;
+                        server[s.name].wins = '<b>Total Rounds Played:</b> ' + gs.gameNumber + '<br />&nbsp;<br />' +
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + gs.artWins +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + gs.tuaWins +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + gs.vikWins;
 
                         getPlayerStats(server[s.name], function(ps) {
 
                             for (var i = 0; i < 10; i++) {
-                                if (! ps[i]) ps[i] = {name: 'Nobody', kills: 0, deaths: 0};
+                                if (! ps[i]) ps[i] = {playerName: 'Nobody', kills: 0, deaths: 0};
                             }
 
                             var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
@@ -219,25 +219,25 @@ var SampleApp = function() {
                                 if (! error) {
                                     var players = data;
                                     var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                                    server[s.name].players = "<b>Current Player Count:</b> " + totalPlayers +
-                                        "<br /><b>Arthurians:</b> " + players.arthurians +
-                                        "<br /><b>TuathaDeDanann:</b> " + players.tuathaDeDanann +
-                                        "<br /><b>Vikings:</b> " + players.vikings;
+                                    server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers + '<br />&nbsp;<br />' +
+                                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + players.arthurians +
+                                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + players.tuathaDeDanann +
+                                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + players.vikings;
                                 } else {
                                     server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
                                 }
 
                                 pageContent = pageContent +
                                         '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</h2></center></td></tr><tr>' +
-                                        '<td valign="top" width="33%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].score + '</td></tr>' +
                                         '</table></td>' +
-                                        '<td valign="top" width="34%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].players + '</td></tr>' +
                                         '</table></td>' +
-                                        '<td valign="top" width="33%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].wins + '</td></tr>' +
                                         '</table></td></tr>' +
