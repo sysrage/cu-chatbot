@@ -462,34 +462,34 @@ var chatCommands = [
         }
 
         for (var i = 0; i < 10; i++) {
-            if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {name: 'Nobody', kills: 0, deaths: 0};
+            if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {playerName: 'Nobody', kills: 0, deaths: 0};
         }
 
         var playersSortedByKills = playerStats[targetServer.name].concat().sort(function(a, b) { return b.kills - a.kills; });
         var playersSortedByDeaths = playerStats[targetServer.name].concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
-            "\n   #1 " + playersSortedByKills[0].name + ' - ' + playersSortedByKills[0].kills +
-            "\n   #2 " + playersSortedByKills[1].name + ' - ' + playersSortedByKills[1].kills +
-            "\n   #3 " + playersSortedByKills[2].name + ' - ' + playersSortedByKills[2].kills +
-            "\n   #4 " + playersSortedByKills[3].name + ' - ' + playersSortedByKills[3].kills +
-            "\n   #5 " + playersSortedByKills[4].name + ' - ' + playersSortedByKills[4].kills +
-            "\n   #6 " + playersSortedByKills[5].name + ' - ' + playersSortedByKills[5].kills +
-            "\n   #7 " + playersSortedByKills[6].name + ' - ' + playersSortedByKills[6].kills +
-            "\n   #8 " + playersSortedByKills[7].name + ' - ' + playersSortedByKills[7].kills +
-            "\n   #9 " + playersSortedByKills[8].name + ' - ' + playersSortedByKills[8].kills +
-            "\n   #10 " + playersSortedByKills[9].name + ' - ' + playersSortedByKills[9].kills);
+            "\n   #1 " + playersSortedByKills[0].playerName + ' - ' + playersSortedByKills[0].kills +
+            "\n   #2 " + playersSortedByKills[1].playerName + ' - ' + playersSortedByKills[1].kills +
+            "\n   #3 " + playersSortedByKills[2].playerName + ' - ' + playersSortedByKills[2].kills +
+            "\n   #4 " + playersSortedByKills[3].playerName + ' - ' + playersSortedByKills[3].kills +
+            "\n   #5 " + playersSortedByKills[4].playerName + ' - ' + playersSortedByKills[4].kills +
+            "\n   #6 " + playersSortedByKills[5].playerName + ' - ' + playersSortedByKills[5].kills +
+            "\n   #7 " + playersSortedByKills[6].playerName + ' - ' + playersSortedByKills[6].kills +
+            "\n   #8 " + playersSortedByKills[7].playerName + ' - ' + playersSortedByKills[7].kills +
+            "\n   #9 " + playersSortedByKills[8].playerName + ' - ' + playersSortedByKills[8].kills +
+            "\n   #10 " + playersSortedByKills[9].playerName + ' - ' + playersSortedByKills[9].kills);
         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
-            "\n   #1 " + playersSortedByDeaths[0].name + ' - ' + playersSortedByDeaths[0].deaths +
-            "\n   #2 " + playersSortedByDeaths[1].name + ' - ' + playersSortedByDeaths[1].deaths +
-            "\n   #3 " + playersSortedByDeaths[2].name + ' - ' + playersSortedByDeaths[2].deaths +
-            "\n   #4 " + playersSortedByDeaths[3].name + ' - ' + playersSortedByDeaths[3].deaths +
-            "\n   #5 " + playersSortedByDeaths[4].name + ' - ' + playersSortedByDeaths[4].deaths +
-            "\n   #6 " + playersSortedByDeaths[5].name + ' - ' + playersSortedByDeaths[5].deaths +
-            "\n   #7 " + playersSortedByDeaths[6].name + ' - ' + playersSortedByDeaths[6].deaths +
-            "\n   #8 " + playersSortedByDeaths[7].name + ' - ' + playersSortedByDeaths[7].deaths +
-            "\n   #9 " + playersSortedByDeaths[8].name + ' - ' + playersSortedByDeaths[8].deaths +
-            "\n   #10 " + playersSortedByDeaths[9].name + ' - ' + playersSortedByDeaths[9].deaths);
+            "\n   #1 " + playersSortedByDeaths[0].playerName + ' - ' + playersSortedByDeaths[0].deaths +
+            "\n   #2 " + playersSortedByDeaths[1].playerName + ' - ' + playersSortedByDeaths[1].deaths +
+            "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths +
+            "\n   #4 " + playersSortedByDeaths[3].playerName + ' - ' + playersSortedByDeaths[3].deaths +
+            "\n   #5 " + playersSortedByDeaths[4].playerName + ' - ' + playersSortedByDeaths[4].deaths +
+            "\n   #6 " + playersSortedByDeaths[5].playerName + ' - ' + playersSortedByDeaths[5].deaths +
+            "\n   #7 " + playersSortedByDeaths[6].playerName + ' - ' + playersSortedByDeaths[6].deaths +
+            "\n   #8 " + playersSortedByDeaths[7].playerName + ' - ' + playersSortedByDeaths[7].deaths +
+            "\n   #9 " + playersSortedByDeaths[8].playerName + ' - ' + playersSortedByDeaths[8].deaths +
+            "\n   #10 " + playersSortedByDeaths[9].playerName + ' - ' + playersSortedByDeaths[9].deaths);
     }
 }
 ];
@@ -863,7 +863,7 @@ function controlGame(server) {
                                     // Parse each killCount entry
                                     var existingPlayer = false;
                                     for (var i = 0; i < playerStats[server.name].length; i++) {
-                                        if (playerStats[server.name][i].name === killCountEntry.playerName) {
+                                        if (playerStats[server.name][i].playerName === killCountEntry.playerName) {
                                             playerStats[server.name][i].kills += killCountEntry.kills;
                                             playerStats[server.name][i].gamesPlayed++;
                                             existingPlayer = true;
@@ -872,11 +872,11 @@ function controlGame(server) {
                                     if (! existingPlayer) playerStats[server.name].push({playerName: killCountEntry.playerName, kills: killCountEntry.kills, deaths: 0, gamesPlayed: 1});
                                 });
 
-                                client[server.name].currentGame.killCount.forEach(function(deathCountEntry) {
+                                client[server.name].currentGame.deathCount.forEach(function(deathCountEntry) {
                                     // Parse each deathCount entry
                                     var existingPlayer = false;
                                     for (var i = 0; i < playerStats[server.name].length; i++) {
-                                        if (playerStats[server.name][i].name === deathCountEntry.playerName) {
+                                        if (playerStats[server.name][i].playerName === deathCountEntry.playerName) {
                                             playerStats[server.name][i].deaths += deathCountEntry.deaths;
                                             var onlyDied = true;
                                             client[server.name].currentGame.killCount.forEach(function(killCountEntry) {
