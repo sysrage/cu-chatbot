@@ -763,10 +763,17 @@ function checkLastStanza(server) {
 // Time to monitor control game.
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
+    var epochTime = Math.floor((new Date).getTime() / 1000);
+    if (typeof client[server.name].currentGame === 'undefined') {
+        // Bot just started, perform initialization
+        client[server.name].currentGame = { startTime: 0, ended: false, artScore: 0, tuaScore: 0, vikScore: 0, killCount: [], deathCount: [] };
+        client[server.name].lastBegTime = epochTime;
+    }
+
     // Check to make sure game server is up. If not, skip this iteration of the timer.
     isGameServerUp(server, function(up) {
         if (! up) {
-            client[server.name].currentGame = {ended: true};
+            if (! client[server.name].currentGame.ended) client[server.name].currentGame.ended = true;
             return;
         } else {
             // Poll API for latest control game data.
@@ -774,7 +781,6 @@ function controlGame(server) {
                 if (! cgError) {
                     server.cuRest.getPlayers(function(pData, pError) {
                         if (! pError) {
-                            var epochTime = Math.floor((new Date).getTime() / 1000);
                             var artScore = cgData.arthurianScore;
                             var tuaScore = cgData.tuathaDeDanannScore;
                             var vikScore = cgData.vikingScore;
@@ -788,30 +794,9 @@ function controlGame(server) {
                             var vikCount = pData.vikings;
                             var totalPlayers = pData.arthurians + pData.tuathaDeDanann + pData.vikings;
 
-                            if (! client[server.name].currentGame) {
-                                // Bot was just started, do some initialization
-                                client[server.name].currentGame = {
-                                    startTime: 0,
-                                    ended: false,
-                                    artScore: artScore,
-                                    tuaScore: tuaScore,
-                                    vikScore: vikScore,
-                                    killCount: [],
-                                    deathCount: []
-                                };
-
-                                if (gameState === 2 || gameState === 3) {
-                                    client[server.name].currentGame.startTime = epochTime - timeLeft;
-                                    if (epochTime - gameStats[server.name].lastStartTime > server.roundTime) gameStats[server.name].gameNumber++;
-                                } else {
-                                    client[server.name].currentGame.ended = true;
-                                }
-
-                                client[server.name].lastBegTime = epochTime;
-                            }
-
                             if ((gameState === 1) && ! client[server.name].currentGame.ended) {
                                 // Game we were monitoring has ended. Save stats.
+                                gameStats[server.name].gameNumber++;
                                 if (artScore === tuaScore && artScore === vikScore) {
                                     // Three way tie
                                     gameStats[server.name].artWins++;
@@ -911,9 +896,7 @@ function controlGame(server) {
                                     deathCount: []
                                 }
 
-                                // increase game counter
-                                gameStats[server.name].gameNumber++;
-                                util.log("[GAME] A new round (" + gameStats[server.name].gameNumber + ") has started on " + server.name);
+                                util.log("[GAME] A new round (" + (gameStats[server.name].gameNumber + 1) + ") has started on " + server.name);
                             }
 
                             // Beg for users to join the game.
@@ -929,8 +912,7 @@ function controlGame(server) {
                         }
                     });
                 } else {
-                    // Unable to pull API data. Server is likely down.
-                    var gameState = -1;
+                    // Unable to pull API data.
                     util.log("[ERROR] Server is up but controlgame API is not responding.");
                 }
             });

@@ -229,23 +229,23 @@ var SampleApp = function() {
 
                                 pageContent = pageContent +
                                         '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</h2></center></td></tr><tr>' +
-                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].score + '</td></tr>' +
-                                        '</table></td>' +
-                                        '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '</table></center></td>' +
+                                        '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].players + '</td></tr>' +
-                                        '</table></td>' +
-                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '</table></center></td>' +
+                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].wins + '</td></tr>' +
-                                        '</table></td></tr>' +
+                                        '</table></center></td></tr>' +
 
-                                        '<tr><td colspan="3" valign="top" width="40%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><table width="100%">' +
+                                        '<tr><td colspan="3" valign="top" width="40%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
-                                        '</table></td></tr>';
+                                        '</table></center></td></tr>';
 
                                 if ((config.servers.length -1) === index) {
                                     res.setHeader('Content-Type', 'text/html');
