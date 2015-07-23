@@ -471,25 +471,12 @@ var chatCommands = [
         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
             "\n   #1 " + playersSortedByKills[0].playerName + ' - ' + playersSortedByKills[0].kills +
             "\n   #2 " + playersSortedByKills[1].playerName + ' - ' + playersSortedByKills[1].kills +
-            "\n   #3 " + playersSortedByKills[2].playerName + ' - ' + playersSortedByKills[2].kills +
-            "\n   #4 " + playersSortedByKills[3].playerName + ' - ' + playersSortedByKills[3].kills +
-            "\n   #5 " + playersSortedByKills[4].playerName + ' - ' + playersSortedByKills[4].kills +
-            "\n   #6 " + playersSortedByKills[5].playerName + ' - ' + playersSortedByKills[5].kills +
-            "\n   #7 " + playersSortedByKills[6].playerName + ' - ' + playersSortedByKills[6].kills +
-            "\n   #8 " + playersSortedByKills[7].playerName + ' - ' + playersSortedByKills[7].kills +
-            "\n   #9 " + playersSortedByKills[8].playerName + ' - ' + playersSortedByKills[8].kills +
-            "\n   #10 " + playersSortedByKills[9].playerName + ' - ' + playersSortedByKills[9].kills);
+            "\n   #3 " + playersSortedByKills[2].playerName + ' - ' + playersSortedByKills[2].kills);
         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
             "\n   #1 " + playersSortedByDeaths[0].playerName + ' - ' + playersSortedByDeaths[0].deaths +
             "\n   #2 " + playersSortedByDeaths[1].playerName + ' - ' + playersSortedByDeaths[1].deaths +
-            "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths +
-            "\n   #4 " + playersSortedByDeaths[3].playerName + ' - ' + playersSortedByDeaths[3].deaths +
-            "\n   #5 " + playersSortedByDeaths[4].playerName + ' - ' + playersSortedByDeaths[4].deaths +
-            "\n   #6 " + playersSortedByDeaths[5].playerName + ' - ' + playersSortedByDeaths[5].deaths +
-            "\n   #7 " + playersSortedByDeaths[6].playerName + ' - ' + playersSortedByDeaths[6].deaths +
-            "\n   #8 " + playersSortedByDeaths[7].playerName + ' - ' + playersSortedByDeaths[7].deaths +
-            "\n   #9 " + playersSortedByDeaths[8].playerName + ' - ' + playersSortedByDeaths[8].deaths +
-            "\n   #10 " + playersSortedByDeaths[9].playerName + ' - ' + playersSortedByDeaths[9].deaths);
+            "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths);
+        sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
     }
 }
 ];
