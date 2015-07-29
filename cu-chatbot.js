@@ -751,6 +751,7 @@ function checkLastStanza(server) {
 var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
 function controlGame(server) {
     var epochTime = Math.floor((new Date).getTime() / 1000);
+    if (typeof client[server.name] === 'undefined') return;
     if (typeof client[server.name].currentGame === 'undefined') {
         // Bot just started, perform initialization
         client[server.name].currentGame = { startTime: 0, ended: false, artScore: 0, tuaScore: 0, vikScore: 0, killCount: [], deathCount: [] };
