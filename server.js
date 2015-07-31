@@ -173,7 +173,9 @@ var SampleApp = function() {
                         var timeLeft = data.timeLeft;
                         var minLeft = Math.floor(timeLeft / 60);
                         var secLeft = Math.floor(timeLeft % 60);
-                        if (data.gameState === 1) {
+                        if (data.gameState === 0) {
+                            var gameState = "Disabled"
+                        } else if (data.gameState === 1) {
                             var gameState = "Waiting For Next Round";                
                         } else if (data.gameState === 2) {
                             var gameState = "Basic Game Active";                

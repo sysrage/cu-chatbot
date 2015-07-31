@@ -392,7 +392,9 @@ var chatCommands = [
                 var timeLeft = data.timeLeft;
                 var minLeft = Math.floor(timeLeft / 60);
                 var secLeft = Math.floor(timeLeft % 60);
-                if (data.gameState === 1) {
+                if (data.gameState === 0) {
+                    var gameState = "Disabled";
+                } else if (data.gameState === 1) {
                     var gameState = "Waiting For Next Round";                
                 } else if (data.gameState === 2) {
                     var gameState = "Basic Game Active";                
@@ -400,11 +402,15 @@ var chatCommands = [
                     var gameState = "Advanced Game Active";                
                 }
 
-                sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
-                    "\nGame State: " + gameState +
-                    "\nArthurian Score: " + artScore +
-                    "\nTuathaDeDanann Score: " + tuaScore +
-                    "\nViking Score: " + vikScore);
+                if (gamestate === "Disabled") {
+                    sendReply(server, room, sender, "The game is current disabled.");
+                } else {
+                    sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
+                        "\nGame State: " + gameState +
+                        "\nArthurian Score: " + artScore +
+                        "\nTuathaDeDanann Score: " + tuaScore +
+                        "\nViking Score: " + vikScore);
+                }
             } else {
                 sendReply(server, room, sender, "Error accessing API. Server may be down.");
             }
