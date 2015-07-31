@@ -403,7 +403,7 @@ var chatCommands = [
                 }
 
                 if (gameState === "Disabled") {
-                    sendReply(server, room, sender, "The game is current disabled.");
+                    sendReply(server, room, sender, "The game is currently disabled.");
                 } else {
                     sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
                         "\nGame State: " + gameState +
