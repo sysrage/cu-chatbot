@@ -619,17 +619,26 @@ var indexOfServer = function(server) {
 
 // function to check if game server is up
 function isGameServerUp(server, callback) {
-    server.cuRest.getServers(function(data, error) {
+    // server.cuRest.getServers(function(data, error) {
+    //     if (! error) {
+    //         for (var i = 0; i < data.length; i++) {
+    //             if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
+    //                 callback(true);
+    //                 return;
+    //             }
+    //         }
+    //         callback(false);
+    //     } else {
+    //         util.log("[ERROR] Unable to poll server list API.");
+    //         callback(false);
+    //     }
+    // });
+
+    // Temporary workaround since Wyrmling isn't showing in servers API
+    server.cuRest.getControlGame(null, function(data, error) {
         if (! error) {
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
-                    callback(true);
-                    return;
-                }
-            }
-            callback(false);
+            callback(true);
         } else {
-            util.log("[ERROR] Unable to poll server list API.");
             callback(false);
         }
     });
@@ -759,17 +768,20 @@ function controlGame(server) {
     var epochTime = Math.floor((new Date).getTime() / 1000);
     if (typeof client[server.name] === 'undefined') return;
     if (typeof client[server.name].currentGame === 'undefined') {
-        // Bot just started, perform initialization
-        client[server.name].currentGame = { startTime: 0, ended: false, artScore: 0, tuaScore: 0, vikScore: 0, killCount: [], deathCount: [] };
+        // Timer just started, perform initialization
+        client[server.name].currentGame = { startTime: 0, ended: true, artScore: 0, tuaScore: 0, vikScore: 0, killCount: [], deathCount: [] };
         client[server.name].lastBegTime = epochTime;
+        client[server.name].downCount = 0;
     }
 
     // Check to make sure game server is up. If not, skip this iteration of the timer.
     isGameServerUp(server, function(up) {
         if (! up) {
-            if (! client[server.name].currentGame.ended) client[server.name].currentGame.ended = true;
+            client[server.name].downCount++;
+            if (client[server.name].downCount > 10 && ! client[server.name].currentGame.ended) client[server.name].currentGame.ended = true;
             return;
         } else {
+            client[server.name].downCount = 0;
             // Poll API for latest control game data.
             server.cuRest.getControlGame(null, function(cgData, cgError) {
                 if (! cgError) {
@@ -781,7 +793,7 @@ function controlGame(server) {
                             var timeLeft = cgData.timeLeft;
                             var minLeft = Math.floor(timeLeft / 60);
                             var secLeft = Math.floor(timeLeft % 60);
-                            var gameState = cgData.gameState; // 1 = Over / 2 = Basic Game / 3 = Advanced Game
+                            var gameState = cgData.gameState; // 0 = Disabled / 1 = Over / 2 = Basic Game / 3 = Advanced Game
 
                             var artCount = pData.arthurians;
                             var tuaCount = pData.tuathaDeDanann;
@@ -949,7 +961,7 @@ function startClient(server) {
             setTimeout(function() { startClient(server); }, 2000);
             return;
         } else {
-            // Connect to XMPP servers
+            // Start to XMPP client
             client[server.name] = {
                 xmpp: new xmpp.Client({
                     jid: server.username + '/bot-' + random(6),
@@ -958,15 +970,13 @@ function startClient(server) {
                 })
             };
 
-            client[server.name].connected = false;
-
             // client[server.name].xmpp.connection.socket.setTimeout(0);
             // client[server.name].xmpp.connection.socket.setKeepAlive(true, 10000);
 
             // Handle client errors
             client[server.name].xmpp.on('error', function(err) {
                 if (err.code === "EADDRNOTAVAIL" || err.code === "ENOTFOUND") {
-                    util.log("[ERROR] No internet connection available.");
+                    util.log("[ERROR] Unable to resolve the server's DNS address (" + server.name + ").");
                 } else if (err.code === "ETIMEDOUT") {
                     util.log("[ERROR] Connection timed out (" + server.name + ").")
                 } else {
@@ -979,14 +989,12 @@ function startClient(server) {
                 server.rooms.forEach(function(room) {
                     room.joined = false;
                 });
-                client[server.name].connected = false;
                 util.log("[STATUS] Client disconnected from " + server.name + ". Reconnecting...");
             });
 
             // Once connected, set available presence and join rooms
             client[server.name].xmpp.on('online', function() {
                 util.log("[STATUS] Client connected to " + server.name + ".");
-                client[server.name].connected = true;
 
                 // Set ourselves as online
                 client[server.name].xmpp.send(new xmpp.Element('presence', { type: 'available' }).c('show').t('chat'));
@@ -1112,7 +1120,7 @@ function startClient(server) {
                         if (killerName !== killedName) {
                             // Update killCount list
                             var existingPlayer = false;
-                            for (var i = 0; i < client[server.name].currentGame.killCount; i++) {
+                            for (var i = 0; i < client[server.name].currentGame.killCount.length; i++) {
                                 if (client[server.name].currentGame.killCount[i].playerName === killerName) {
                                     client[server.name].currentGame.killCount[i].kills++;
                                     existingPlayer = true;
@@ -1122,7 +1130,7 @@ function startClient(server) {
 
                             // Update deathCount list
                             var existingPlayer = false;
-                            for (var i = 0; i < client[server.name].currentGame.deathCount; i++) {
+                            for (var i = 0; i < client[server.name].currentGame.deathCount.length; i++) {
                                 if (client[server.name].currentGame.deathCount[i].playerName === killedName) {
                                     client[server.name].currentGame.deathCount[i].deaths++;
                                     existingPlayer = true;

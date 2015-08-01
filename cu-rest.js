@@ -93,19 +93,19 @@ restAPI.prototype.getServers = function(callback) {
 };
 
 restAPI.prototype.getFactions = function(callback) {
-    return restAPI.prototype.call(this.server, "game/factions", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/factions", { timeout: 3000 }, callback);
 };
 
 restAPI.prototype.getRaces = function(callback) {
-    return restAPI.prototype.call(this.server, "game/races", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/races", { timeout: 3000 }, callback);
 };
 
 restAPI.prototype.getPlayers = function(callback) {
-    return restAPI.prototype.call(this.server, "game/players", { timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/players", { timeout: 3000 }, callback);
 };
 
 restAPI.prototype.getControlGame = function(query, callback) {
-    return restAPI.prototype.call(this.server, "game/controlgame", { query: query, timeout: 2000 }, callback);
+    return restAPI.prototype.call(this.server, "game/controlgame", { query: query, timeout: 3000 }, callback);
 };
 
 restAPI.prototype.getBanes = function(callback) {
