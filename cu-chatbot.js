@@ -525,7 +525,11 @@ function getCUBECount(callback) {
         if (!error) {
             var re = /<h2 id="cube_count_number">([0-9,]+)<\/h2>/ig;
             var cubeCount = re.exec(body);
-            callback(cubeCount[1]);
+            if (cubeCount !== null) {
+                callback(cubeCount[1]);
+            } else {
+                callback("Unknown");
+            }
         }
     });
 }
