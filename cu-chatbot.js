@@ -54,7 +54,6 @@ var chatCommands = [
     help: "The command " + commandChar + "botinfo displays information about this chatbot.\n" +
         "\n" + "Usage: " + commandChar + "botinfo", 
     exec: function(server, room, sender, message, extras) {
-
         sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot" +
             "\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for their help.");
     }
@@ -484,6 +483,16 @@ var chatCommands = [
             "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths);
         sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
     }
+},
+{ // #### CUBECOUNT COMMAND ####
+    command: 'cubecount',
+    help: "The command " + commandChar + "cubecount displays the total number of blocks placed within CUBE.\n" +
+        "\n" + "Usage: " + commandChar + "cubecount", 
+    exec: function(server, room, sender, message, extras) {
+        getCUBECount(function (cubeCount) {
+            sendReply(server, room, sender, "Players have placed a total of " + cubeCount + " blocks within the world.");
+        });
+    }
 }
 ];
 
@@ -507,6 +516,18 @@ function checkInternet(server, callback) {
             callback(true);
         }
     })
+}
+
+// function to get CUBE count
+function getCUBECount(callback) {
+    var url = "http://camelotunchained.com/v2/c-u-b-e/";
+    request(url, function(error, response, body) {
+        if (!error) {
+            var re = /<h2 id="cube_count_number">([0-9,]+)<\/h2>/ig;
+            var cubeCount = re.exec(body);
+            callback(cubeCount[1]);
+        }
+    });
 }
 
 // function to read in the saved game stats
