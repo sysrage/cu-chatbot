@@ -78,8 +78,8 @@ var SampleApp = function() {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
             //  allows us to run/test the app locally.
             console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
-            // self.ipaddress = "127.0.0.1";
             self.ipaddress = "127.0.0.1";
+            // self.ipaddress = "192.168.1.101";
 
         };
     };
@@ -147,18 +147,6 @@ var SampleApp = function() {
     self.createRoutes = function() {
         self.routes = { };
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/test'] = function(req, res) {
-            var hatcheryScore = 'Score for Hatchery';
-
-            res.setHeader('Content-Type', 'text/html');
-            res.send('test');
-        };
-
         self.routes['/'] = function(req, res) {
             server = {};
             pageContent = "";
@@ -208,7 +196,7 @@ var SampleApp = function() {
                             var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
                             server[s.name].leaderboard = '<center><table width="95%" style="border-collapse: collapse;">' +
-                                '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle">Kills</p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle">Deaths</p></center></td></tr>';
+                                '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/kills/'+ s.name + '/">Kills</a></p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/deaths/'+ s.name + '/">Deaths</a></p></center></td></tr>';
                             for (var i = 0; i < 10; i++) {
                                 server[s.name].leaderboard = server[s.name].leaderboard +
                                     '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
@@ -230,7 +218,7 @@ var SampleApp = function() {
                                 }
 
                                 pageContent = pageContent +
-                                        '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</h2></center></td></tr><tr>' +
+                                        '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
                                         '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].score + '</td></tr>' +
@@ -244,7 +232,7 @@ var SampleApp = function() {
                                             '<tr><td>' + server[s.name].wins + '</td></tr>' +
                                         '</table></center></td></tr>' +
 
-                                        '<tr><td colspan="3" valign="top" width="40%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                        '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                             '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
                                             '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
                                         '</table></center></td></tr>';
@@ -258,6 +246,80 @@ var SampleApp = function() {
                     });
                 });
             });
+        };
+
+        self.routes['/kills/:server'] = function(req, res) {
+            var serverName = req.params.server;
+            var pageContent = "";
+
+            for (var i = 0; i < config.servers.length; i++) {
+                if (config.servers[i].name === serverName) {
+                    var server = config.servers[i];
+                }
+            }
+
+            if (typeof server === 'undefined') {
+                pageContent = '<tr><td><center><p class="serverTitle">' + serverName.charAt(0).toUpperCase() + serverName.slice(1) + '</p></center></td></tr>' +
+                    '<tr><td valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                    '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Kill Count</p></center></td></tr>' +
+                    '<tr><td> A server named ' + serverName + ' does not exist.</td></tr></table></center></td></tr>';
+                res.setHeader('Content-Type', 'text/html');
+                res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+            } else {
+                pageContent = '<tr><td><center><p class="serverTitle">' + server.name.charAt(0).toUpperCase() + server.name.slice(1) + '</p></center></td></tr>' +
+                    '<tr><td valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                    '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Kill Count</p></center></td></tr>' +
+                    '<tr><td>';
+
+                getPlayerStats(server, function(ps) {
+                    var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
+
+                    for (var i = 0; i < playersSortedByKills.length; i++) {
+                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByKills[i].playerName + " - " + playersSortedByKills[i].kills + "<br />";
+                    }
+                    pageContent = pageContent + '</td></tr></table></center></td></tr>';
+
+                    res.setHeader('Content-Type', 'text/html');
+                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                });
+            }
+        };
+
+        self.routes['/deaths/:server'] = function(req, res) {
+            var serverName = req.params.server;
+            var pageContent = "";
+
+            for (var i = 0; i < config.servers.length; i++) {
+                if (config.servers[i].name === serverName) {
+                    var server = config.servers[i];
+                }
+            }
+
+            if (typeof server === 'undefined') {
+                pageContent = '<tr><td><center><p class="serverTitle">' + serverName.charAt(0).toUpperCase() + serverName.slice(1) + '</p></center></td></tr>' +
+                    '<tr><td valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                    '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Death Count</p></center></td></tr>' +
+                    '<tr><td> A server named ' + serverName + ' does not exist.</td></tr></table></center></td></tr>';
+                res.setHeader('Content-Type', 'text/html');
+                res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+            } else {
+                pageContent = '<tr><td><center><p class="serverTitle">' + server.name.charAt(0).toUpperCase() + server.name.slice(1) + '</p></center></td></tr>' +
+                    '<tr><td valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                    '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Death Count</p></center></td></tr>' +
+                    '<tr><td>';
+
+                getPlayerStats(server, function(ps) {
+                    var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
+
+                    for (var i = 0; i < playersSortedByDeaths.length; i++) {
+                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByDeaths[i].playerName + " - " + playersSortedByDeaths[i].deaths + "<br />";
+                    }
+                    pageContent = pageContent + '</td></tr></table></center></td></tr>';
+
+                    res.setHeader('Content-Type', 'text/html');
+                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                });
+            }
         };
     };
 
