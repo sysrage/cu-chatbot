@@ -276,13 +276,13 @@ var SampleApp = function() {
                     var totalPlayers = 0;
                     var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
 
-                    playersSortedByKills.foreach(p) {
+                    playersSortedByKills.forEach(function(p) {
                         totalPlayers++;
                         totalKills += p.kills;
-                    }
+                    });
 
                     pageContent = pageContent + "<b>Total Players:</b> " + totalPlayers + "<br />";
-                    pageContent = pageContent + "<b>Total Kills:</b> " + totalKills + "<br />";
+                    pageContent = pageContent + "<b>Total Kills:</b> " + totalKills + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByKills.length; i++) {
                         pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByKills[i].playerName + " - " + playersSortedByKills[i].kills + "<br />";
@@ -323,13 +323,13 @@ var SampleApp = function() {
                     var totalPlayers = 0;
                     var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-                    playersSortedByDeaths.foreach(p) {
+                    playersSortedByDeaths.forEach(function(p) {
                         totalPlayers++;
                         totalDeaths += p.deaths;
-                    }
+                    });
 
                     pageContent = pageContent + "<b>Total Players:</b> " + totalPlayers + "<br />";
-                    pageContent = pageContent + "<b>Total Deaths:</b> " + totalDeaths + "<br />";
+                    pageContent = pageContent + "<b>Total Deaths:</b> " + totalDeaths + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByDeaths.length; i++) {
                         pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByDeaths[i].playerName + " - " + playersSortedByDeaths[i].deaths + "<br />";
