@@ -89,7 +89,14 @@ restAPI.prototype.call = function(server, verb, params, callback) {
 };
 
 restAPI.prototype.getServers = function(callback) {
-    return restAPI.prototype.call(this.server, "servers", {}, callback);
+    restAPI.prototype.call(this.server, "servers", {query: {channelID:"4"}}, function(itServers, error) {
+        restAPI.prototype.call(this.server, "servers", {query: {channelID:"10"}}, function(alphaServers, error) {
+            var allServers = itServers.concat(alphaServers);
+            callback(allServers, null);
+        });
+    });
+
+    // return restAPI.prototype.call(this.server, "servers", {}, callback);
 };
 
 restAPI.prototype.getFactions = function(callback) {
