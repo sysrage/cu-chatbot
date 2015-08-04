@@ -28,7 +28,7 @@ var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
-var commandChar = '!';
+var commandChar = '.';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
@@ -644,29 +644,29 @@ var indexOfServer = function(server) {
 
 // function to check if game server is up
 function isGameServerUp(server, callback) {
-    // server.cuRest.getServers(function(data, error) {
-    //     if (! error) {
-    //         for (var i = 0; i < data.length; i++) {
-    //             if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
-    //                 callback(true);
-    //                 return;
-    //             }
-    //         }
-    //         callback(false);
-    //     } else {
-    //         util.log("[ERROR] Unable to poll server list API.");
-    //         callback(false);
-    //     }
-    // });
-
-    // Temporary workaround since Wyrmling isn't showing in servers API
-    server.cuRest.getControlGame(null, function(data, error) {
+    server.cuRest.getServers(function(data, error) {
         if (! error) {
-            callback(true);
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
+                    callback(true);
+                    return;
+                }
+            }
+            callback(false);
         } else {
+            util.log("[ERROR] Unable to poll server list API.");
             callback(false);
         }
     });
+
+    // Temporary workaround since Wyrmling isn't showing in servers API
+    // server.cuRest.getControlGame(null, function(data, error) {
+    //     if (! error) {
+    //         callback(true);
+    //     } else {
+    //         callback(false);
+    //     }
+    // });
 }
 
 // function to check if user is an MOTD admin
