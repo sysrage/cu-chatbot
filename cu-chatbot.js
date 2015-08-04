@@ -912,7 +912,7 @@ function controlGame(server) {
                                 });
 
                                 client[server.name].currentGame.ended = true;
-                                util.log("[GAME] A round has ended on " + server.name + ". Game and player statistics saved.");
+                                util.log("[GAME] A round has ended on " + server.name + "(" + gameStats[server.name].gameNumber + "). Game and player statistics saved.");
                             }
 
                             if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
@@ -927,7 +927,7 @@ function controlGame(server) {
                                     deathCount: []
                                 }
 
-                                util.log("[GAME] A new round (" + (gameStats[server.name].gameNumber + 1) + ") has started on " + server.name);
+                                util.log("[GAME] A new round has started on " + server.name + " (" + (gameStats[server.name].gameNumber + 1) + ").");
                             }
 
                             // Beg for users to join the game.
