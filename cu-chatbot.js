@@ -28,7 +28,7 @@ var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
 // Chat command definitions
-var commandChar = '.';
+var commandChar = '!';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
@@ -788,7 +788,7 @@ function checkLastStanza(server) {
 }
 
 // Time to monitor control game.
-var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 1000); };
+var timerControlGame = function(server) { return setInterval(function() {controlGame(server); }, 30000); };
 function controlGame(server) {
     var epochTime = Math.floor((new Date).getTime() / 1000);
     if (typeof client[server.name] === 'undefined') return;
@@ -803,7 +803,7 @@ function controlGame(server) {
     isGameServerUp(server, function(up) {
         if (! up) {
             client[server.name].downCount++;
-            if (client[server.name].downCount > 10 && ! client[server.name].currentGame.ended) client[server.name].currentGame.ended = true;
+            if (client[server.name].downCount > 2 && ! client[server.name].currentGame.ended) client[server.name].currentGame.ended = true;
             return;
         } else {
             client[server.name].downCount = 0;
