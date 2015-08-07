@@ -58,6 +58,17 @@ var chatCommands = [
             "\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for their help.");
     }
 },
+{ // #### TIPS COMMAND ####
+    command: 'tips',
+    help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
+        "\n" + "Usage: " + commandChar + "tips", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/hideui perfhud' to hide the statistics window || Type '/suicide' to quickly spawn in a new location");
+        sendReply(server, room, sender, "To help increase performance on older systems type 'shadowMaxDist 0', hold Shift, and press Enter.");
+        sendReply(server, room, sender, "To run the game in full screen at higher resolution hold Alt while clicking the 'Play' button on the launcher and enter 'windowWidth=1920; windowHeight=1080'.");
+        sendReply(server, room, sender, "For other very useful information, please click the 'Alpha Manual' link on the game patcher.");
+    }
+},
 { // #### MOTD COMMAND ####
     command: 'motd',
     help: "The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n" +
@@ -1213,17 +1224,19 @@ function startClient(server) {
 
 // function to stop a client for a particular server
 function stopClient(server) {
-    client[server.name].xmpp.connection.reconnect = false;
-    // client[server.name].xmpp.removeAllListeners('error');
-    client[server.name].xmpp.removeAllListeners('disconnect');
-    client[server.name].xmpp.removeAllListeners('online');
-    client[server.name].xmpp.removeAllListeners('stanza');
-    client[server.name].xmpp.end();
-    client[server.name].xmpp = undefined;
-    clearInterval(client[server.name].motdTimer);
-    clearInterval(client[server.name].connTimer);
-    clearInterval(client[server.name].gameTimer);
-    client[server.name] = undefined;
+    if (typeof client[server.name] !== 'undefined' && typeof client[server.name].xmpp !== 'undefined') {
+        client[server.name].xmpp.connection.reconnect = false;
+        // client[server.name].xmpp.removeAllListeners('error');
+        client[server.name].xmpp.removeAllListeners('disconnect');
+        client[server.name].xmpp.removeAllListeners('online');
+        client[server.name].xmpp.removeAllListeners('stanza');
+        client[server.name].xmpp.end();
+        client[server.name].xmpp = undefined;
+        clearInterval(client[server.name].motdTimer);
+        clearInterval(client[server.name].connTimer);
+        clearInterval(client[server.name].gameTimer);
+        client[server.name] = undefined;
+    }
 }
 
 // Initial startup
