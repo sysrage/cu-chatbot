@@ -6,7 +6,11 @@ Requires:
  - Node.js 11.x
  - node-xmpp
  - request
+ - bluebird*
  - Camelot Unchained account
+
+* The bluebird module is only required when using older versions of Node.js
+which don't have Promise support.
 
 Optional:
  - node-pushover - Needed to send Pushover notifications.
@@ -356,6 +360,8 @@ var chatCommands = [
         } else {
             var targetServer = server;
         }
+
+        sendReply(server, room, sender, "Calendar showing upcomming events: http://bit.ly/1PopbEY");
 
         targetServer.cuRest.getEvents().then(function(data) {
             if (data.length < 1) {
