@@ -1,158 +1,159 @@
-/* Module to access Camelot Unchained's REST API
+// Module to access Camelot Unchained's REST API
+// Originally written by Mehuge (https://www.github.com/Mehuge)
 
-This entire module is simply a Node.js version of code from Mehuge.
-
-https://github.com/Mehuge/cu-ui/blob/mehuge-ui/mehuge/mehuge-rest.ts
-
-*/
-
-var request = require('request');
 var util = require('util');
+var request = require('request');
 
 var servers = [];
 
 function restAPI(name) {
-    if(!name) {
-        this.server = "Hatchery";
-    } else {
-        this.server = name;
-    }
-    return this;
-}
+    var server = name || "Hatchery";
 
-function getServerInfo(server) {
-    var domain = "camelotunchained.com";
-    if (server) {
-        for (var i = 0; i < servers.length; i++) {
-            if (servers[i].name === server) {
-                return servers[i];
+    function getServerInfo(serverName) {
+        var domain = "camelotunchained.com";
+        if (serverName) {
+            for (var i = 0; i < servers.length; i++) {
+                if (servers[i].name === serverName) {
+                    return servers[i];
+                }
             }
+            return {
+                host: (serverName === "Hatchery" ? "hatchery" : serverName.toLowerCase()) + "." + domain
+            };
         }
         return {
-            host: (server === "Hatchery" ? "hatchery" : server.toLowerCase()) + "." + domain
+            host: "api.citystateentertainment.com"
         };
     }
-    return {
-        host: "api.citystateentertainment.com"
-    };
-}
-
-function getServerURI(server, verb) {
-    var host = "";
-    var port = 8000;
-    var protocol = "http:";
-    switch (verb) {
-        case "servers":
-            port = 8001;
-            host = getServerInfo().host;
-            break;
-        case "characters":
-            protocol = "https:";
-            port = 4443;
-            host = getServerInfo(server).host;
-            break;
-        default:
-            host = getServerInfo(server).host;
-            break;
-    }
-    return protocol + "//" + host + ":" + port + "/api/";
-}
-
-restAPI.prototype.call = function(server, verb, params, callback) {
-    var serverURI = getServerURI(server, verb);
-
-    // Raw call to the CU REST API
-    params = params || {};
-
-    request({
-        uri: serverURI + verb,
-        method: params.type || "GET",
-        qs: params.query,
-        timeout: params.timeout,
-    },
-    function (error, response, body) {
-        if (callback && typeof callback === "function"){
-            if(error){
-                util.log("[ERROR] Unable to read API (" + verb + "): " + error);
-                callback(null, error);
-            }else{
-                callback(JSON.parse(body), null);
-            }
-        } else {
-            if (error) {
-                return console.error('Unable to read API:', error);
-            }
-            console.log('Success!  Server responded with:', body);
-            return JSON.parse(body);
+    
+    function getServerURI(verb) {
+        var host, port = 8000, protocol = "http:";
+        switch (verb) {
+            case "servers":
+                port = 8001;
+                host = getServerInfo().host;
+                break;
+            case "characters":
+                protocol = "https:";
+                port = 4443;
+                host = getServerInfo(server).host;
+                break;
+            default:
+                if (typeof cuAPI !== "undefined" && "serverURL" in cuAPI) return cuAPI.serverURL;
+                host = getServerInfo(server).host;
+                break;
         }
-    });
-};
-
-restAPI.prototype.getServers = function(callback) {
-    restAPI.prototype.call(this.server, "servers", {query: {channelID:"4"}}, function(itServers, error) {
-        restAPI.prototype.call(this.server, "servers", {query: {channelID:"10"}}, function(alphaServers, error) {
-            var allServers = itServers.concat(alphaServers);
-            callback(allServers, null);
+        return protocol + "//" + host + ":" + port + "/api/";
+    }
+    
+    var call = function(verb, params) {
+        var serverURI = getServerURI(verb);
+    
+        // Call the CU REST API, returns a promise
+        params = params || {};
+        return new Promise(function (fulfill, reject) {
+            request({
+                uri: serverURI + verb,
+                method: params.type || "GET",
+                qs: params.query,
+                timeout: params.timeout,
+            },
+            function (error, response, body) {
+                if(error){
+                    util.log("[ERROR] Unable to read API (" + verb + "): " + error);
+                    reject(error);
+                }else{
+                    fulfill(JSON.parse(body));
+                }
+            });
         });
-    });
+    };
+    
+    return {
+    
+        getAbilities: function() {
+            return call("abilities", { timeout: 2000 });
+        },
+    
+        getAttributes: function() {
+            return call("game/attributes", { timeout: 2000 });
+        },
+        
+        getBanes: function() {
+            return call("game/banes", { timeout: 2000 });
+        },
+        
+        getBanners: function() {
+            return call("banners", { timeout: 2000 });
+        },
+        
+        getBoons: function() {
+            return call("game/boons", { timeout: 2000 });
+        },
+        
+        getBuildingBlocks: function() {
+            return call("buildingblocks", {timeout: 2000 });
+        },
+        
+        getCharacters: function(loginToken) {
+            return call("characters", { query: { loginToken: loginToken }, timeout: 2000 });
+        },
+        
+        getControlGame: function(query) {
+            return call("game/controlgame", { query: query, timeout: 2000 });
+        },
+        
+        getCraftedAbilities: function(query) {
+            return call("craftedabilities", { query: query, timeout: 2000 });
+        },
+        
+        getEvents: function() {
+            return call("scheduledevents", { timeout: 2000 });
+        },
+        
+        getFactions: function() {
+            return call("game/factions", { timeout: 2000 });
+        },
+        
+        getKills: function(query) {
+            return call("kills", { query: query, timeout: 2000 });
+        },
+        
+        getPatchNotes: function() {
+            return call("patchnotes", { timeout: 2000 });
+        },
+        
+        getPlayers: function() {
+            return call("game/players", { timeout: 2000 });
+        },
+        
+        getRaces: function() {
+            return call("game/races", { timeout: 2000 });
+        },
+        
+        getServers: function () {
+            // Per CSE, there will be a single API for all online servers before we need
+            // more than channel 4 and channel 10
+            return new Promise(function (fulfill, reject) {
+                var serverList = [];
+                var channels = [
+                    call("servers", {query: {channelID:"4"}, timeout: 2000}),
+                    call("servers", {query: {channelID:"10"}, timeout: 2000}),
+                ];
 
-    // return restAPI.prototype.call(this.server, "servers", {}, callback);
-};
-
-restAPI.prototype.getFactions = function(callback) {
-    return restAPI.prototype.call(this.server, "game/factions", { timeout: 3000 }, callback);
-};
-
-restAPI.prototype.getRaces = function(callback) {
-    return restAPI.prototype.call(this.server, "game/races", { timeout: 3000 }, callback);
-};
-
-restAPI.prototype.getPlayers = function(callback) {
-    return restAPI.prototype.call(this.server, "game/players", { timeout: 3000 }, callback);
-};
-
-restAPI.prototype.getControlGame = function(query, callback) {
-    return restAPI.prototype.call(this.server, "game/controlgame", { query: query, timeout: 3000 }, callback);
-};
-
-restAPI.prototype.getBanes = function(callback) {
-    return restAPI.prototype.call(this.server, "game/banes", {}, callback);
-};
-
-restAPI.prototype.getBoons = function(callback) {
-    return restAPI.prototype.call(this.server, "game/boons", {}, callback);
-};
-
-restAPI.prototype.getAttributes = function(callback) {
-    return restAPI.prototype.call(this.server, "game/attributes", {}, callback);
-};
-
-restAPI.prototype.getCharacters = function(loginToken, callback) {
-    return restAPI.prototype.call(this.server, "characters", { query: { loginToken: loginToken } }, callback);
-};
-
-restAPI.prototype.getAbilities = function(callback) {
-    return restAPI.prototype.call(this.server, "abilities", {}, callback);
-};
-
-restAPI.prototype.getCraftedAbilities = function(query, callback) {
-    return restAPI.prototype.call(this.server, "craftedabilities", { query: query }, callback);
-};
-
-restAPI.prototype.getPatchNotes = function(callback) {
-    return restAPI.prototype.call(this.server, "patchnotes", {}, callback);
-};
-
-restAPI.prototype.getBanners = function(callback) {
-    return restAPI.prototype.call(this.server, "banners", {}, callback);
-};
-
-restAPI.prototype.getEvents = function(callback) {
-    return restAPI.prototype.call(this.server, "scheduledevents", {}, callback);
-};
-
-restAPI.prototype.getKills = function(query, callback) {
-    return restAPI.prototype.call(this.server, "kills", { query: query }, callback);
-};
+                Promise.all(channels).then(function (listAll) {
+                    for (var i = 0; i < listAll.length; i++) {
+                        if (listAll[i] !== null) serverList = serverList.concat(listAll[i]);
+                    }
+                    fulfill(serverList);
+                })
+            });
+        },
+        
+        getSpawnPoints: function() {
+            return call("game/spawnpoints", {timeout: 2000 });
+        }
+    }
+}
 
 module.exports = restAPI;

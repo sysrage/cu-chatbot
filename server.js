@@ -9,48 +9,31 @@ var config = require('./cu-chatbot.cfg');
 
 
 // function to read in the saved game stats
-function getGameStats(server, callback) {
-    fs.readFile(server.gameFile, function(err, data) {
-        if (err && err.code === 'ENOENT') {
-            var gameStats = {
-                firstGame: Math.floor((new Date).getTime() / 1000),
-                gameNumber: 0,
-                lastStartTime: 0,
-                artWins: 0,
-                tuaWins: 0,
-                vikWins: 0
-            };
+function getGameStats(server) {
+    return new Promise(function (fulfill, reject) {
+        fs.readFile(server.gameFile, function(err, data) {
+            if (err && err.code === 'ENOENT') {
+                var gameStats = {
+                    firstGame: Math.floor((new Date).getTime() / 1000),
+                    gameNumber: 0,
+                    lastStartTime: 0,
+                    artWins: 0,
+                    tuaWins: 0,
+                    vikWins: 0
+                };
 
-            fs.writeFile(server.gameFile, JSON.stringify(gameStats), function(err) {
-                if (err) {
-                    return console.log("[ERROR] Unable to create game stats file.");
-                }
-                console.log("[STATUS] Game stats file did not exist. Empty file created.");
-            });
-        } else {
-            var gameStats = JSON.parse(data);
-        }
-        callback(gameStats);
+                fs.writeFile(server.gameFile, JSON.stringify(gameStats), function(err) {
+                    if (err) {
+                        reject("[ERROR] Unable to create game stats file.");
+                    }
+                    console.log("[STATUS] Game stats file did not exist. Empty file created.");
+                });
+            } else {
+                var gameStats = JSON.parse(data);
+            }
+            fulfill(gameStats);
+        });
     });
-}
-
-// function to read in the saved player stats
-function getPlayerStats(server, callback) {
-    fs.readFile(server.playerFile, function(err, data) {
-        if (err && err.code === 'ENOENT') {
-            var playerStats = [];
-
-            fs.writeFile(server.playerFile, JSON.stringify(playerStats), function(err) {
-                if (err) {
-                    return console.log("[ERROR] Unable to create player stats file.");
-                }
-                console.log("[STATUS] Player stats file did not exist. Empty file created.");
-            });
-        } else {
-            var playerStats = JSON.parse(data);
-        }
-        callback(playerStats);
-    });    
 }
 
 /**
@@ -153,97 +136,71 @@ var SampleApp = function() {
             config.servers.forEach(function(s, index) {
                 server[s.name] = s;
                 server[s.name].rAPI = new cuRestAPI(s.name);
-                server[s.name].rAPI.getControlGame(null, function(data, error) {
-                    if (! error) {
-                        var artScore = data.arthurianScore;
-                        var tuaScore = data.tuathaDeDanannScore;
-                        var vikScore = data.vikingScore;
-                        var timeLeft = data.timeLeft;
-                        var minLeft = Math.floor(timeLeft / 60);
-                        var secLeft = Math.floor(timeLeft % 60);
-                        if (data.gameState === 0) {
-                            var gameState = "Disabled"
-                        } else if (data.gameState === 1) {
-                            var gameState = "Waiting For Next Round";                
-                        } else if (data.gameState === 2) {
-                            var gameState = "Basic Game Active";                
-                        } else if (data.gameState === 3) {
-                            var gameState = "Advanced Game Active";                
-                        }
-
-                        server[s.name].score = '<b>Game State:</b> ' + gameState +
-                            '<br /><b>Time Remaining:</b> ' + minLeft + ' min. ' + secLeft + ' sec.<br />' +
-                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Score:</b> ' + artScore +
-                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Score:</b> ' + tuaScore +
-                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Score:</b> ' + vikScore;
-                    } else {
-                        server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                server[s.name].rAPI.getControlGame().then(function(data) {
+                    var artScore = data.arthurianScore;
+                    var tuaScore = data.tuathaDeDanannScore;
+                    var vikScore = data.vikingScore;
+                    var timeLeft = data.timeLeft;
+                    var minLeft = Math.floor(timeLeft / 60);
+                    var secLeft = Math.floor(timeLeft % 60);
+                    if (data.gameState === 0) {
+                        var gameState = "Disabled"
+                    } else if (data.gameState === 1) {
+                        var gameState = "Waiting For Next Round";                
+                    } else if (data.gameState === 2) {
+                        var gameState = "Basic Game Active";                
+                    } else if (data.gameState === 3) {
+                        var gameState = "Advanced Game Active";                
                     }
 
-                    getGameStats(server[s.name], function(gs) {
-                        server[s.name].wins = '<b>Total Rounds Played:</b> ' + gs.gameNumber + '<br />&nbsp;<br />' +
-                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + gs.artWins +
-                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + gs.tuaWins +
-                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + gs.vikWins;
+                    server[s.name].score = '<b>Game State:</b> ' + gameState +
+                        '<br /><b>Time Remaining:</b> ' + minLeft + ' min. ' + secLeft + ' sec.<br />' +
+                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Score:</b> ' + artScore +
+                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Score:</b> ' + tuaScore +
+                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Score:</b> ' + vikScore;
+                        
+                        return server[s.name].rAPI.getPlayers();
+                }, function(error) {
+                    server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                    return server[s.name].rAPI.getPlayers();
+                }).then(function(data) {
+                    var players = data;
+                    var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+                    server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers + '<br />&nbsp;<br />' +
+                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + players.arthurians +
+                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + players.tuathaDeDanann +
+                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + players.vikings;
 
-                        getPlayerStats(server[s.name], function(ps) {
+                    return getGameStats(server[s.name]);
+                }, function(error) {
+                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                    return getGameStats(server[s.name]);
+                }).then(function(data) {
+                    server[s.name].wins = '<b>Total Rounds Played:</b> ' + data.gameNumber + '<br />&nbsp;<br />' +
+                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + data.artWins +
+                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + data.tuaWins +
+                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + data.vikWins;
 
-                            for (var i = 0; i < 10; i++) {
-                                if (! ps[i]) ps[i] = {playerName: 'Nobody', kills: 0, deaths: 0};
-                            }
+                    pageContent = pageContent +
+                            '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].score + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].players + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].wins + '</td></tr>' +
+                            '</table></center></td></tr>';
 
-                            var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
-                            var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-                            server[s.name].leaderboard = '<center><table width="95%" style="border-collapse: collapse;">' +
-                                '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/kills/'+ s.name + '/">Kills</a></p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/deaths/'+ s.name + '/">Deaths</a></p></center></td></tr>';
-                            for (var i = 0; i < 10; i++) {
-                                server[s.name].leaderboard = server[s.name].leaderboard +
-                                    '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
-                                    '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
-                            }
-                            server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
-
-
-                            server[s.name].rAPI.getPlayers(function(data, error) {
-                                if (! error) {
-                                    var players = data;
-                                    var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                                    server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers + '<br />&nbsp;<br />' +
-                                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + players.arthurians +
-                                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + players.tuathaDeDanann +
-                                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + players.vikings;
-                                } else {
-                                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
-                                }
-
-                                pageContent = pageContent +
-                                        '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
-                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
-                                            '<tr><td>' + server[s.name].score + '</td></tr>' +
-                                        '</table></center></td>' +
-                                        '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
-                                            '<tr><td>' + server[s.name].players + '</td></tr>' +
-                                        '</table></center></td>' +
-                                        '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
-                                            '<tr><td>' + server[s.name].wins + '</td></tr>' +
-                                        '</table></center></td></tr>' +
-
-                                        '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                            '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
-                                            '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
-                                        '</table></center></td></tr>';
-
-                                if ((config.servers.length -1) === index) {
-                                    res.setHeader('Content-Type', 'text/html');
-                                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
-                                }
-                            });
-                        });
-                    });
+                    if ((config.servers.length - 1) === index) {
+                        res.setHeader('Content-Type', 'text/html');
+                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                    }
                 });
             });
         };
