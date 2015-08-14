@@ -28,12 +28,11 @@ var fs = require('fs');
 var request = require('request');
 var xmpp = require('node-xmpp');
 
+if (typeof Promise === 'undefined') Promise = require('bluebird');
+
 var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
-if (typeof Promise === 'undefined') {
-    var Promise = require('bluebird');
-}
 
 // Chat command definitions
 var commandChar = '!';
@@ -83,6 +82,61 @@ var chatCommands = [
         "\nUsage: " + commandChar + "motd [server] [new MOTD]\n" +
         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
     exec: function(server, room, sender, message, extras) {
+        if (extras && extras.motdadmin) {
+            var motdadmin = extras.motdadmin;
+        } else {
+            var motdadmin = false;
+        }
+
+        var params = getParams(this.command, message);
+        if (params.length > 0) {
+            var sn = params.split(' ')[0].toLowerCase();            
+            if (indexOfServer(sn) > -1) {
+                // first parameter is a server name
+                params = params.slice(sn.length + 1);
+                var targetServer = config.servers[indexOfServer(sn)];
+            } else {
+                var targetServer = server;
+            }
+        } else {
+            targetServer = server;
+        }
+
+        if (params.length > 0) {
+            // User is trying to set a new MOTD.
+            if (motdadmin) {
+                // User is allowed - Set new MOTD.
+                fs.writeFile(targetServer.motdFile, "MOTD: " + params, function(err) {
+                    if (err) {
+                        return util.log("[ERROR] Unable to write to MOTD file.");
+                    }
+                    targetServer.motd = "MOTD: " + params;
+                    sendReply(server, room, sender, "MOTD for " + targetServer.name + " set to: " + params);
+                    util.log("[MOTD] New MOTD for server '" + targetServer.name + "' set by user '" + sender + "'.");
+                });
+            } else {
+                // User is not allowed - Send error.
+                sendReply(server, room, sender, "You do not have permission to set an MOTD.");
+            }
+        } else {
+            // User requested current MOTD.
+            if (room === 'pm') {
+                sendPM(server, targetServer.motd.toString(), sender);
+                util.log("[MOTD] MOTD sent to user '" + sender + "' on " + server.name + ".");
+            } else {
+                sendChat(server, targetServer.motd.toString(), room);
+                util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
+            }
+        }
+    }
+},
+{ // #### MOTDPM COMMAND ####
+    command: 'motdpm',
+    help: "The command " + commandChar + "motdpm allows setting and viewing the MOTD for a server. Responses will be sent via PM.\n" +
+        "\nUsage: " + commandChar + "motdpm [server] [new MOTD]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        room = 'pm'; // Always send response via PM.
         if (extras && extras.motdadmin) {
             var motdadmin = extras.motdadmin;
         } else {
@@ -695,6 +749,7 @@ function sendiMessage(user, message) {
 
 // function to send a private message
 function sendPM(server, message, user) {
+    console.log('user: ' + user);
     client[server.name].xmpp.send(new xmpp.Element('message', { to: user, type: 'chat' }).c('body').t(message));
 }
 
@@ -1128,6 +1183,9 @@ function stopClient(server) {
         client[server.name].xmpp.removeAllListeners('stanza');
         client[server.name].xmpp.end();
         client[server.name].xmpp = undefined;
+        server.rooms.forEach(function(room) {
+            room.joined = false;
+        });
         clearInterval(client[server.name].motdTimer);
         clearInterval(client[server.name].connTimer);
         clearInterval(client[server.name].gameTimer);
