@@ -12,7 +12,10 @@ Requires:
  - [Node.js 11.x](https://nodejs.org/dist/v0.11.16/)
  - [node-xmpp](https://github.com/node-xmpp/node-xmpp)
  - [request](https://github.com/request/request)
+ - [bluebird](https://github.com/petkaantonov/bluebird)*
  - [Camelot Unchained](http://camelotunchained.com/) account
+
+<nowiki>*</nowiki> The bluebird module is only required when using older versions of Node.js which don't have Promise support.
 
 Optional:
  - [node-pushover](https://github.com/SamDecrock/node-pushover) - Needed to send Pushover notifications.
