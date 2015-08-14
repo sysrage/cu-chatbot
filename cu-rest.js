@@ -4,6 +4,10 @@
 var util = require('util');
 var request = require('request');
 
+if (typeof Promise === 'undefined') {
+    var Promise = require('bluebird');
+}
+
 var servers = [];
 
 function restAPI(name) {
