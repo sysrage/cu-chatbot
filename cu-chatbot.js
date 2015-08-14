@@ -67,8 +67,27 @@ var chatCommands = [
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
-        "\n" + "Usage: " + commandChar + "tips", 
+        "\n" + "Usage: " + commandChar + "tips [user]\n" +
+        "\nIf [user] is specified, tips will be sent to that user. If 'chat' is specified as the user, tips will be sent to chat.", 
     exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+        if (params.length > 0) {
+            var pn = params.split(' ')[0].toLowerCase();
+            if (pn === 'chat') {
+                // send message to chat room
+            } else {
+                // send message as PM to specified user
+                sendReply(server, room, sender, "Tips sent to " + pn + ".");
+                room = 'pm';
+                sender = pn + '@' + server.address;
+            }
+        } else {
+            // send message as PM to user calling !tips
+            sendReply(server, room, sender, "Tips sent to " + sender + ".");
+            room = 'pm';
+            sender = sender + '@' + server.address;
+        }
+
         sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/hideui perfhud' to hide the statistics window || Type '/suicide' to quickly spawn in a new location");
         sendReply(server, room, sender, "To help increase performance on older systems type 'shadowMaxDist 0', hold Shift, and press Enter.");
         sendReply(server, room, sender, "To run the game in full screen at higher resolution hold Alt while clicking the 'Play' button on the launcher and enter 'windowWidth=1920; windowHeight=1080'.");
@@ -89,7 +108,7 @@ var chatCommands = [
 
         var params = getParams(this.command, message);
         if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();            
+            var sn = params.split(' ')[0].toLowerCase();
             if (indexOfServer(sn) > -1) {
                 // first parameter is a server name
                 params = params.slice(sn.length + 1);
