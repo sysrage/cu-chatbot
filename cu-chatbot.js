@@ -28,11 +28,10 @@ var fs = require('fs');
 var request = require('request');
 var xmpp = require('node-xmpp');
 
-if (typeof Promise === 'undefined') Promise = require('bluebird');
-
 var cuRestAPI = require('./cu-rest.js');
 var config = require('./cu-chatbot.cfg');
 
+if (typeof Promise === 'undefined') Promise = require('bluebird');
 
 // Chat command definitions
 var commandChar = '!';
