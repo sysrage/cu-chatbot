@@ -61,7 +61,7 @@ var chatCommands = [
         "\n" + "Usage: " + commandChar + "botinfo", 
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot" +
-            "\n\nMuch thanks to Mehuge, reallifegobbo, burfo, and the CSE team for their help.");
+            "\n\nMuch thanks to the CU Mod Squad for their help.");
     }
 },
 { // #### TIPS COMMAND ####
@@ -109,66 +109,6 @@ var chatCommands = [
         var params = getParams(this.command, message);
         if (params.length > 0) {
             var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                // first parameter is a server name
-                params = params.slice(sn.length + 1);
-                var targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                var targetServer = server;
-            }
-        } else {
-            targetServer = server;
-        }
-
-        if (params.length > 0) {
-            // User is trying to set a new MOTD.
-            if (motdadmin) {
-                // User is allowed - Set new MOTD.
-                fs.writeFile(targetServer.motdFile, "MOTD: " + params, function(err) {
-                    if (err) {
-                        return util.log("[ERROR] Unable to write to MOTD file.");
-                    }
-                    targetServer.motd = "MOTD: " + params;
-                    sendReply(server, room, sender, "MOTD for " + targetServer.name + " set to: " + params);
-                    util.log("[MOTD] New MOTD for server '" + targetServer.name + "' set by user '" + sender + "'.");
-                });
-            } else {
-                // User is not allowed - Send error.
-                sendReply(server, room, sender, "You do not have permission to set an MOTD.");
-            }
-        } else {
-            // User requested current MOTD.
-            if (room === 'pm') {
-                sendPM(server, targetServer.motd.toString(), sender);
-                util.log("[MOTD] MOTD sent to user '" + sender + "' on " + server.name + ".");
-            } else {
-                sendChat(server, targetServer.motd.toString(), room);
-                util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
-            }
-        }
-    }
-},
-{ // #### MOTDPM COMMAND ####
-    command: 'motdpm',
-    help: "The command " + commandChar + "motdpm allows setting and viewing the MOTD for a server. Responses will be sent via PM.\n" +
-        "\nUsage: " + commandChar + "motdpm [server] [new MOTD]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        if (room !== 'pm') {
-            // Always send response via PM.
-            room = 'pm';
-            sender = sender + '@' + server.address;
-        }
-
-        if (extras && extras.motdadmin) {
-            var motdadmin = extras.motdadmin;
-        } else {
-            var motdadmin = false;
-        }
-
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();            
             if (indexOfServer(sn) > -1) {
                 // first parameter is a server name
                 params = params.slice(sn.length + 1);
@@ -535,43 +475,43 @@ var chatCommands = [
             "\nViking Wins: " + gameStats[targetServer.name].vikWins);
     }
 },
-// { // #### LEADERBOARD COMMAND ####
-//     command: 'leaderboard',
-//     help: "The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n" +
-//         "\nUsage: " + commandChar + "leaderboard [server]\n" +
-//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-//     exec: function(server, room, sender, message, extras) {
-//         var params = getParams(this.command, message);
-//         if (params.length > 0) {
-//             var sn = params.split(' ')[0].toLowerCase();
-//             if (indexOfServer(sn) > -1) {
-//                 targetServer = config.servers[indexOfServer(sn)];
-//             } else {
-//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-//                 return;
-//             }
-//         } else {
-//             var targetServer = server;
-//         }
+{ // #### LEADERBOARD COMMAND ####
+    command: 'leaderboard',
+    help: "The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n" +
+        "\nUsage: " + commandChar + "leaderboard [server]\n" +
+        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+        if (params.length > 0) {
+            var sn = params.split(' ')[0].toLowerCase();
+            if (indexOfServer(sn) > -1) {
+                targetServer = config.servers[indexOfServer(sn)];
+            } else {
+                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+                return;
+            }
+        } else {
+            var targetServer = server;
+        }
 
-//         for (var i = 0; i < 10; i++) {
-//             if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {playerName: 'Nobody', kills: 0, deaths: 0};
-//         }
+        for (var i = 0; i < 10; i++) {
+            if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {playerName: 'Nobody', kills: 0, deaths: 0};
+        }
 
-//         var playersSortedByKills = playerStats[targetServer.name].concat().sort(function(a, b) { return b.kills - a.kills; });
-//         var playersSortedByDeaths = playerStats[targetServer.name].concat().sort(function(a, b) { return b.deaths - a.deaths; });
+        var playersSortedByKills = playerStats[targetServer.name].concat().sort(function(a, b) { return b.kills - a.kills; });
+        var playersSortedByDeaths = playerStats[targetServer.name].concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-//         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
-//             "\n   #1 " + playersSortedByKills[0].playerName + ' - ' + playersSortedByKills[0].kills +
-//             "\n   #2 " + playersSortedByKills[1].playerName + ' - ' + playersSortedByKills[1].kills +
-//             "\n   #3 " + playersSortedByKills[2].playerName + ' - ' + playersSortedByKills[2].kills);
-//         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
-//             "\n   #1 " + playersSortedByDeaths[0].playerName + ' - ' + playersSortedByDeaths[0].deaths +
-//             "\n   #2 " + playersSortedByDeaths[1].playerName + ' - ' + playersSortedByDeaths[1].deaths +
-//             "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths);
-//         sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
-//     }
-// },
+        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
+            "\n   #1 " + playersSortedByKills[0].playerName + ' - ' + playersSortedByKills[0].kills +
+            "\n   #2 " + playersSortedByKills[1].playerName + ' - ' + playersSortedByKills[1].kills +
+            "\n   #3 " + playersSortedByKills[2].playerName + ' - ' + playersSortedByKills[2].kills);
+        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
+            "\n   #1 " + playersSortedByDeaths[0].playerName + ' - ' + playersSortedByDeaths[0].deaths +
+            "\n   #2 " + playersSortedByDeaths[1].playerName + ' - ' + playersSortedByDeaths[1].deaths +
+            "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths);
+        // sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
+    }
+},
 { // #### CUBECOUNT COMMAND ####
     command: 'cubecount',
     help: "The command " + commandChar + "cubecount displays the total number of blocks placed within CUBE.\n" +
@@ -694,6 +634,61 @@ function getParams(command, message, index) {
     } else {
         return -1;
     }
+}
+
+// function to read in the saved player stats
+function getPlayerStats(server) {
+    fs.readFile(server.playerFile, function(err, data) {
+        if (err && err.code === 'ENOENT') {
+            playerStats[server.name] = [];
+
+            fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
+                if (err) {
+                    return util.log("[ERROR] Unable to create player stats file.");
+                }
+                util.log("[STATUS] Player stats file did not exist. Empty file created.");
+            });
+        } else {
+            playerStats[server.name] = JSON.parse(data);
+        }
+    });    
+}
+
+// function to obtain all kill data during a time range
+function getRoundKills(server, start, end, attempt, callback) {
+    var roundKills = [];
+    server.cuRest.getKills({start: start, end: end}).then(function(data) {
+        data.forEach(function(killEntry) {
+            var killerName = killEntry.killer.name;
+            var killerFaction = killEntry.killer.faction;
+            var killerRace = killEntry.killer.race;
+            var killerType = killEntry.killer.archetype;
+            var victimName = killEntry.victim.name;
+            var victimFaction = killEntry.victim.faction;
+            var victimRace = killEntry.victim.race;
+            var victimType = killEntry.victim.archetype;
+
+            roundKills.push({
+                killerName: killerName, 
+                killerFaction: killerFaction,
+                killerRace: killerRace,
+                killerType: killerType,
+                victimName: victimName,
+                victimFaction: victimFaction,
+                victimRace: victimRace,
+                victimType: victimType
+            });
+        });
+        callback(roundKills);
+    }, function(error) {
+        // Retry twice before giving up.
+        if (attempt < 2) {
+            getRoundKills(server, start, end, attempt+1, callback);
+        } else {
+            util.log("[ERROR] Unable to query kills API.");
+            callback(roundKills);
+        }
+    });
 }
 
 // function to find the index of a room
@@ -872,7 +867,7 @@ function controlGame(server) {
                     var timeLeft = cgData.timeLeft;
                     var minLeft = Math.floor(timeLeft / 60);
                     var secLeft = Math.floor(timeLeft % 60);
-                    var gameState = cgData.gameState; // 0 = Disabled / 1 = Over / 2 = Basic Game / 3 = Advanced Game
+                    var gameState = cgData.gameState; // 0 = Disabled / 1 = Waiting / 2 = Basic Game / 3 = Advanced Game
 
                     var artCount = pData.arthurians;
                     var tuaCount = pData.tuathaDeDanann;
@@ -881,6 +876,7 @@ function controlGame(server) {
 
                     if ((gameState === 1) && ! client[server.name].currentGame.ended) {
                         // Game we were monitoring has ended. Save stats.
+                        util.log("[GAME] A round has ended on " + server.name + " (" + gameStats[server.name].gameNumber + ").");
                         gameStats[server.name].gameNumber++;
                         if (artScore === tuaScore && artScore === vikScore) {
                             // Three way tie
@@ -928,14 +924,79 @@ function controlGame(server) {
                             }
                         });
 
+                        // Add new entries to playerStats based on kills API
+                        roundStartTime = new Date(client[server.name].currentGame.startTime * 1000).toISOString();
+                        // roundEndTime = new Date((client[server.name].currentGame.startTime + server.roundTime) * 1000).toISOString();
+                        roundEndTime = '';
+                        getRoundKills(server, roundStartTime, roundEndTime, 0, function(roundKills) {
+                            var playersInRound = [];
+                            roundKills.forEach(function(rkEntry) {
+                                // Skip suicides
+                                if (rkEntry.killerName !== rkEntry.victimName) {
+                                    // Check to see if these players already had their gameCount increased for this round.
+                                    var killerAlreadyCounted = false;
+                                    var victimAlreadyCounted = false;
+                                    for (var i = 0; i < playersInRound.length; i++) {
+                                        if (playersInRound[i] === rkEntry.killerName) killerAlreadyCounted = true;
+                                        if (playersInRound[i] === rkEntry.victimName) victimAlreadyCounted = true;
+                                    }
+                                    if (! killerAlreadyCounted) playersInRound.push(rkEntry.killerName);
+                                    if (! victimAlreadyCounted) playersInRound.push(rkEntry.victimName);
+
+                                    // Update data for players already existing in playerStats
+                                    var existingKiller = false;
+                                    var existingVictim = false;
+                                    for (var i = 0; i < playerStats[server.name].length; i++) {
+                                        if (playerStats[server.name][i].playerName === rkEntry.killerName) {
+                                            playerStats[server.name][i].kills++;
+                                            if (! killerAlreadyCounted) playerStats[server.name][i].gamesPlayed++;
+                                            existingKiller = true;
+                                        }
+                                        if (playerStats[server.name][i].playerName === rkEntry.victimName) {
+                                            playerStats[server.name][i].deaths++;
+                                            if (! victimAlreadyCounted) playerStats[server.name][i].gamesPlayed++;
+                                            existingVictim = true;
+                                        }
+                                    }
+
+                                    // Add new players to playerStats
+                                    if (! existingKiller) playerStats[server.name].push({
+                                        playerName: rkEntry.killerName,
+                                        playerFaction: rkEntry.killerFaction,
+                                        playerRace: rkEntry.killerRace,
+                                        playerType: rkEntry.killerType,
+                                        kills: 1,
+                                        deaths: 0,
+                                        gamesPlayed: 1
+                                    });
+                                    if (! existingVictim) playerStats[server.name].push({
+                                        playerName: rkEntry.victimName,
+                                        playerFaction: rkEntry.victimFaction,
+                                        playerRace: rkEntry.victimRace,
+                                        playerType: rkEntry.victimType,
+                                        kills: 0,
+                                        deaths: 1,
+                                        gamesPlayed: 1
+                                    });
+                                }
+                            });
+                        });
+
+                        // Write playerStats to disk
+                        fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
+                            if (err) {
+                                return util.log("[ERROR] Unable to write to player stats file.");
+                            }
+                        });
+
                         client[server.name].currentGame.ended = true;
-                        util.log("[GAME] A round has ended on " + server.name + "(" + gameStats[server.name].gameNumber + "). Game statistics saved.");
+                        util.log("[GAME] Game and player statistics saved for last round.");
                     }
 
                     if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
                         // New game has started
                         client[server.name].currentGame = {
-                            startTime: epochTime - timeLeft,
+                            startTime: epochTime - (server.roundTime - timeLeft),
                             ended: false,
                             artScore: artScore,
                             tuaScore: tuaScore,
@@ -1218,6 +1279,7 @@ function stopClient(server) {
 // Initial startup
 var client = [];
 var gameStats = [];
+var playerStats = [];
 config.servers.forEach(function(server) {
     // Connect to REST API
     server.cuRest = new cuRestAPI(server.name);
@@ -1226,6 +1288,7 @@ config.servers.forEach(function(server) {
     getMOTD(server);
     getMOTDIgnore(server);
     getGameStats(server);
+    getPlayerStats(server);
     server.motdReceivers = [];
 
     // Start XMPP client
