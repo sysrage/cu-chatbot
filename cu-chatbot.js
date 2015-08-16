@@ -494,12 +494,21 @@ var chatCommands = [
             var targetServer = server;
         }
 
+        var pStats = playerStats[targetServer.name].concat();
         for (var i = 0; i < 10; i++) {
-            if (! playerStats[targetServer.name][i]) playerStats[targetServer.name][i] = {playerName: 'Nobody', kills: 0, deaths: 0};
+            if (! pStats[i]) pStats[i] = {
+                playerName: 'Nobody',
+                playerFaction: 'None',
+                playerRace: 'None',
+                playerType: 'None',
+                kills: 0,
+                deaths: 0,
+                gamesPlayed: 0
+            };
         }
 
-        var playersSortedByKills = playerStats[targetServer.name].concat().sort(function(a, b) { return b.kills - a.kills; });
-        var playersSortedByDeaths = playerStats[targetServer.name].concat().sort(function(a, b) { return b.deaths - a.deaths; });
+        var playersSortedByKills = pStats.concat().sort(function(a, b) { return b.kills - a.kills; });
+        var playersSortedByDeaths = pStats.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
             "\n   #1 " + playersSortedByKills[0].playerName + ' - ' + playersSortedByKills[0].kills +
@@ -509,7 +518,7 @@ var chatCommands = [
             "\n   #1 " + playersSortedByDeaths[0].playerName + ' - ' + playersSortedByDeaths[0].deaths +
             "\n   #2 " + playersSortedByDeaths[1].playerName + ' - ' + playersSortedByDeaths[1].deaths +
             "\n   #3 " + playersSortedByDeaths[2].playerName + ' - ' + playersSortedByDeaths[2].deaths);
-        // sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
+        sendReply(server, room, sender, "Top 10: http://chatbot-sysrage.rhcloud.com");
     }
 },
 { // #### CUBECOUNT COMMAND ####
