@@ -989,13 +989,13 @@ function controlGame(server) {
                                     });
                                 }
                             });
-                        });
 
-                        // Write playerStats to disk
-                        fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
-                            if (err) {
-                                return util.log("[ERROR] Unable to write to player stats file.");
-                            }
+                            // Write playerStats to disk
+                            fs.writeFile(server.playerFile, JSON.stringify(playerStats[server.name]), function(err) {
+                                if (err) {
+                                    return util.log("[ERROR] Unable to write to player stats file.");
+                                }
+                            });
                         });
 
                         client[server.name].currentGame.ended = true;
