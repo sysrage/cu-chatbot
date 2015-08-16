@@ -222,8 +222,8 @@ var SampleApp = function() {
                         '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/kills/'+ s.name + '/">Kills</a></p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/deaths/'+ s.name + '/">Deaths</a></p></center></td></tr>';
                     for (var i = 0; i < 10; i++) {
                         server[s.name].leaderboard = server[s.name].leaderboard +
-                            '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
-                            '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
+                            '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + ' (' + playersSortedByKills[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
+                            '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].playerName + ' (' + playersSortedByDeaths[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
                     }
                     server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
 
@@ -319,7 +319,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Kills:</b> " + totalKills + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByKills.length; i++) {
-                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByKills[i].playerName + " - " + playersSortedByKills[i].kills + "<br />";
+                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByKills[i].playerName + ' (' + playersSortedByKills[i].playerRace + ") - " + playersSortedByKills[i].kills + "<br />";
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
@@ -371,7 +371,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Deaths:</b> " + totalDeaths + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByDeaths.length; i++) {
-                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByDeaths[i].playerName + " - " + playersSortedByDeaths[i].deaths + "<br />";
+                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByDeaths[i].playerName + ' (' + playersSortedByDeaths[i].playerRace + ") - " + playersSortedByDeaths[i].deaths + "<br />";
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
