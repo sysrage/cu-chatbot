@@ -36,6 +36,27 @@ function getGameStats(server) {
     });
 }
 
+// function to read in the saved player stats
+function getPlayerStats(server) {
+    return new Promise(function (fulfill, reject) {
+        fs.readFile(server.playerFile, function(err, data) {
+            if (err && err.code === 'ENOENT') {
+                var playerStats = [];
+
+                fs.writeFile(server.playerFile, JSON.stringify(playerStats), function(err) {
+                    if (err) {
+                        reject("[ERROR] Unable to create player stats file.");
+                    }
+                    console.log("[STATUS] Player stats file did not exist. Empty file created.");
+                });
+            } else {
+                var playerStats = JSON.parse(data);
+            }
+            fulfill(playerStats);
+        });
+    });
+}
+
 /**
  *  Define the sample application.
  */
@@ -137,6 +158,7 @@ var SampleApp = function() {
                 server[s.name] = s;
                 server[s.name].rAPI = new cuRestAPI(s.name);
                 server[s.name].rAPI.getControlGame().then(function(data) {
+                    // Build current game score section.
                     var artScore = data.arthurianScore;
                     var tuaScore = data.tuathaDeDanannScore;
                     var vikScore = data.vikingScore;
@@ -161,9 +183,10 @@ var SampleApp = function() {
                         
                         return server[s.name].rAPI.getPlayers();
                 }, function(error) {
-                    server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                    server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
                     return server[s.name].rAPI.getPlayers();
                 }).then(function(data) {
+                    // Build current player count section.
                     var players = data;
                     var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
                     server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers + '<br />&nbsp;<br />' +
@@ -173,14 +196,38 @@ var SampleApp = function() {
 
                     return getGameStats(server[s.name]);
                 }, function(error) {
-                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.';
+                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
                     return getGameStats(server[s.name]);
                 }).then(function(data) {
+                    // Build total game statistics section.
                     server[s.name].wins = '<b>Total Rounds Played:</b> ' + data.gameNumber + '<br />&nbsp;<br />' +
                         '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + data.artWins +
                         '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + data.tuaWins +
                         '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + data.vikWins;
 
+                    return getPlayerStats(server[s.name]);
+                }, function(error) {
+                    server[s.name].wins = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading game statistics.</p>';
+                    return getPlayerStats(server[s.name]);
+                }).then(function(data) {
+                    // Build leaderboard section.
+                    for (var i = 0; i < 10; i++) {
+                        if (! data[i]) data[i] = {playerName: 'Nobody', kills: 0, deaths: 0};
+                    }
+
+                    var playersSortedByKills = data.concat().sort(function(a, b) { return b.kills - a.kills; });
+                    var playersSortedByDeaths = data.concat().sort(function(a, b) { return b.deaths - a.deaths; });
+
+                    server[s.name].leaderboard = '<center><table width="95%" style="border-collapse: collapse;">' +
+                        '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/kills/'+ s.name + '/">Kills</a></p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/deaths/'+ s.name + '/">Deaths</a></p></center></td></tr>';
+                    for (var i = 0; i < 10; i++) {
+                        server[s.name].leaderboard = server[s.name].leaderboard +
+                            '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
+                            '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].playerName + '</td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
+                    }
+                    server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
+
+                    // Build final page to display.
                     pageContent = pageContent +
                             '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
                             '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
@@ -194,8 +241,38 @@ var SampleApp = function() {
                             '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                 '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
                                 '<tr><td>' + server[s.name].wins + '</td></tr>' +
+                            '</table></center></td></tr>' + 
+                            '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
                             '</table></center></td></tr>';
 
+                    if ((config.servers.length - 1) === index) {
+                        res.setHeader('Content-Type', 'text/html');
+                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                    }
+                }, function(error) {
+                    server[s.name].leaderboard = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p>';
+
+                    // Build final page to display.
+                    pageContent = pageContent +
+                            '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].score + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].players + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].wins + '</td></tr>' +
+                            '</table></center></td></tr>' + 
+                            '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
+                            '</table></center></td></tr>';
 
                     if ((config.servers.length - 1) === index) {
                         res.setHeader('Content-Type', 'text/html');
@@ -228,7 +305,7 @@ var SampleApp = function() {
                     '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Kill Count</p></center></td></tr>' +
                     '<tr><td>';
 
-                getPlayerStats(server, function(ps) {
+                getPlayerStats(server).then(function(ps) {
                     var totalKills = 0;
                     var totalPlayers = 0;
                     var playersSortedByKills = ps.concat().sort(function(a, b) { return b.kills - a.kills; });
@@ -246,6 +323,11 @@ var SampleApp = function() {
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
+                    res.setHeader('Content-Type', 'text/html');
+                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                }, function(error) {
+                    pageContent = pageContent + '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p>';
+                    pageContent = pageContent + '</td></tr></table></center></td></tr>';
                     res.setHeader('Content-Type', 'text/html');
                     res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
                 });
@@ -275,7 +357,7 @@ var SampleApp = function() {
                     '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Death Count</p></center></td></tr>' +
                     '<tr><td>';
 
-                getPlayerStats(server, function(ps) {
+                getPlayerStats(server).then(function(ps) {
                     var totalDeaths = 0;
                     var totalPlayers = 0;
                     var playersSortedByDeaths = ps.concat().sort(function(a, b) { return b.deaths - a.deaths; });
@@ -293,6 +375,11 @@ var SampleApp = function() {
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
+                    res.setHeader('Content-Type', 'text/html');
+                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                }, function(error) {
+                    pageContent = pageContent + '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p>';
+                    pageContent = pageContent + '</td></tr></table></center></td></tr>';
                     res.setHeader('Content-Type', 'text/html');
                     res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
                 });
