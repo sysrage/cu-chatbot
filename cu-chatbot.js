@@ -996,10 +996,10 @@ function controlGame(server) {
                                     return util.log("[ERROR] Unable to write to player stats file.");
                                 }
                             });
-                        });
 
-                        client[server.name].currentGame.ended = true;
-                        util.log("[GAME] Game and player statistics saved for last round.");
+                            client[server.name].currentGame.ended = true;
+                            util.log("[GAME] Game and player statistics saved for last round.");
+                        });
                     }
 
                     if ((gameState === 2 || gameState === 3) && client[server.name].currentGame.ended) {
