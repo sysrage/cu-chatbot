@@ -967,11 +967,13 @@ function controlGame(server) {
                                     for (var i = 0; i < playerStats[server.name].length; i++) {
                                         if (playerStats[server.name][i].playerName === rkEntry.killerName) {
                                             playerStats[server.name][i].kills++;
+                                            playerStats[server.name][i].playerType = rkEntry.killerType;
                                             if (! killerAlreadyCounted) playerStats[server.name][i].gamesPlayed++;
                                             existingKiller = true;
                                         }
                                         if (playerStats[server.name][i].playerName === rkEntry.victimName) {
                                             playerStats[server.name][i].deaths++;
+                                            playerStats[server.name][i].playerType = rkEntry.victimType;
                                             if (! victimAlreadyCounted) playerStats[server.name][i].gamesPlayed++;
                                             existingVictim = true;
                                         }
