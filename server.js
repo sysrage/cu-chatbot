@@ -222,8 +222,8 @@ var SampleApp = function() {
                         '<tr><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/kills/'+ s.name + '/">Kills</a></p></center></td><td>&nbsp;</td><td colspan="3" width="50%" class="leaderBoardTitle"><center><p class="leaderBoardTitle"><a style="color: inherit;" href="/deaths/'+ s.name + '/">Deaths</a></p></center></td></tr>';
                     for (var i = 0; i < 10; i++) {
                         server[s.name].leaderboard = server[s.name].leaderboard +
-                            '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByKills[i].playerName + ' (' + playersSortedByKills[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
-                            '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M">' + playersSortedByDeaths[i].playerName + ' (' + playersSortedByDeaths[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
+                            '<tr><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M"><a style="color: inherit;" href="/player/' + s.name + '/' + playersSortedByKills[i].playerName + '/">' + playersSortedByKills[i].playerName + '</a> (' + playersSortedByKills[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByKills[i].kills + '</td>' +
+                            '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M"><a style="color: inherit;" href="/player/' + s.name + '/' + playersSortedByDeaths[i].playerName + '/">' + playersSortedByDeaths[i].playerName + '</a> (' + playersSortedByDeaths[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
                     }
                     server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
 
@@ -319,7 +319,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Kills:</b> " + totalKills + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByKills.length; i++) {
-                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByKills[i].playerName + ' (' + playersSortedByKills[i].playerRace + ") - " + playersSortedByKills[i].kills + "<br />";
+                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByKills[i].playerName + '/">' + playersSortedByKills[i].playerName + '</a> (' + playersSortedByKills[i].playerRace + ') - ' + playersSortedByKills[i].kills + '<br />';
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
@@ -371,7 +371,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Deaths:</b> " + totalDeaths + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByDeaths.length; i++) {
-                        pageContent = pageContent + "#" + (i + 1) + ": " + playersSortedByDeaths[i].playerName + ' (' + playersSortedByDeaths[i].playerRace + ") - " + playersSortedByDeaths[i].deaths + "<br />";
+                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByDeaths[i].playerName + '/">' + playersSortedByDeaths[i].playerName + '</a> (' + playersSortedByDeaths[i].playerRace + ') - ' + playersSortedByDeaths[i].deaths + '<br />';
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
@@ -385,6 +385,61 @@ var SampleApp = function() {
                 });
             }
         };
+
+        self.routes['/player/:server/:player'] = function(req, res) {
+            var serverName = req.params.server;
+            var playerToShow = req.params.player;
+            var pageContent = '<tr><td><center><p class="serverTitle">' + serverName.charAt(0).toUpperCase() + serverName.slice(1) + ' - ' + playerToShow + '</p></center></td></tr>' +
+                    '<tr><td valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                    '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Player Statistics</p></center></td></tr>' +
+                    '<tr><td>';
+
+
+            for (var i = 0; i < config.servers.length; i++) {
+                if (config.servers[i].name === serverName) {
+                    var server = config.servers[i];
+                }
+            }
+
+            if (typeof server === 'undefined') {
+                pageContent = pageContent + 'A server named ' + serverName + ' does not exist.</td></tr></table></center></td></tr>';
+                res.setHeader('Content-Type', 'text/html');
+                res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+            } else {
+                getPlayerStats(server).then(function(ps) {
+                    for (var i = 0; i < ps.length; i++) {
+                        if (ps[i].playerName.toLowerCase() === playerToShow.toLowerCase()) {
+                            var player = ps[i];
+                        }
+                    }
+
+                    if (typeof player === 'undefined') {
+                        pageContent = pageContent + 'A player named ' + playerToShow + ' does not exist on the server ' + serverName +'.</td></tr></table></center></td></tr>';
+                        res.setHeader('Content-Type', 'text/html');
+                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                    } else {
+                        pageContent = pageContent + '<center><table width="60%"><tr><td width=25% valign="center"><img width="300" src="/images/' + player.playerRace.toLowerCase() + '-stand.png" /></td><td>';
+                        pageContent = pageContent + '<b>Player Name:</b> ' + player.playerName + '<br />';
+                        pageContent = pageContent + '<b>Player Faction:</b> ' + player.playerFaction + '<br />';
+                        pageContent = pageContent + '<b>Player Race:</b> ' + player.playerRace + '<br />';
+                        pageContent = pageContent + '<b>Player Type:</b> ' + player.playerType + '<br />';
+                        pageContent = pageContent + '<b>Kills:</b> ' + player.kills + '<br />';
+                        pageContent = pageContent + '<b>Deaths:</b> ' + player.deaths + '<br />';
+                        pageContent = pageContent + '<b>Rounds Played:</b> ' + player.gamesPlayed + '<br />';
+                        pageContent = pageContent + '</td></tr></table></center>';
+
+                        pageContent = pageContent + '</td></tr></table></center></td></tr>';
+                        res.setHeader('Content-Type', 'text/html');
+                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                    }
+                }, function(error) {
+                    pageContent = pageContent + '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p></td></tr></table></center></td></tr>';
+                    res.setHeader('Content-Type', 'text/html');
+                    res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                });
+            }
+        };
+
     };
 
 

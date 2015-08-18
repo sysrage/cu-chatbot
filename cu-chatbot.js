@@ -64,6 +64,15 @@ var chatCommands = [
             "\n\nMuch thanks to the CU Mod Squad for their help.");
     }
 },
+{ // #### FRIAR COMMAND ####
+    command: 'friar',
+    help: "The command " + commandChar + "friar displays information about friars.\n" +
+        "\n" + "Usage: " + commandChar + "friar", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "Out of the frying pan, into the friar. It has been confirmed that there will be frying in the game." +
+            "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
+    }
+},
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
@@ -1239,6 +1248,7 @@ function startClient(server) {
                     if (sender === server.address + "/Warning") {
                         sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
                         util.log("[CHAT] Server warning message sent to users. (ALL)");
+                        util.log('***** ' + stanza + ' *****');
                     }
 
                     if (cse === "cse" || isMOTDAdmin(senderName)) {
