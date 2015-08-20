@@ -535,10 +535,10 @@ var chatCommands = [
         sendReply(server, room, sender, "Top 10 (and more): http://chatbot-sysrage.rhcloud.com");
     }
 },
-{ // #### CUBECOUNT COMMAND ####
-    command: 'cubecount',
-    help: "The command " + commandChar + "cubecount displays the total number of blocks placed within CUBE.\n" +
-        "\n" + "Usage: " + commandChar + "cubecount", 
+{ // #### BLOCKS COMMAND ####
+    command: 'blocks',
+    help: "The command " + commandChar + "blocks displays the total number of blocks placed within CUBE.\n" +
+        "\n" + "Usage: " + commandChar + "blocks", 
     exec: function(server, room, sender, message, extras) {
         getCUBECount(function (cubeCount) {
             sendReply(server, room, sender, "Players have placed a total of " + cubeCount + " blocks within the world.");
