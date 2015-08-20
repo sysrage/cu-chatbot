@@ -1247,8 +1247,6 @@ function startClient(server) {
                     var message = body.getText();
                     var sender = stanza.attrs.from;
                     var senderName = sender.split('@')[0];
-                    var hatchAdminSent = false;
-                    var wyrmAdminSent = false;
                     if (stanza.getChild('cseflags')) {
                         var cse = stanza.getChild('cseflags').attrs.cse;
                     }
@@ -1256,20 +1254,14 @@ function startClient(server) {
                     // If message is a server warning, send it out
                     if (sender === server.address + "/Warning") {
                         if (message.indexOf("Hatchery will reboot for an update in") > -1) {
-                            if (! hatchAdminSent && server.name === "hatchery") {
-                                hatchAdminSent = true;
+                            if (server.name === "hatchery" && message.indexOf("30 seconds") > -1) {
                                 sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
-                                util.log("[CHAT] Server warning message sent to users. (ALL)");                                                            
-                            } else if (message === "Hatchery will reboot for an update in 10 seconds." && server.name === "hatchery") {
-                                hatchAdminSent = false;
+                                util.log("[CHAT] Server reboot message sent to users. (ALL)");                                                            
                             }
                         } else if (message.indexOf("Wyrmling will reboot for an update in") > -1) {
-                            if (! wyrmAdminSent && server.name === "wyrmling") {
-                                wyrmAdminSent = true;
+                            if (server.name === "wyrmling" && message.indexOf("30 seconds") > -1) {
                                 sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
-                                util.log("[CHAT] Server warning message sent to users. (ALL)");                                                            
-                            } else if (message === "Hatchery will reboot for an update in 10 seconds." && server.name === "wyrmling") {
-                                hatchAdminSent = false;
+                                util.log("[CHAT] Server reboot message sent to users. (ALL)");                                                            
                             }
                         } else {
                             sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
