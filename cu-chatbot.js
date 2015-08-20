@@ -96,8 +96,10 @@ var chatCommands = [
         } else {
             // send message as PM to user calling !tips
             sendReply(server, room, sender, "Tips sent to " + sender.split("@")[0] + ".");
-            room = 'pm';
-            sender = sender + '@' + server.address;
+            if (room !== 'pm') {
+                room = 'pm';
+                sender = sender + '@' + server.address;               
+            }
         }
 
         sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/hideui perfhud' to hide the statistics window || Type '/suicide' to quickly spawn in a new location");
