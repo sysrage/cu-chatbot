@@ -34,7 +34,7 @@ var config = require('./cu-chatbot.cfg');
 if (typeof Promise === 'undefined') Promise = require('bluebird');
 
 // Chat command definitions
-var commandChar = '!';
+var commandChar = '.';
 var chatCommands = [
 { // #### HELP COMMAND ####
     command: 'help',
@@ -82,17 +82,20 @@ var chatCommands = [
         var params = getParams(this.command, message);
         if (params.length > 0) {
             var pn = params.split(' ')[0].toLowerCase();
-            if (pn === 'chat') {
-                // send message to chat room
-            } else {
-                // send message as PM to specified user
-                sendReply(server, room, sender, "Tips sent to " + pn + ".");
-                room = 'pm';
-                sender = pn + '@' + server.address;
+            if (pn !== 'chat') {
+                if (room === 'pm') {
+                    // Only allow tips requested via PM to be sent to requester to avoid abuse
+                    sendReply(server, room, sender, "Tips sent to " + sender.split("@")[0] + ".");
+                } else {
+                    // send message as PM to specified user
+                    sendReply(server, room, sender, "Tips sent to " + pn + ".");
+                    room = 'pm';
+                    sender = pn + '@' + server.address;
+                }
             }
         } else {
             // send message as PM to user calling !tips
-            sendReply(server, room, sender, "Tips sent to " + sender + ".");
+            sendReply(server, room, sender, "Tips sent to " + sender.split("@")[0] + ".");
             room = 'pm';
             sender = sender + '@' + server.address;
         }
