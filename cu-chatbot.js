@@ -249,78 +249,78 @@ var chatCommands = [
         }
     }
 },
-{ // #### CLIENTOFF COMMAND ####
-    command: 'clientoff',
-    help: "The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n" +
-        "\nUsage: " + commandChar + "clientoff [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        if (extras && extras.motdadmin) {
-            var params = getParams(this.command, message);
-            if (params.length > 0) {
-                var sn = params.split(' ')[0].toLowerCase();
-                if (indexOfServer(sn) > -1) {
-                    targetServer = config.servers[indexOfServer(sn)];
-                } else {
-                    sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                    return;
-                }
-            } else {
-                var targetServer = server;
-            }
+// { // #### CLIENTOFF COMMAND ####
+//     command: 'clientoff',
+//     help: "The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n" +
+//         "\nUsage: " + commandChar + "clientoff [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         if (extras && extras.motdadmin) {
+//             var params = getParams(this.command, message);
+//             if (params.length > 0) {
+//                 var sn = params.split(' ')[0].toLowerCase();
+//                 if (indexOfServer(sn) > -1) {
+//                     targetServer = config.servers[indexOfServer(sn)];
+//                 } else {
+//                     sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                     return;
+//                 }
+//             } else {
+//                 var targetServer = server;
+//             }
 
-            if (client[targetServer.name]) {
-                // Client is running - Stop it
-                stopClient(targetServer);
-                if (targetServer.name !== server.name) {
-                    sendReply(server, room, sender, "Client for " + targetServer.name + " has been stopped.");
-                }
-                util.log("[STATUS] Client for " + targetServer.name + " stopped by user '" + sender + "'.");
-            } else {
-                // Client not running - Send error
-                sendReply(server, room, sender, "No client is running for server '"+ targetServer.name + "'.");
-            }
-        } else {
-            // User is not allowed - Send error.
-            sendReply(server, room, sender, "You do not have permission to stop a client.");
-        }
-    }
-},
-{ // #### CLIENTON COMMAND ####
-    command: 'clienton',
-    help: "The command " + commandChar + "clienton allows admins to start the bot connecting to a particular server.\n" +
-        "\nUsage: " + commandChar + "clienton [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        if (extras && extras.motdadmin) {
-            var params = getParams(this.command, message);
-            if (params.length > 0) {
-                var sn = params.split(' ')[0].toLowerCase();
-                if (indexOfServer(sn) > -1) {
-                    targetServer = config.servers[indexOfServer(sn)];
-                } else {
-                    sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                    return;
-                }
-            } else {
-                sendReply(server, room, sender, "You must specify a client to start.");
-                return;
-            }
+//             if (client[targetServer.name]) {
+//                 // Client is running - Stop it
+//                 stopClient(targetServer);
+//                 if (targetServer.name !== server.name) {
+//                     sendReply(server, room, sender, "Client for " + targetServer.name + " has been stopped.");
+//                 }
+//                 util.log("[STATUS] Client for " + targetServer.name + " stopped by user '" + sender + "'.");
+//             } else {
+//                 // Client not running - Send error
+//                 sendReply(server, room, sender, "No client is running for server '"+ targetServer.name + "'.");
+//             }
+//         } else {
+//             // User is not allowed - Send error.
+//             sendReply(server, room, sender, "You do not have permission to stop a client.");
+//         }
+//     }
+// },
+// { // #### CLIENTON COMMAND ####
+//     command: 'clienton',
+//     help: "The command " + commandChar + "clienton allows admins to start the bot connecting to a particular server.\n" +
+//         "\nUsage: " + commandChar + "clienton [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         if (extras && extras.motdadmin) {
+//             var params = getParams(this.command, message);
+//             if (params.length > 0) {
+//                 var sn = params.split(' ')[0].toLowerCase();
+//                 if (indexOfServer(sn) > -1) {
+//                     targetServer = config.servers[indexOfServer(sn)];
+//                 } else {
+//                     sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                     return;
+//                 }
+//             } else {
+//                 sendReply(server, room, sender, "You must specify a client to start.");
+//                 return;
+//             }
 
-            if (client[targetServer.name]) {
-                // Client is already running - Send error
-                sendReply(server, room, sender, "A client for " + targetServer.name + " is already running.");
-            } else {
-                startClient(targetServer);
-                sendReply(server, room, sender, "A client for " + targetServer.name + " has been started.");
-                util.log("[STATUS] Client for " + targetServer.name + " started by user '" + sender + "'.");
-            }
-        } else {
-            // User is not allowed - Send error.
-            sendReply(server, room, sender, "You do not have permission to stop a client.");
-        }
-    }
-},
+//             if (client[targetServer.name]) {
+//                 // Client is already running - Send error
+//                 sendReply(server, room, sender, "A client for " + targetServer.name + " is already running.");
+//             } else {
+//                 startClient(targetServer);
+//                 sendReply(server, room, sender, "A client for " + targetServer.name + " has been started.");
+//                 util.log("[STATUS] Client for " + targetServer.name + " started by user '" + sender + "'.");
+//             }
+//         } else {
+//             // User is not allowed - Send error.
+//             sendReply(server, room, sender, "You do not have permission to stop a client.");
+//         }
+//     }
+// },
 { // #### PLAYERS COMMAND ####
     command: 'players',
     help: "The command " + commandChar + "players displays current players on a server.\n" +
@@ -856,8 +856,7 @@ function checkLastStanza(server) {
     if (epochTime - server.lastStanza > 65) {
         util.log("[ERROR] No stanza for 65 seconds on " + server.name + ". Reconnecting...");
         server.lastStanza = epochTime;
-        stopClient(server);
-        startClient(server);
+        restartClient(server);
     }
 }
 
@@ -1139,9 +1138,10 @@ function startClient(server) {
                 // Start sending MOTDs
                 client[server.name].motdTimer = timerMOTD(server);
 
-                // Start verifying connectivity
+                // Start verifying client is still receiving stanzas
                 server.lastStanza = Math.floor((new Date).getTime() / 1000);
                 client[server.name].connTimer = timerConnected(server);
+
             });
 
             // Parse each stanza from the XMPP server
@@ -1314,6 +1314,12 @@ function stopClient(server) {
         clearInterval(client[server.name].connTimer);
         client[server.name] = undefined;
     }
+}
+
+// function to restart a client for a particular server
+function restartClient(server) {
+    stopClient(server);
+    startClient(server);
 }
 
 // Initial startup
