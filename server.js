@@ -154,6 +154,7 @@ var SampleApp = function() {
         self.routes['/'] = function(req, res) {
             server = {};
             pageContent = "";
+            serversReady = 0;
             config.servers.forEach(function(s, index) {
                 server[s.name] = s;
                 server[s.name].rAPI = new cuRestAPI(s.name);
@@ -228,7 +229,7 @@ var SampleApp = function() {
                     server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
 
                     // Build final page to display.
-                    pageContent = pageContent +
+                    server[s.name].pageContent = 
                             '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
                             '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                 '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
@@ -247,7 +248,11 @@ var SampleApp = function() {
                                 '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
                             '</table></center></td></tr>';
 
-                    if ((config.servers.length - 1) === index) {
+                    serversReady++;
+                    if (serversReady === config.servers.length) {
+                        for (i = 0; i < config.servers.length; i++) {
+                            pageContent += server[config.servers[i].name].pageContent;
+                        }
                         res.setHeader('Content-Type', 'text/html');
                         res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
                     }
@@ -255,7 +260,7 @@ var SampleApp = function() {
                     server[s.name].leaderboard = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p>';
 
                     // Build final page to display.
-                    pageContent = pageContent +
+                    server[s.name].pageContent = 
                             '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
                             '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
                                 '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
@@ -274,7 +279,11 @@ var SampleApp = function() {
                                 '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
                             '</table></center></td></tr>';
 
-                    if ((config.servers.length - 1) === index) {
+                    serversReady++;
+                    if (serversReady === config.servers.length) {
+                        for (i = 0; i < config.servers.length; i++) {
+                            pageContent += server[config.servers[i].name].pageContent;
+                        }
                         res.setHeader('Content-Type', 'text/html');
                         res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
                     }
