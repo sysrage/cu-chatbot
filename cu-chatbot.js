@@ -73,6 +73,16 @@ var chatCommands = [
             "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
     }
 },
+{ // #### TEAMSPEAK COMMAND ####
+    command: 'teamspeak',
+    help: "The command " + commandChar + "teamspeak displays information about the community Teamspeak server.\n" +
+        "\n" + "Usage: " + commandChar + "teamspeak", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "Community member Xirrin has been kind enough to provide a Teamspeak server. This can be used for voice" +
+            "chat during CU test events. Request access to the appropriate channels via _global chat or a PM on the forums." +
+            "\n\nTeamspeak Server: oppositionunchained.com (default port)");
+    }
+},
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
