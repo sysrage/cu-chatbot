@@ -57,6 +57,32 @@ function getPlayerStats(server) {
     });
 }
 
+// function to read in the saved server online stats
+function getOnlineStats(server) {
+    return new Promise(function (fulfill, reject) {
+        fs.readFile(server.onlineFile, function(err, data) {
+            if (err && err.code === 'ENOENT') {
+                var onlineStats = {
+                    name: server.name,
+                    lastNotice: 0,
+                    online: false,
+                    accessLevel: 6
+                };
+
+                fs.writeFile(server.onlineFile, JSON.stringify(onlineStats[server.name]), function(err) {
+                    if (err) {
+                        return util.log("[ERROR] Unable to create server online stats file.");
+                    }
+                    util.log("[STATUS] Server online stats file did not exist. Empty file created.");
+                });
+            } else {
+                var onlineStats = JSON.parse(data);
+            }
+            fulfill(onlineStats);
+        });    
+    });
+}
+
 /**
  *  Define the sample application.
  */
@@ -181,23 +207,65 @@ var SampleApp = function() {
                         '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Score:</b> ' + artScore +
                         '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Score:</b> ' + tuaScore +
                         '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Score:</b> ' + vikScore;
-                        
-                        return server[s.name].rAPI.getPlayers();
+
+                    return server[s.name].rAPI.getPlayers();
                 }, function(error) {
                     server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
                     return server[s.name].rAPI.getPlayers();
                 }).then(function(data) {
-                    // Build current player count section.
+                    // Store player data to be used in next section.
                     var players = data;
-                    var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                    server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers + '<br />&nbsp;<br />' +
-                        '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + players.arthurians +
-                        '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + players.tuathaDeDanann +
-                        '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + players.vikings;
-
-                    return getGameStats(server[s.name]);
+                    server[s.name].artPlayers = players.arthurians;
+                    server[s.name].tuaPlayers = players.tuathaDeDanann;
+                    server[s.name].vikPlayers = players.vikings;
+                    server[s.name].totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+                    return getOnlineStats(server[s.name]);
                 }, function(error) {
                     server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
+                    return getOnlineStats(server[s.name]);
+                }).then(function(data) {
+                    if (typeof server[s.name].players === 'undefined') {
+                        // Build current player count section.
+                        switch(data.accessLevel) {
+                            case 0:
+                                var accessLevel = "Public";
+                                break;
+                            case 1:
+                                var accessLevel = "Beta 3";
+                                break;
+                            case 2:
+                                var accessLevel = "Beta 2";
+                                break;
+                            case 3:
+                                var accessLevel = "Beta 1";
+                                break;
+                            case 4:
+                                var accessLevel = "Alpha";
+                                break;
+                            case 5:
+                                var accessLevel = "IT";
+                                break;
+                            case 6:
+                                var accessLevel = "Development";
+                                break;
+                            default:
+                                var accessLevel = "Unknown";
+                        }
+
+                        server[s.name].players = '<b>Current Player Count:</b> ' + server[s.name].totalPlayers +
+                            '<br /><b>Player Type Allowed:</b> ' + accessLevel + '<br />' +
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + server[s.name].artPlayers +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + server[s.name].tuaPlayers +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + server[s.name].vikPlayers;
+                    }
+                    return getGameStats(server[s.name]);
+                }, function(error) {
+                    if (typeof server[s.name].players === 'undefined') {
+                        server[s.name].players = '<b>Current Player Count:</b> ' + server[s.name].totalPlayers + '<br />&nbsp;<br />' +
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + server[s.name].artPlayers +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + server[s.name].tuaPlayers +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + server[s.name].vikPlayers;
+                    }
                     return getGameStats(server[s.name]);
                 }).then(function(data) {
                     // Build total game statistics section.
@@ -205,7 +273,6 @@ var SampleApp = function() {
                         '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + data.artWins +
                         '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + data.tuaWins +
                         '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + data.vikWins;
-
                     return getPlayerStats(server[s.name]);
                 }, function(error) {
                     server[s.name].wins = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading game statistics.</p>';
