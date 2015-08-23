@@ -73,6 +73,14 @@ var chatCommands = [
             "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
     }
 },
+{ // #### CONFIRMED COMMAND ####
+    command: 'confirmed',
+    help: "The command " + commandChar + "confirmed displays information about confirmed functionality.\n" +
+        "\n" + "Usage: " + commandChar + "confirmed", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "http://friarsboon.com/wp-content/uploads/everythingconfirmed.gif");
+    }
+},
 { // #### TEAMSPEAK COMMAND ####
     command: 'teamspeak',
     help: "The command " + commandChar + "teamspeak displays information about the community Teamspeak server.\n" +
