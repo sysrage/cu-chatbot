@@ -380,6 +380,8 @@ var chatCommands = [
                 }
             }
             sendReply(server, room, sender, "There are currently " + totalServers + " servers online: " + serverList);
+        }, function(error) {
+            sendReply(server, room, sender, "Error accessing API. Server may be down.");
         });
     }
 },
@@ -764,7 +766,7 @@ var indexOfServer = function(server) {
 };
 
 // function to check if game server is up
-function isGameServerUp(server, callback) {
+function isGameServerUp(server, attempt, callback) {
     server.cuRest.getServers().then(function(data) {
         for (var i = 0; i < data.length; i++) {
             if (data[i].name.toLowerCase() === server.name.toLowerCase()) {
@@ -773,6 +775,14 @@ function isGameServerUp(server, callback) {
             }
         }
         callback(false);
+    }, function(error) {
+        // Retry twice before giving up.
+        if (attempt < 2) {
+            isGameServerUp(server, attempt+1, callback);
+        } else {
+            util.log("[ERROR] Unable to query servers API.");
+            callback(false);
+        }
     });
 }
 
@@ -1117,6 +1127,8 @@ function checkServerOnline(server) {
                 util.log("[STATUS] Server access status stats file saved (" + server.name + ").");
             });
         }
+    }, function(error) {
+        util.log("[ERROR] Poll of server data failed.");
     });
 }
 
@@ -1139,7 +1151,7 @@ function controlGame(server) {
     }
 
     // Check to make sure game server is up. If not, skip this iteration of the timer.
-    isGameServerUp(server, function(up) {
+    isGameServerUp(server, 0, function(up) {
         if (! up) {
             server.currentGame.downCount++;
             if (server.currentGame.downCount > 2 && ! server.currentGame.ended) server.currentGame.ended = true;
@@ -1308,7 +1320,11 @@ function controlGame(server) {
                     //     });
                     //     server.currentGame.lastBegTime = epochTime;
                     // }
+                }, function(error) {
+                    util.log("[ERROR] Poll of player data failed.");
                 });
+            }, function(error) {
+                util.log("[ERROR] Poll of control game data failed.");
             });
         }
     });
