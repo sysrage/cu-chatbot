@@ -78,7 +78,7 @@ var chatCommands = [
     help: "The command " + commandChar + "confirmed displays information about confirmed functionality.\n" +
         "\n" + "Usage: " + commandChar + "confirmed", 
     exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "http://friarsboon.com/wp-content/uploads/everythingconfirmed.gif");
+        sendReply(server, room, sender, "http://ft.trillian.im/af0f242d455e9f185639905ece7a631f656553c6/6AZkvU0ukO6wr5Gaqil7C2hmOqy6H.gif");
     }
 },
 { // #### TEAMSPEAK COMMAND ####
@@ -359,7 +359,34 @@ var chatCommands = [
         }
 
         targetServer.cuRest.getPlayers().then(function(players) {
+            switch(onlineStats[targetServer.name].accessLevel) {
+                case 0:
+                    var accessLevel = "Public";
+                    break;
+                case 1:
+                    var accessLevel = "Beta 3";
+                    break;
+                case 2:
+                    var accessLevel = "Beta 2";
+                    break;
+                case 3:
+                    var accessLevel = "Beta 1";
+                    break;
+                case 4:
+                    var accessLevel = "Alpha";
+                    break;
+                case 5:
+                    var accessLevel = "IT";
+                    break;
+                case 6:
+                    var accessLevel = "Development";
+                    break;
+                default:
+                    var accessLevel = "Unknown";
+            }
+
             var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+            sendReply(server, room, sender, "Allowed player type on " + targetServer.name + ": " + accessLevel);
             sendReply(server, room, sender, "There are currently " + totalPlayers + " players logged in to " + targetServer.name + ":" +
                 "\n   Arthurians: " + players.arthurians +
                 "\n   TuathaDeDanann: " + players.tuathaDeDanann +
