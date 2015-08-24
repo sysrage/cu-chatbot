@@ -1025,22 +1025,22 @@ function checkServerOnline(server) {
                                 break;
                             case 4:
                                 // Server now open to Alpha -- Send notice to Alpha
-                                sendToIT("The server '" + server.name + "' is now online and allowing access to Alpha players.");
+                                sendToAlpha("The server '" + server.name + "' is now online and allowing access to Alpha players.");
                                 util.log("[GAME] Server access status message sent to users. (Alpha)");
                                 break;
                             case 3:
                                 // Server now open to Beta1 -- Send notice to Beta1
-                                sendToIT("The server '" + server.name + "' is now online and allowing access to Beta1 players.");
+                                sendToBeta1("The server '" + server.name + "' is now online and allowing access to Beta1 players.");
                                 util.log("[GAME] Server access status message sent to users. (Beta1)");
                                 break;
                             case 2:
                                 // Server now open to Beta2 -- Send notice to Beta2
-                                sendToIT("The server '" + server.name + "' is now online and allowing access to Beta2 players.");
+                                sendToBeta2("The server '" + server.name + "' is now online and allowing access to Beta2 players.");
                                 util.log("[GAME] Server access status message sent to users. (Beta2)");
                                 break;
                             case 1:
                                 // Server now open to Beta3 -- Send notice to Beta3
-                                sendToIT("The server '" + server.name + "' is now online and allowing access to Beta3 players.");
+                                sendToBeta3("The server '" + server.name + "' is now online and allowing access to Beta3 players.");
                                 util.log("[GAME] Server access status message sent to users. (Beta3)");
                                 break;
                         }
@@ -1058,22 +1058,22 @@ function checkServerOnline(server) {
                                     break;
                                 case 4:
                                     // Server no longer open to Alpha -- Send notice to Alpha
-                                    sendToIT("The server '" + server.name + "' is no longer allowing access to Alpha players.");
+                                    sendToAlpha("The server '" + server.name + "' is no longer allowing access to Alpha players.");
                                     util.log("[GAME] Server access status message sent to users. (Alpha)");
                                     break;
                                 case 3:
                                     // Server no longer open to Beta1 -- Send notice to Beta1
-                                    sendToIT("The server '" + server.name + "' is no longer allowing access to Beta1 players.");
+                                    sendToBeta1("The server '" + server.name + "' is no longer allowing access to Beta1 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta1)");
                                     break;
                                 case 2:
                                     // Server no longer open to Beta2 -- Send notice to Beta2
-                                    sendToIT("The server '" + server.name + "' is no longer allowing access to Beta2 players.");
+                                    sendToBeta2("The server '" + server.name + "' is no longer allowing access to Beta2 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta2)");
                                     break;
                                 case 1:
                                     // Server no longer open to Beta3 -- Send notice to Beta3
-                                    sendToIT("The server '" + server.name + "' is no longer allowing access to Beta3 players.");
+                                    sendToBeta3("The server '" + server.name + "' is no longer allowing access to Beta3 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta3)");
                                     break;
                             }
@@ -1090,22 +1090,22 @@ function checkServerOnline(server) {
                                     break;
                                 case 4:
                                     // Server now open to Alpha -- Send notice to Alpha
-                                    sendToIT("The server '" + server.name + "' is now allowing access to Alpha players.");
+                                    sendToAlpha("The server '" + server.name + "' is now allowing access to Alpha players.");
                                     util.log("[GAME] Server access status message sent to users. (Alpha)");
                                     break;
                                 case 3:
                                     // Server now open to Beta1 -- Send notice to Beta1
-                                    sendToIT("The server '" + server.name + "' is now allowing access to Beta1 players.");
+                                    sendToBeta1("The server '" + server.name + "' is now allowing access to Beta1 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta1)");
                                     break;
                                 case 2:
                                     // Server now open to Beta2 -- Send notice to Beta2
-                                    sendToIT("The server '" + server.name + "' is now allowing access to Beta2 players.");
+                                    sendToBeta2("The server '" + server.name + "' is now allowing access to Beta2 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta2)");
                                     break;
                                 case 1:
                                     // Server now open to Beta3 -- Send notice to Beta3
-                                    sendToIT("The server '" + server.name + "' is now allowing access to Beta3 players.");
+                                    sendToBeta3("The server '" + server.name + "' is now allowing access to Beta3 players.");
                                     util.log("[GAME] Server access status message sent to users. (Beta3)");
                                     break;
                             }
@@ -1128,22 +1128,22 @@ function checkServerOnline(server) {
                         break;
                     case 4:
                         // Server now open to Alpha -- Send notice to Alpha
-                        sendToIT("The server '" + server.name + "' is now offline.");
+                        sendToAlpha("The server '" + server.name + "' is now offline.");
                         util.log("[GAME] Server access status message sent to users. (Alpha)");
                         break;
                     case 3:
                         // Server now open to Beta1 -- Send notice to Beta1
-                        sendToIT("The server '" + server.name + "' is now offline.");
+                        sendToBeta1("The server '" + server.name + "' is now offline.");
                         util.log("[GAME] Server access status message sent to users. (Beta1)");
                         break;
                     case 2:
                         // Server now open to Beta2 -- Send notice to Beta2
-                        sendToIT("The server '" + server.name + "' is now offline.");
+                        sendToBeta2("The server '" + server.name + "' is now offline.");
                         util.log("[GAME] Server access status message sent to users. (Beta2)");
                         break;
                     case 1:
                         // Server now open to Beta3 -- Send notice to Beta3
-                        sendToIT("The server '" + server.name + "' is now offline.");
+                        sendToBeta3("The server '" + server.name + "' is now offline.");
                         util.log("[GAME] Server access status message sent to users. (Beta3)");
                         break;
                 }
