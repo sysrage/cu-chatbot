@@ -20,10 +20,14 @@ Requires:
 Optional:
  - [node-pushover](https://github.com/SamDecrock/node-pushover) - Needed to send Pushover notifications.
  - [node-applescript](https://github.com/TooTallNate/node-applescript) - Needed to send iMessage notifications. Requires OSX.
+ - [aws-sdk](https://github.com/aws/aws-sdk-js) - Needed to send push notifications (SMS/email/etc.) via AWS SNS.
 
-Much thanks to mehuge, reallifegobbo, and burfo for their help with learning Node.js.
+Much thanks to the CU Mod Squad for their help with learning Node.js.
 
 Originally based on https://gist.github.com/powdahound/940969
 
 # server.js
 OpenShift server script which provides a web interface to game statistics and starts the chatbot.
+
+# cu-rest.js
+Interface object to the Camelot Unchained REST API.
