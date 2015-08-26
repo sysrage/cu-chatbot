@@ -15,6 +15,7 @@ which don't have Promise support.
 Optional:
  - node-pushover - Needed to send Pushover notifications.
  - node-applescript - Needed to send iMessage notifications. Requires OSX.
+ - aws-sdk - Needed to send push notifications (SMS/email/etc.) via AWS SNS.
 
 Much thanks to the CU Mod Squad for their help with learning Node.js.
 
@@ -904,6 +905,23 @@ function sendSMS(phone, message) {
     });
 }
 
+// function to send AWS SNS notification
+function sendSNS(arn, message, subject) {
+    var AWS = require('aws-sdk');
+    AWS.config.region = 'us-east-1';
+    var sns = new AWS.SNS();
+
+    var params = {
+      Message: message,
+      Subject: subject,
+      TopicArn: arn
+    };
+
+    sns.publish(params, function(err, data) {
+        if (err) util.log("[ERROR] Error sending SNS: " + err);
+    });
+}
+
 // function to send a notification to "ALL"
 function sendToAll(message) {
     config.poReceiversAll.forEach(function(poID) {
@@ -932,8 +950,8 @@ function sendToAlpha(message) {
     config.poAlphaNotices.forEach(function(poID) {
         sendPushover(poID, "[CU]", message);
     });
-    config.smsAlphaNotices.forEach(function(smsNumber) {
-        sendSMS(smsNumber, "<CU> " + message);
+    config.snsAlphaNotices.forEach(function(arn) {
+        sendSNS(arn, message, message);
     });
 }
 
@@ -942,8 +960,8 @@ function sendToBeta1(message) {
     config.poBeta1Notices.forEach(function(poID) {
         sendPushover(poID, "[CU]", message);
     });
-    config.smsBeta1Notices.forEach(function(smsNumber) {
-        sendSMS(smsNumber, "<CU> " + message);
+    config.snsBeta1Notices.forEach(function(arn) {
+        sendSNS(arn, message, message);
     });
 }
 
@@ -952,8 +970,8 @@ function sendToBeta2(message) {
     config.poBeta2Notices.forEach(function(poID) {
         sendPushover(poID, "[CU]", message);
     });
-    config.smsBeta2Notices.forEach(function(smsNumber) {
-        sendSMS(smsNumber, "<CU> " + message);
+    config.snsBeta2Notices.forEach(function(arn) {
+        sendSNS(arn, message, message);
     });
 }
 
@@ -962,8 +980,8 @@ function sendToBeta3(message) {
     config.poBeta3Notices.forEach(function(poID) {
         sendPushover(poID, "[CU]", message);
     });
-    config.smsBeta3Notices.forEach(function(smsNumber) {
-        sendSMS(smsNumber, "<CU> " + message);
+    config.snsBeta3Notices.forEach(function(arn) {
+        sendSNS(arn, message, message);
     });
 }
 
@@ -972,8 +990,8 @@ function sendToIT(message) {
     config.poITNotices.forEach(function(poID) {
         sendPushover(poID, "[CU]", message);
     });
-    config.smsITNotices.forEach(function(smsNumber) {
-        sendSMS(smsNumber, "<CU> " + message);
+    config.snsITNotices.forEach(function(arn) {
+        sendSNS(arn, message, message);
     });
 }
 
