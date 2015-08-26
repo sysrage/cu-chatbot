@@ -124,6 +124,8 @@ var chatCommands = [
         sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/hideui perfhud' to hide the statistics window || Type '/suicide' to quickly spawn in a new location");
         sendReply(server, room, sender, "To help increase performance on older systems type 'shadowMaxDist 0', hold Shift, and press Enter.");
         sendReply(server, room, sender, "To run the game in full screen at higher resolution hold Alt while clicking the 'Play' button on the launcher and enter 'windowWidth=1920; windowHeight=1080'.");
+        sendReply(server, room, sender, "If you have poor performance on a laptop which contains both integrated and descrete video cards, see this post: http://bit.ly/1JmKCUR");
+        sendReply(server, room, sender, "If something crashes when you do it, don't do it. -Tim");
         sendReply(server, room, sender, "For other very useful information, please click the 'Alpha Manual' link on the game patcher.");
     }
 },
@@ -753,25 +755,27 @@ function getRoundKills(server, start, end, attempt, callback) {
     var roundKills = [];
     server.cuRest.getKills({start: start, end: end}).then(function(data) {
         data.forEach(function(killEntry) {
-            var killerName = killEntry.killer.name;
-            var killerFaction = killEntry.killer.faction;
-            var killerRace = killEntry.killer.race;
-            var killerType = killEntry.killer.archetype;
-            var victimName = killEntry.victim.name;
-            var victimFaction = killEntry.victim.faction;
-            var victimRace = killEntry.victim.race;
-            var victimType = killEntry.victim.archetype;
+            if (killEntry.killer && killEntry.victim) {
+                var killerName = killEntry.killer.name;
+                var killerFaction = killEntry.killer.faction;
+                var killerRace = killEntry.killer.race;
+                var killerType = killEntry.killer.archetype;
+                var victimName = killEntry.victim.name;
+                var victimFaction = killEntry.victim.faction;
+                var victimRace = killEntry.victim.race;
+                var victimType = killEntry.victim.archetype;
 
-            roundKills.push({
-                killerName: killerName, 
-                killerFaction: killerFaction,
-                killerRace: killerRace,
-                killerType: killerType,
-                victimName: victimName,
-                victimFaction: victimFaction,
-                victimRace: victimRace,
-                victimType: victimType
-            });
+                roundKills.push({
+                    killerName: killerName, 
+                    killerFaction: killerFaction,
+                    killerRace: killerRace,
+                    killerType: killerType,
+                    victimName: victimName,
+                    victimFaction: victimFaction,
+                    victimRace: victimRace,
+                    victimType: victimType
+                });
+            }
         });
         callback(roundKills);
     }, function(error) {
