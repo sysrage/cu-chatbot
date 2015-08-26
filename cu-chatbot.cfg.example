@@ -3,6 +3,9 @@
 // To read username and password from environment variables:
 //     username: process.env.CHAT_USERNAME + "@chat.camelotunchained.com",
 //     password: process.env.CHAT_PASSWORD
+//
+// rhc env set CHAT_USERNAME="user@chat.camelotunchained.com" CHAT_PASSWORD="password" \
+//     AWS_ACCESS_KEY_ID="ACCESS_KEY" AWS_SECRET_ACCESS_KEY="SECRET_KEY" -a chatbot
 
 module.exports = {
 
@@ -99,9 +102,9 @@ module.exports = {
         "abCDefGHijKLmnOPqrSTuvWXyZ"  // IT Server Notices Pushover Group
     ],
 
-    // SMS recipients for IT server online notices
-    smsITNotices: [
-        // "1234567890"  // IT SMS User
+    // SNS recipients for IT server online notices
+    snsITNotices: [
+        "arn:aws:sns:us-east-1:1234567890:CU_Server_Notices-IT"      // IT ARN
     ],
 
     // Pushover recipients for Alpha server online notices
@@ -109,9 +112,9 @@ module.exports = {
         "abCDefGHijKLmnOPqrSTuvWXyZ"  // Alpha Server Notices Pushover Group
     ],
 
-    // SMS recipients for Alpha server online notices
-    smsAlphaNotices: [
-        // "1234567890"  // Alpha SMS User
+    // SNS recipients for Alpha server online notices
+    snsAlphaNotices: [
+        "arn:aws:sns:us-east-1:1234567890:CU_Server_Notices-Alpha"   // Alpha ARN
     ],
 
     // Pushover recipients for Beta1 server online notices
@@ -119,9 +122,9 @@ module.exports = {
         "abCDefGHijKLmnOPqrSTuvWXyZ"  // Beta1 Server Notices Pushover Group
     ],
 
-    // SMS recipients for Beta1 server online notices
-    smsBeta1Notices: [
-        // "1234567890"  // Beta1 SMS User
+    // SNS recipients for Beta1 server online notices
+    snsBeta1Notices: [
+        "arn:aws:sns:us-east-1:1234567890:CU_Server_Notices-Beta1"   // Beta1 ARN
     ],
 
     // Pushover recipients for Beta2 server online notices
@@ -129,9 +132,9 @@ module.exports = {
         "abCDefGHijKLmnOPqrSTuvWXyZ"  // Beta2 Server Notices Pushover Group
     ],
 
-    // SMS recipients for Beta2 server online notices
-    smsBeta2Notices: [
-        // "1234567890"  // Beta2 SMS User
+    // SNS recipients for Beta2 server online notices
+    snsBeta2Notices: [
+        "arn:aws:sns:us-east-1:1234567890:CU_Server_Notices-Beta2"   // Beta2 ARN
     ],
 
     // Pushover recipients for Beta3 server online notices
@@ -139,8 +142,8 @@ module.exports = {
         "abCDefGHijKLmnOPqrSTuvWXyZ"  // Beta3 Server Notices Pushover Group
     ],
 
-    // SMS recipients for Beta3 server online notices
-    smsBeta3Notices: [
-        // "1234567890"  // Beta3 SMS User
+    // SNS recipients for Beta3 server online notices
+    snsBeta3Notices: [
+        "arn:aws:sns:us-east-1:1234567890:CU_Server_Notices-Beta3"   // Beta3 ARN
     ]
 };
