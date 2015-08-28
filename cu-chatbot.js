@@ -74,6 +74,14 @@ var chatCommands = [
             "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
     }
 },
+{ // #### BACON COMMAND ####
+    command: 'bacon',
+    help: "The command " + commandChar + "bacon displays information about bacon.\n" +
+        "\n" + "Usage: " + commandChar + "bacon", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "http://ft.trillian.im/2bdaf99da85722bb4ec225c39b393404d0afcfd9/6B5pYQdHc32HYGlIrmutnpu4hDY21.jpg");
+    }
+},
 { // #### CONFIRMED COMMAND ####
     command: 'confirmed',
     help: "The command " + commandChar + "confirmed displays information about confirmed functionality.\n" +
@@ -558,19 +566,14 @@ var chatCommands = [
             var targetServer = server;
         }
 
-        var num = 0;
-        playerStats[targetServer.name].forEach(function(entry) {
-            num++;
-        });
-
         var pStats = playerStats[targetServer.name].concat();
 
         // Remove bots from rankings
         for (var i = 0; i < pStats.length; i++) {
-            console.log(i + "= '" + pStats[i].playerName + "'");
-            console.log('length = ' + playerStats[targetServer.name].length);
-            console.log('num = ' + num);
-            if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(pStats[i].playerName) > -1) pStats.splice(i, 1);
+            if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(pStats[i].playerName) > -1) {
+                pStats.splice(i, 1);
+                i--;
+            }
         }
 
         // Ensure at least 10 entries exist. Create dummy entries if not.

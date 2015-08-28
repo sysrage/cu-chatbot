@@ -282,7 +282,10 @@ var SampleApp = function() {
 
                     // Remove bots from rankings.
                     for (var i = 0; i < data.length; i++) {
-                        if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(data[i].playerName) > -1) data.splice(i, 1);
+                        if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(data[i].playerName) > -1) {
+                            data.splice(i, 1);
+                            i--;
+                        }
                     }
 
                     // Ensure at least 10 entries exist. Create dummy entries if not.
