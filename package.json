@@ -1,0 +1,32 @@
+{
+  "name": "cu-chatbot",
+  "version": "1.0.0",
+  "description": "Chatbot for Camelot Unchained",
+  "keywords": [
+    "chat",
+    "Node.js",
+    "application"
+  ],
+  "author": {
+    "name": "Brian Bothwell",
+    "email": "sysrage@gmail.com",
+    "url": "http://www.sysrage.net/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sysrage/cu-chatbot"
+  },
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1.48",
+    "bluebird": "^2.9.34",
+    "express": "~3.4.4",
+    "node-pushover": "^0.2.2",
+    "node-xmpp": "^1.0.2",
+    "request": "^2.58.0"
+  },
+  "private": true
+}
