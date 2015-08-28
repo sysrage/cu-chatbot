@@ -108,7 +108,7 @@ var SampleApp = function() {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
             //  allows us to run/test the app locally.
             console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
-            // self.ipaddress = "127.0.0.1";
+            self.ipaddress = "127.0.0.1";
             // self.ipaddress = "192.168.1.101";
 
         };
@@ -279,8 +279,23 @@ var SampleApp = function() {
                     return getPlayerStats(server[s.name]);
                 }).then(function(data) {
                     // Build leaderboard section.
+
+                    // Remove bots from rankings.
+                    for (var i = 0; i < data.length; i++) {
+                        if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(data[i].playerName) > -1) data.splice(i, 1);
+                    }
+
+                    // Ensure at least 10 entries exist. Create dummy entries if not.
                     for (var i = 0; i < 10; i++) {
-                        if (! data[i]) data[i] = {playerName: 'Nobody', kills: 0, deaths: 0};
+                        if (! data[i]) data[i] = {
+                            playerName: 'Nobody',
+                            playerFaction: 'None',
+                            playerRace: 'None',
+                            playerType: 'None',
+                            kills: 0,
+                            deaths: 0,
+                            gamesPlayed: 0
+                        };
                     }
 
                     var playersSortedByKills = data.concat().sort(function(a, b) { return b.kills - a.kills; });
