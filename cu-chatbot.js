@@ -108,6 +108,14 @@ var chatCommands = [
         sendReply(server, room, sender, "If you are having issues with low FPS, please see this pinned post in the bug #4 forum on how to change your active GPU: http://bit.ly/1JmKCUR");
     }
 },
+{ // #### TOS COMMAND ####
+    command: 'tos',
+    help: "The command " + commandChar + "tos displays a link to the Terms Of Service forum thread.\n" +
+        "\n" + "Usage: " + commandChar + "tos", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "Be sure to carefully read and abide by the Terms Of Service found here: http://bit.ly/1fLZ5Pk");
+    }
+},
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
