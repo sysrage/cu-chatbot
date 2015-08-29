@@ -100,6 +100,14 @@ var chatCommands = [
             "\n\nTeamspeak Server: oppositionunchained.com (default port)");
     }
 },
+{ // #### FPS COMMAND ####
+    command: 'teamspeak',
+    help: "The command " + commandChar + "fps displays information about increasing frame rate.\n" +
+        "\n" + "Usage: " + commandChar + "fps", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "If you are having issues with low FPS, please see this pinned post in the bug #4 forum on how to change your active GPU: http://bit.ly/1JmKCUR");
+    }
+},
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
