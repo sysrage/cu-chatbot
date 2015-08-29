@@ -101,7 +101,7 @@ var chatCommands = [
     }
 },
 { // #### FPS COMMAND ####
-    command: 'teamspeak',
+    command: 'fps',
     help: "The command " + commandChar + "fps displays information about increasing frame rate.\n" +
         "\n" + "Usage: " + commandChar + "fps", 
     exec: function(server, room, sender, message, extras) {
