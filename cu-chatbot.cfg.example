@@ -28,6 +28,7 @@ module.exports = {
             { name: '_global', joined: false, motd: false, monitor: true, announce: true},
             { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
         ],
+        allowPMCommands: true,
         roundTime: 1800,
         combatBot: "_combat@conference.chat.camelotunchained.com/combatbot"
     },
@@ -48,6 +49,7 @@ module.exports = {
             { name: '_global', joined: false, motd: false, monitor: false, announce: true},
             { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
         ],
+        allowPMCommands: false,
         roundTime: 1800,
         combatBot: "_combat@conference.chat.camelotunchained.com/combatbot"
     }

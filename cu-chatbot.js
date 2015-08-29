@@ -1646,7 +1646,7 @@ function startClient(server) {
                     } else motdadmin = false;
 
                     // If message matches a defined command, run it
-                    if (message[0] === commandChar) {
+                    if (message[0] === commandChar && server.allowPMCommands) {
                         var userCommand = message.split(' ')[0].split(commandChar)[1];
                         chatCommands.forEach(function(cmd) {
                             if (userCommand === cmd.command) {
