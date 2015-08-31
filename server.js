@@ -413,7 +413,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Kills:</b> " + totalKills + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByKills.length; i++) {
-                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByKills[i].playerName + '/">' + playersSortedByKills[i].playerName + '</a> (' + playersSortedByKills[i].playerRace + ') - ' + playersSortedByKills[i].kills + '<br />';
+                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByKills[i].playerName + '/">' + playersSortedByKills[i].playerName + '</a> (' + playersSortedByKills[i].playerRace + ') - ' + playersSortedByKills[i].kills + ' (' + (playersSortedByKills[i].kills / playersSortedByKills[i].gamesPlayed).toFixed(2) + ' kills per game)<br />';
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
@@ -465,7 +465,7 @@ var SampleApp = function() {
                     pageContent = pageContent + "<b>Total Deaths:</b> " + totalDeaths + "<br />&nbsp;<br />";
 
                     for (var i = 0; i < playersSortedByDeaths.length; i++) {
-                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByDeaths[i].playerName + '/">' + playersSortedByDeaths[i].playerName + '</a> (' + playersSortedByDeaths[i].playerRace + ') - ' + playersSortedByDeaths[i].deaths + '<br />';
+                        pageContent = pageContent + '#' + (i + 1) + ': <a style="color: inherit;" href="/player/' + server.name + '/' + playersSortedByDeaths[i].playerName + '/">' + playersSortedByDeaths[i].playerName + '</a> (' + playersSortedByDeaths[i].playerRace + ') - ' + playersSortedByDeaths[i].deaths + ' (' + (playersSortedByDeaths[i].kills / playersSortedByDeaths[i].gamesPlayed).toFixed(2) + 'deaths per game)<br />';
                     }
                     pageContent = pageContent + '</td></tr></table></center></td></tr>';
 
@@ -517,8 +517,9 @@ var SampleApp = function() {
                         pageContent = pageContent + '<b>Player Faction:</b> ' + player.playerFaction + '<br />';
                         pageContent = pageContent + '<b>Player Race:</b> ' + player.playerRace + '<br />';
                         pageContent = pageContent + '<b>Player Type:</b> ' + player.playerType + '<br />';
-                        pageContent = pageContent + '<b>Kills:</b> ' + player.kills + '<br />';
-                        pageContent = pageContent + '<b>Deaths:</b> ' + player.deaths + '<br />';
+                        pageContent = pageContent + '<b>Kills:</b> ' + player.kills + ' (' + (player.kills / player.gamesPlayed).toFixed(2) + ' kills per game)<br />';
+                        pageContent = pageContent + '<b>Deaths:</b> ' + player.deaths + ' (' + (player.deaths / player.gamesPlayed).toFixed(2) + ' deaths per game)<br />';
+                        pageContent = pageContent + '<b>KDR:</b> ' + (player.kills / player.deaths) + '<br />';
                         pageContent = pageContent + '<b>Rounds Played:</b> ' + player.gamesPlayed + '<br />';
                         pageContent = pageContent + '</td></tr></table></center>';
 
