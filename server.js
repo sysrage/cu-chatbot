@@ -519,7 +519,7 @@ var SampleApp = function() {
                         pageContent = pageContent + '<b>Player Type:</b> ' + player.playerType + '<br />';
                         pageContent = pageContent + '<b>Kills:</b> ' + player.kills + ' (' + (player.kills / player.gamesPlayed).toFixed(2) + ' kills per game)<br />';
                         pageContent = pageContent + '<b>Deaths:</b> ' + player.deaths + ' (' + (player.deaths / player.gamesPlayed).toFixed(2) + ' deaths per game)<br />';
-                        pageContent = pageContent + '<b>KDR:</b> ' + (player.kills / player.deaths) + '<br />';
+                        pageContent = pageContent + '<b>KDR:</b> ' + (player.kills / player.deaths).toFixed(2) + '<br />';
                         pageContent = pageContent + '<b>Rounds Played:</b> ' + player.gamesPlayed + '<br />';
                         pageContent = pageContent + '</td></tr></table></center>';
 
