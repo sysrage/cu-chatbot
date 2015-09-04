@@ -22,11 +22,17 @@ module.exports = {
         nomotdFile: './hatchery.nomotd',
         gameFile: './hatchery.game',
         playerFile: './hatchery.player',
-        onlineFile: './hatchery.online',        
+        onlineFile: './hatchery.online',
+        chatlogFile: './hatchery.chatlog',
         rooms: [
-            { name: '_it', joined: false, motd: true, monitor: true, announce: true},
-            { name: '_global', joined: false, motd: false, monitor: true, announce: true},
-            { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
+            {
+                name: '_it',
+                joined: false,
+                motd: true,
+                monitor: true,
+                announce: true,
+                log: true
+            }
         ],
         allowPMCommands: true,
         roundTime: 1800,
@@ -44,16 +50,41 @@ module.exports = {
         gameFile: './wyrmling.game',
         playerFile: './wyrmling.player',
         onlineFile: './wyrmling.online',
+        chatlogFile: './wyrmling.chatlog',
         rooms: [
-            { name: '_it', joined: false, motd: true, monitor: false, announce: true},
-            { name: '_global', joined: false, motd: false, monitor: false, announce: true},
-            { name: '_combat', joined: false, motd: true, monitor: false, announce: false},
+            {
+                name: '_global',
+                joined: false,
+                motd: false,
+                monitor: false,
+                announce: true,
+                log: true
+            },
+            {
+                name: '_combat',
+                joined: false,
+                motd: true,
+                monitor: false,
+                announce: false,
+                log: false
+            },
+            {
+                name: '_cube',
+                joined: false,
+                motd: true,
+                monitor: false,
+                announce: false,
+                log: false
+            },
         ],
         allowPMCommands: false,
         roundTime: 1800,
         combatBot: "_combat@conference.chat.camelotunchained.com/combatbot"
     }
     ],
+
+    // Number of hours chat logs will be saved
+    chatlogLimit: 48,
 
     // Users without CSE flag which can set MOTD messages
     motdAdmins: [

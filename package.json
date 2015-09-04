@@ -24,6 +24,7 @@
     "aws-sdk": "^2.1.48",
     "bluebird": "^2.9.34",
     "express": "~3.4.4",
+    "moment": "^2.10.6",
     "node-pushover": "^0.2.2",
     "node-xmpp": "^1.0.2",
     "request": "^2.58.0"
