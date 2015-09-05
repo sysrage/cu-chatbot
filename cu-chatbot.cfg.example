@@ -31,7 +31,8 @@ module.exports = {
                 motd: true,
                 monitor: true,
                 announce: true,
-                log: true
+                log: true,
+                privateRoom: true
             }
         ],
         allowPMCommands: true,
@@ -58,7 +59,8 @@ module.exports = {
                 motd: false,
                 monitor: false,
                 announce: true,
-                log: true
+                log: true,
+                privateRoom: false
             },
             {
                 name: '_combat',
@@ -66,7 +68,8 @@ module.exports = {
                 motd: true,
                 monitor: false,
                 announce: false,
-                log: false
+                log: false,
+                privateRoom: false
             },
             {
                 name: '_cube',
@@ -74,7 +77,8 @@ module.exports = {
                 motd: true,
                 monitor: false,
                 announce: false,
-                log: false
+                log: false,
+                privateRoom: false
             },
         ],
         allowPMCommands: false,

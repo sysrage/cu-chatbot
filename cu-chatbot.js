@@ -111,8 +111,15 @@ var chatCommands = [
                     case '-r':
                         // verify next param is a monitored room then set room to search
                         var validRoom = false;
-                        server.rooms.forEach(function(room){
-                            if (room.name === paramArray[i + 1]) validRoom = true;
+                        server.rooms.forEach(function(r){
+                            if (r.name === paramArray[i + 1]) {
+                                if (r.privateRoom) {
+                                    // If privateRoom is true, only allow command from that room
+                                    if (r.name === room) validRoom = true;
+                                } else {
+                                    validRoom = true;
+                                }
+                            }
                         });
                         if (validRoom) {
                             searchRoom = paramArray[i + 1];
