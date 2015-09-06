@@ -177,12 +177,18 @@ var chatCommands = [
                         // Allow ##h and ##m for hours and minutes
                         if (paramArray[i].search(/[0-9]+[Hh]/) !== -1) searchHours = parseInt(paramArray[i]);
                         if (paramArray[i].search(/[0-9]+[Mm]/) !== -1) searchMins = parseInt(paramArray[i]);
+                        if (paramArray[i].search(/[0-9]+/) !== -1) searchHours = parseInt(paramArray[i]);
                         break;
                 }
             }
         } else {
             sendReply(server, room, sender, "Please specify a filter to limit the number of messages displayed. Type `" + commandChar + "help chatlog` for more information.");
             return;
+        }
+
+        if (! searchHours && ! searchMins && ! searchRoom && ! searchUser && ! searchText) {
+            sendReply(server, room, sender, "Invalid parameters supplied to command. Type `" + commandChar + "help chatlog` for more information.");
+            return;            
         }
 
         if (! searchHours && ! searchMins) searchHours = config.chatlogLimit;
