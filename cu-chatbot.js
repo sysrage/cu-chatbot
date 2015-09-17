@@ -503,6 +503,16 @@ var chatCommands = [
         }
     }
 },
+{ // #### MUMBLE COMMAND ####
+    command: 'mumble',
+    help: "The command " + commandChar + "mumble displays information about the community Mumble server.\n" +
+        "\nUsage: " + commandChar + "mumble", 
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "CSE's JB has been kind enough to provide a public Mumble server. This can be used for voice" +
+            "chat during CU test events." +
+            "\n\nMumble Server: veilstorm.net (default port)");
+    }
+},
 { // #### PLAYERS COMMAND ####
     command: 'players',
     help: "The command " + commandChar + "players displays current players on a server.\n" +
@@ -1043,7 +1053,7 @@ function isGameServerUp(server, attempt, callback) {
 // function to check if user is an MOTD admin
 var isMOTDAdmin = function(name) {
     for (var i = 0; i < config.motdAdmins.length; i++) {
-        if (config.motdAdmins[i] === name) return true;
+        if (config.motdAdmins[i].toLowerCase() === name.toLowerCase()) return true;
     }
     return false;
 };
