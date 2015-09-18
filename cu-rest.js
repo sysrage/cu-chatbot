@@ -61,11 +61,16 @@ function restAPI(name) {
                 timeout: params.timeout,
             },
             function (error, response, body) {
-                if(error){
+                if (error) {
                     util.log("[ERROR] Unable to read API (" + verb + "): " + error);
                     reject(error);
-                }else{
-                    fulfill(JSON.parse(body));
+                } else {
+                    try {
+                        fulfill(JSON.parse(body));
+                    } catch (e) {
+                        util.log("[ERROR] Invalid JSON returned by API (" + verb + "): " + e);
+                        reject('Invalid JSON returned by API');
+                    }
                 }
             });
         });
