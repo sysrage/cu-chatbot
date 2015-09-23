@@ -175,9 +175,9 @@ var chatCommands = [
                         break;
                     default:
                         // Allow ##h and ##m for hours and minutes
-                        if (paramArray[i].search(/[0-9]+[Hh]/) !== -1) searchHours = parseInt(paramArray[i]);
-                        if (paramArray[i].search(/[0-9]+[Mm]/) !== -1) searchMins = parseInt(paramArray[i]);
-                        if (paramArray[i].search(/[0-9]+/) !== -1) searchHours = parseInt(paramArray[i]);
+                        if (paramArray[i].search(/^[0-9]+[Hh]$/) !== -1) searchHours = parseInt(paramArray[i]);
+                        if (paramArray[i].search(/^[0-9]+[Mm]$/) !== -1) searchMins = parseInt(paramArray[i]);
+                        if (paramArray[i].search(/^[0-9]+$/) !== -1) searchHours = parseInt(paramArray[i]);
                         break;
                 }
             }
