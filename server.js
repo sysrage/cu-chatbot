@@ -83,6 +83,12 @@ function getOnlineStats(server) {
     });
 }
 
+function queue(count, callback) {
+    this.signal = function() {
+        if (--count < 1) callback();
+    };
+}
+
 /**
  *  Define the sample application.
  */
@@ -178,12 +184,44 @@ var SampleApp = function() {
         self.routes = { };
 
         self.routes['/'] = function(req, res) {
-            server = {};
+            var server = {};
             pageContent = "";
             serversReady = 0;
             config.servers.forEach(function(s, index) {
                 server[s.name] = s;
                 server[s.name].rAPI = new cuRestAPI(s.name);
+
+                var resultQueue = new queue(4, function() {
+                    // Build final page to display.
+                    server[s.name].pageContent = 
+                            '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].score + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].players + '</td></tr>' +
+                            '</table></center></td>' +
+                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].wins + '</td></tr>' +
+                            '</table></center></td></tr>' + 
+                            '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
+                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
+                                '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
+                            '</table></center></td></tr>';
+
+                    serversReady++;
+                    if (serversReady === config.servers.length) {
+                        for (i = 0; i < config.servers.length; i++) {
+                            pageContent += server[config.servers[i].name].pageContent;
+                        }
+                        res.setHeader('Content-Type', 'text/html');
+                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
+                    }
+                });
+
                 server[s.name].rAPI.getControlGame().then(function(data) {
                     // Build current game score section.
                     var artScore = data.arthurianScore;
@@ -207,77 +245,81 @@ var SampleApp = function() {
                         '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Score:</b> ' + artScore +
                         '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Score:</b> ' + tuaScore +
                         '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Score:</b> ' + vikScore;
-
-                    return server[s.name].rAPI.getPlayers();
+                    resultQueue.signal();
                 }, function(error) {
                     server[s.name].score = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
-                    return server[s.name].rAPI.getPlayers();
-                }).then(function(data) {
+                    resultQueue.signal();
+                });
+
+                server[s.name].rAPI.getPlayers().then(function(data) {
                     // Store player data to be used in next section.
                     var players = data;
-                    server[s.name].artPlayers = players.arthurians;
-                    server[s.name].tuaPlayers = players.tuathaDeDanann;
-                    server[s.name].vikPlayers = players.vikings;
-                    server[s.name].totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
-                    return getOnlineStats(server[s.name]);
-                }, function(error) {
-                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
-                    return getOnlineStats(server[s.name]);
-                }).then(function(data) {
-                    if (typeof server[s.name].players === 'undefined') {
-                        // Build current player count section.
+                    var accessLevel = "Unknown";
+                    var artPlayers = players.arthurians;
+                    var tuaPlayers = players.tuathaDeDanann;
+                    var vikPlayers = players.vikings;
+                    var totalPlayers = players.arthurians + players.tuathaDeDanann + players.vikings;
+
+                    getOnlineStats(server[s.name]).then(function(data) {
                         switch(data.accessLevel) {
                             case 0:
-                                var accessLevel = "Public";
+                                accessLevel = "Public";
                                 break;
                             case 1:
-                                var accessLevel = "Beta 3";
+                                accessLevel = "Beta 3";
                                 break;
                             case 2:
-                                var accessLevel = "Beta 2";
+                                accessLevel = "Beta 2";
                                 break;
                             case 3:
-                                var accessLevel = "Beta 1";
+                                accessLevel = "Beta 1";
                                 break;
                             case 4:
-                                var accessLevel = "Alpha";
+                                accessLevel = "Alpha";
                                 break;
                             case 5:
-                                var accessLevel = "IT";
+                                accessLevel = "IT";
                                 break;
                             case 6:
-                                var accessLevel = "Development";
+                                accessLevel = "Development";
                                 break;
                             default:
-                                var accessLevel = "Unknown";
+                                accessLevel = "Unknown";
                         }
 
-                        server[s.name].players = '<b>Current Player Count:</b> ' + server[s.name].totalPlayers +
+                        // Build current player count section.
+                        server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers +
                             '<br /><b>Player Type Allowed:</b> ' + accessLevel + '<br />' +
-                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + server[s.name].artPlayers +
-                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + server[s.name].tuaPlayers +
-                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + server[s.name].vikPlayers;
-                    }
-                    return getGameStats(server[s.name]);
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + artPlayers +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + tuaPlayers +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + vikPlayers;
+                            resultQueue.signal();
+                    }, function(error) {
+                        // Build current player count section.
+                        server[s.name].players = '<b>Current Player Count:</b> ' + totalPlayers +
+                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + artPlayers +
+                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + tuaPlayers +
+                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + vikPlayers;
+                            resultQueue.signal();
+                    });
                 }, function(error) {
-                    if (typeof server[s.name].players === 'undefined') {
-                        server[s.name].players = '<b>Current Player Count:</b> ' + server[s.name].totalPlayers + '<br />&nbsp;<br />' +
-                            '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurians:</b> ' + server[s.name].artPlayers +
-                            '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann:</b> ' + server[s.name].tuaPlayers +
-                            '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Vikings:</b> ' + server[s.name].vikPlayers;
-                    }
-                    return getGameStats(server[s.name]);
-                }).then(function(data) {
+                    server[s.name].players = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error accessing API. Server may be down.</p>';
+                    resultQueue.signal();
+                });
+
+                getGameStats(server[s.name]).then(function(data) {
                     // Build total game statistics section.
                     server[s.name].wins = '<b>Total Rounds Played:</b> ' + data.gameNumber + '<br />&nbsp;<br />' +
                         '<br /><img src="/images/shield-arthurians.png" width="25" align="center" />&nbsp; <b>Arthurian Wins:</b> ' + data.artWins +
                         '<br /><img src="/images/shield-tdd.png" width="25" align="center" />&nbsp; <b>TuathaDeDanann Wins:</b> ' + data.tuaWins +
                         '<br /><img src="/images/shield-vikings.png" width="25" align="center" />&nbsp; <b>Viking Wins:</b> ' + data.vikWins;
-                    return getPlayerStats(server[s.name]);
+                    resultQueue.signal();
                 }, function(error) {
                     server[s.name].wins = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading game statistics.</p>';
-                    return getPlayerStats(server[s.name]);
-                }).then(function(data) {
+                    resultQueue.signal();
+                });
+
+                getPlayerStats(server[s.name]).then(function(data) {
                     // Build leaderboard section.
 
                     // Remove bots from rankings.
@@ -312,66 +354,10 @@ var SampleApp = function() {
                             '<td>&nbsp;</td><td width="3%" class="leaderBoardLine1L"><b>#' + (i + 1) + '</b></td><td width="33%" class="leaderBoardLine1M"><a style="color: inherit;" href="/player/' + s.name + '/' + playersSortedByDeaths[i].playerName + '/">' + playersSortedByDeaths[i].playerName + '</a> (' + playersSortedByDeaths[i].playerRace + ') </td><td width="10%" align="right" class="leaderBoardLine1R">' + playersSortedByDeaths[i].deaths + '</td></tr>'
                     }
                     server[s.name].leaderboard = server[s.name].leaderboard + '</table></center>';
-
-                    // Build final page to display.
-                    server[s.name].pageContent = 
-                            '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
-                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].score + '</td></tr>' +
-                            '</table></center></td>' +
-                            '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].players + '</td></tr>' +
-                            '</table></center></td>' +
-                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].wins + '</td></tr>' +
-                            '</table></center></td></tr>' + 
-                            '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
-                            '</table></center></td></tr>';
-
-                    serversReady++;
-                    if (serversReady === config.servers.length) {
-                        for (i = 0; i < config.servers.length; i++) {
-                            pageContent += server[config.servers[i].name].pageContent;
-                        }
-                        res.setHeader('Content-Type', 'text/html');
-                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
-                    }
+                    resultQueue.signal();
                 }, function(error) {
                     server[s.name].leaderboard = '<p style="color: #610B0B; margin-top: 1px; margin-bottom: 1px; margin-left: 1px; margin-right: 1px;">Error reading player statistics.</p>';
-
-                    // Build final page to display.
-                    server[s.name].pageContent = 
-                            '<tr><td colspan="3"><center><p class="serverTitle">' + s.name.charAt(0).toUpperCase() + s.name.slice(1) + '</p></center></td></tr><tr>' +
-                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Score</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].score + '</td></tr>' +
-                            '</table></center></td>' +
-                            '<td valign="top" width="28%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Current Players</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].players + '</td></tr>' +
-                            '</table></center></td>' +
-                            '<td valign="top" width="36%" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Realm History</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].wins + '</td></tr>' +
-                            '</table></center></td></tr>' + 
-                            '<tr><td colspan="3" valign="top" bgcolor="#606060" style="border-style:groove; border-color:#C0C0C0"><center><table width="100%">' +
-                                '<tr><td bgcolor="#F3E2A9"><center><p class="sectionTitle">Leaderboard</p></center></td></tr>' +
-                                '<tr><td>' + server[s.name].leaderboard + '</td></tr>' +
-                            '</table></center></td></tr>';
-
-                    serversReady++;
-                    if (serversReady === config.servers.length) {
-                        for (i = 0; i < config.servers.length; i++) {
-                            pageContent += server[config.servers[i].name].pageContent;
-                        }
-                        res.setHeader('Content-Type', 'text/html');
-                        res.send(self.cache_get('index.html').toString().replace('##PAGECONTENT##', pageContent));
-                    }
+                    resultQueue.signal();
                 });
             });
         };
