@@ -329,7 +329,7 @@ var chatCommands = [
 
         // Remove bots from rankings
         for (var i = 0; i < pStats.length; i++) {
-            if (['SuperFireBot','SuperWaterBot','SuperEarthBot'].indexOf(pStats[i].playerName) > -1) {
+            if (['SuperFireBot','SuperWaterBot','SuperEarthBot','[Bot] WaterMage','[Bot] FireMage'].indexOf(pStats[i].playerName) > -1) {
                 pStats.splice(i, 1);
                 i--;
             }
@@ -1636,7 +1636,7 @@ function controlGame(server) {
 // Timer to send MOTD messages to joining users.
 var timerMOTD = function(server) { return setInterval(function() { sendMOTD(server); }, 500); };
 function sendMOTD(server) {
-    // sendChat(server, "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", "agotest@conference.chat.camelotunchained.com");
+    // sendChat(server, "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", "botspam@conference.chat.camelotunchained.com");
 
     server.motdReceivers.forEach(function(receiver) {
         var epochTime = Math.floor((new Date).getTime() / 1000);
