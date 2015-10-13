@@ -95,6 +95,15 @@ module.exports = {
         'user'
     ],
 
+    // Names of bots to be ignored for leaderboard
+    botNames: [
+        'SuperFireBot',
+        'SuperWaterBot',
+        'SuperEarthBot',
+        '[Bot] WaterMage',
+        '[Bot] FireMage',
+    ],
+
     // Keyword regular expressions to watch for which match test CSE messages
     testKeywords: [
         ".*impromptu.*",

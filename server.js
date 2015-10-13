@@ -324,7 +324,7 @@ var SampleApp = function() {
 
                     // Remove bots from rankings.
                     for (var i = 0; i < data.length; i++) {
-                        if (['SuperFireBot','SuperWaterBot','SuperEarthBot','[Bot] WaterMage','[Bot] FireMage'].indexOf(data[i].playerName) > -1) {
+                        if (config.botNames.indexOf(data[i].playerName) > -1) {
                             data.splice(i, 1);
                             i--;
                         }

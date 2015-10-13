@@ -329,7 +329,7 @@ var chatCommands = [
 
         // Remove bots from rankings
         for (var i = 0; i < pStats.length; i++) {
-            if (['SuperFireBot','SuperWaterBot','SuperEarthBot','[Bot] WaterMage','[Bot] FireMage'].indexOf(pStats[i].playerName) > -1) {
+            if (config.botNames.indexOf(pStats[i].playerName) > -1) {
                 pStats.splice(i, 1);
                 i--;
             }
@@ -1534,8 +1534,8 @@ function controlGame(server) {
                         getRoundKills(server, roundStartTime, roundEndTime, 0, function(roundKills) {
                             var playersInRound = [];
                             roundKills.forEach(function(rkEntry) {
-                                // Skip suicides
-                                if (rkEntry.killerName !== rkEntry.victimName) {
+                                // Skip suicides and bot kills
+                                if (rkEntry.killerName !== rkEntry.victimName && config.botNames.indexOf(rkEntry.victimName) === -1) {
                                     // Check to see if these players already had their gameCount increased for this round.
                                     var killerAlreadyCounted = false;
                                     var victimAlreadyCounted = false;
