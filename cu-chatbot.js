@@ -22,7 +22,6 @@ Much thanks to the CU Mod Squad for their help with learning Node.js.
 Originally based on https://gist.github.com/powdahound/940969
 */
 
-var sys = require('sys');
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
@@ -60,7 +59,7 @@ var chatCommands = [
 { // #### BACON COMMAND ####
     command: 'bacon',
     help: "The command " + commandChar + "bacon displays information about bacon.\n" +
-        "\nUsage: " + commandChar + "bacon", 
+        "\nUsage: " + commandChar + "bacon",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "http://ft.trillian.im/2bdaf99da85722bb4ec225c39b393404d0afcfd9/6B5pYQdHc32HYGlIrmutnpu4hDY21.jpg");
     }
@@ -68,7 +67,7 @@ var chatCommands = [
 { // #### BLOCKS COMMAND ####
     command: 'blocks',
     help: "The command " + commandChar + "blocks displays the total number of blocks placed within CUBE.\n" +
-        "\nUsage: " + commandChar + "blocks", 
+        "\nUsage: " + commandChar + "blocks",
     exec: function(server, room, sender, message, extras) {
         getCUBECount(function (cubeCount) {
             sendReply(server, room, sender, "Players have placed a total of " + cubeCount + " blocks within the world.");
@@ -78,7 +77,7 @@ var chatCommands = [
 { // #### BOTINFO COMMAND ####
     command: 'botinfo',
     help: "The command " + commandChar + "botinfo displays information about this chatbot.\n" +
-        "\nUsage: " + commandChar + "botinfo", 
+        "\nUsage: " + commandChar + "botinfo",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "The bot is written in Node.js and is running on an OpenShift gear. Source code for the bot can be found here: https://github.com/sysrage/cu-chatbot" +
             "\n\nMuch thanks to the CU Mod Squad for their help.");
@@ -188,7 +187,7 @@ var chatCommands = [
 
         if (! searchHours && ! searchMins && ! searchRoom && ! searchUser && ! searchText) {
             sendReply(server, room, sender, "Invalid parameters supplied to command. Type `" + commandChar + "help chatlog` for more information.");
-            return;            
+            return;
         }
 
         if (! searchHours && ! searchMins) searchHours = config.chatlogLimit;
@@ -249,7 +248,7 @@ var chatCommands = [
 { // #### CONFIRMED COMMAND ####
     command: 'confirmed',
     help: "The command " + commandChar + "confirmed displays information about confirmed functionality.\n" +
-        "\nUsage: " + commandChar + "confirmed", 
+        "\nUsage: " + commandChar + "confirmed",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "http://ft.trillian.im/af0f242d455e9f185639905ece7a631f656553c6/6AZkvU0ukO6wr5Gaqil7C2hmOqy6H.gif");
     }
@@ -292,7 +291,7 @@ var chatCommands = [
 { // #### FPS COMMAND ####
     command: 'fps',
     help: "The command " + commandChar + "fps displays information about increasing frame rate.\n" +
-        "\nUsage: " + commandChar + "fps", 
+        "\nUsage: " + commandChar + "fps",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "If you are having issues with low FPS, please see this pinned post in the bug #4 forum on how to change your active GPU: http://bit.ly/1JmKCUR");
     }
@@ -300,7 +299,7 @@ var chatCommands = [
 { // #### FRIAR COMMAND ####
     command: 'friar',
     help: "The command " + commandChar + "friar displays information about friars.\n" +
-        "\nUsage: " + commandChar + "friar", 
+        "\nUsage: " + commandChar + "friar",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "Out of the frying pan, into the friar. It has been confirmed that there will be frying in the game." +
             "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
@@ -506,7 +505,7 @@ var chatCommands = [
 { // #### MUMBLE COMMAND ####
     command: 'mumble',
     help: "The command " + commandChar + "mumble displays information about the community Mumble server.\n" +
-        "\nUsage: " + commandChar + "mumble", 
+        "\nUsage: " + commandChar + "mumble",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "CSE's JB has been kind enough to provide a public Mumble server. This can be used for voice" +
             "chat during CU test events." +
@@ -599,11 +598,11 @@ var chatCommands = [
             if (data.gameState === 0) {
                 var gameState = "Disabled";
             } else if (data.gameState === 1) {
-                var gameState = "Waiting For Next Round";                
+                var gameState = "Waiting For Next Round";
             } else if (data.gameState === 2) {
-                var gameState = "Basic Game Active";                
+                var gameState = "Basic Game Active";
             } else if (data.gameState === 3) {
-                var gameState = "Advanced Game Active";                
+                var gameState = "Advanced Game Active";
             }
 
             if (gameState === "Disabled") {
@@ -647,7 +646,7 @@ var chatCommands = [
 { // #### TEAMSPEAK COMMAND ####
     command: 'teamspeak',
     help: "The command " + commandChar + "teamspeak displays information about the community Teamspeak server.\n" +
-        "\nUsage: " + commandChar + "teamspeak", 
+        "\nUsage: " + commandChar + "teamspeak",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "Community member Xirrin has been kind enough to provide a Teamspeak server. This can be used for voice" +
             "chat during CU test events. Request access to the appropriate channels via _global chat or a PM on the forums." +
@@ -658,7 +657,7 @@ var chatCommands = [
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
         "\nUsage: " + commandChar + "tips [user]\n" +
-        "\nIf [user] is specified, tips will be sent to that user. If 'chat' is specified as the user, tips will be sent to chat.", 
+        "\nIf [user] is specified, tips will be sent to that user. If 'chat' is specified as the user, tips will be sent to chat.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
         if (params.length > 0) {
@@ -679,7 +678,7 @@ var chatCommands = [
             sendReply(server, room, sender, "Tips sent to " + sender.split("@")[0] + ".");
             if (room !== 'pm') {
                 room = 'pm';
-                sender = sender + '@' + server.address;               
+                sender = sender + '@' + server.address;
             }
         }
 
@@ -694,7 +693,7 @@ var chatCommands = [
 { // #### TOS COMMAND ####
     command: 'tos',
     help: "The command " + commandChar + "tos displays a link to the Terms Of Service forum thread.\n" +
-        "\nUsage: " + commandChar + "tos", 
+        "\nUsage: " + commandChar + "tos",
     exec: function(server, room, sender, message, extras) {
         sendReply(server, room, sender, "Be sure to carefully read and abide by the Terms Of Service found here: http://bit.ly/1fLZ5Pk");
     }
@@ -938,7 +937,7 @@ function getOnlineStats(server) {
         } else {
             onlineStats[server.name] = JSON.parse(data);
         }
-    });    
+    });
 }
 
 // function to get parameters from a message
@@ -971,7 +970,7 @@ function getPlayerStats(server) {
         } else {
             playerStats[server.name] = JSON.parse(data);
         }
-    });    
+    });
 }
 
 // function to obtain all kill data during a time range
@@ -990,7 +989,7 @@ function getRoundKills(server, start, end, attempt, callback) {
                 var victimType = killEntry.victim.archetype;
 
                 roundKills.push({
-                    killerName: killerName, 
+                    killerName: killerName,
                     killerFaction: killerFaction,
                     killerRace: killerRace,
                     killerType: killerType,
@@ -1234,7 +1233,7 @@ function updateChatlog(server, room, message) {
             if (moment(curISODate).diff(server.chatlog[roomName][i].timestamp, "hours") > config.chatlogLimit) {
                 server.chatlog[roomName].splice(i, 1);
                 i--;
-            }            
+            }
         }
     }
 
@@ -1442,7 +1441,7 @@ function controlGame(server) {
     var epochTime = Math.floor((new Date).getTime() / 1000);
     if (typeof server.currentGame === 'undefined') {
         // Timer just started, perform initialization
-        server.currentGame = { 
+        server.currentGame = {
             startTime: 0,
             ended: true,
             artScore: 0,
@@ -1600,7 +1599,7 @@ function controlGame(server) {
 
                     if ((gameState === 2 || gameState === 3) && server.currentGame.ended) {
                         // New game has started
-                        server.currentGame = { 
+                        server.currentGame = {
                             startTime: epochTime - (server.roundTime - timeLeft),
                             ended: false,
                             artScore: artScore,
@@ -1742,7 +1741,7 @@ function startClient(server) {
                     util.log("[ERROR] " + stanza);
                     return;
                 }
-             
+
                 if (stanza.is('presence')) {
 /*****************************************************************************/
 // Handle channel joins/parts
@@ -1854,15 +1853,11 @@ function startClient(server) {
 
                     // If message is a server warning, send it out
                     if (sender === server.address + "/Warning") {
-                        if (message.indexOf("Hatchery will reboot for an update in") > -1) {
-                            if (server.name === "hatchery" && message.indexOf("30 seconds") > -1) {
-                                sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
-                                util.log("[CHAT] Server reboot message sent to users. (ALL)");                                                            
-                            }
-                        } else if (message.indexOf("Wyrmling will reboot for an update in") > -1) {
-                            if (server.name === "wyrmling" && message.indexOf("30 seconds") > -1) {
-                                sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
-                                util.log("[CHAT] Server reboot message sent to users. (ALL)");                                                            
+                        var rebootRegex = message.match(/^([^ ]+) will reboot for an update in ([0-9]+) seconds/);
+                        if (rebootRegex) {
+                            if (rebootRegex[2] === '30' && server.name === 'hatchery') {
+                                sendToAll("ADMIN NOTICE (" + rebootRegex[1] + "): " + message);
+                                util.log("[CHAT] Server reboot message sent to users. (ALL)");
                             }
                         } else {
                             sendToAll("ADMIN NOTICE (" + server.name + "): " + message);
