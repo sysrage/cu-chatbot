@@ -1687,6 +1687,9 @@ function startClient(server) {
                     util.log("[ERROR] Connection timed out (" + server.name + ").")
                 } else {
                     util.log("[ERROR] Unknown " + err);
+                    util.log("[ERROR] Restarting client (" + server.name + ").");
+                    server.lastStanza = epochTime;
+                    restartClient(server);
                 }
             });
 
