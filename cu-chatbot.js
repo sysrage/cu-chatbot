@@ -1688,6 +1688,7 @@ function startClient(server) {
                 } else {
                     util.log("[ERROR] Unknown " + err);
                     util.log("[ERROR] Restarting client (" + server.name + ").");
+                    var epochTime = Math.floor((new Date).getTime() / 1000);
                     server.lastStanza = epochTime;
                     restartClient(server);
                 }
