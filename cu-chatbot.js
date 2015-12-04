@@ -253,6 +253,15 @@ var chatCommands = [
         sendReply(server, room, sender, "http://ft.trillian.im/af0f242d455e9f185639905ece7a631f656553c6/6AZkvU0ukO6wr5Gaqil7C2hmOqy6H.gif");
     }
 },
+{ // #### DISCORD COMMAND ####
+    command: 'discord',
+    help: "The command " + commandChar + "discord displays information about the community Discord server.\n" +
+        "\nUsage: " + commandChar + "discord",
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "Visit the unofficial Discord chat room for voice and text chat while" +
+            "testing in Camelot Unchained: https://discord.gg/0avEENnjyCrFGDPG");
+    }
+},
 { // #### EVENTS COMMAND ####
     command: 'events',
     help: "The command " + commandChar + "events displays scheduled events for a server.\n" +
