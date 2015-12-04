@@ -258,7 +258,7 @@ var chatCommands = [
     help: "The command " + commandChar + "discord displays information about the community Discord server.\n" +
         "\nUsage: " + commandChar + "discord",
     exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "Visit the unofficial Discord chat room for voice and text chat while" +
+        sendReply(server, room, sender, "Visit the unofficial Discord chat room for voice and text chat while " +
             "testing in Camelot Unchained: https://discord.gg/0avEENnjyCrFGDPG");
     }
 },
