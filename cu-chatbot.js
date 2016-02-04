@@ -578,6 +578,14 @@ var chatCommands = [
         });
     }
 },
+{ // #### SHAME COMMAND ####
+    command: 'shame',
+    help: "The command " + commandChar + "shame knows no shame.\n" +
+        "\nUsage: " + commandChar + "shame",
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "http://ft.trillian.im/a0391d171c02639213144d09cc72c78736d8357b/6F2giBxoyCusIamg4fU7Dq1928Ppw.jpg");
+    }
+},
 { // #### SCORE COMMAND ####
     command: 'score',
     help: "The command " + commandChar + "score displays information for the control game running a server.\n" +
