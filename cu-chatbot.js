@@ -578,6 +578,25 @@ var chatCommands = [
         });
     }
 },
+{ // #### ROLL COMMAND ####
+    command: 'roll',
+    help: "The command " + commandChar + "roll will roll dice for a random number.\n" +
+        "\nUsage: " + commandChar + "roll [max value]\n" +
+        "\nIf [max value] is specified, the randomly generated number will be between 1 and [max value]. Otherwise, it will be between 1 and 100.",
+    exec: function(server, room, sender, message, extras) {
+        var params = getParams(this.command, message);
+        if (params.length > 0 && params.match(/[0-9]+/)) {
+            var rollResult = Math.floor(Math.random() * (params - 1 + 1) + 1);
+        } else {
+            var rollResult = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+        }
+        if (room === 'pm') {
+            sendReply(server, room, sender, sender.split("@")[0] + " rolled: " + rollResult);
+        } else {
+            sendReply(server, room, sender, sender + " rolled: " + rollResult);
+        }
+    }
+},
 { // #### SHAME COMMAND ####
     command: 'shame',
     help: "The command " + commandChar + "shame knows no shame.\n" +
