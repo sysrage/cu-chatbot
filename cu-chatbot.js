@@ -585,8 +585,8 @@ var chatCommands = [
         "\nIf [max value] is specified, the randomly generated number will be between 1 and [max value]. Otherwise, it will be between 1 and 100.",
     exec: function(server, room, sender, message, extras) {
         var params = getParams(this.command, message);
-        if (params.length > 0 && params.match(/[0-9]+/)) {
-            var rollResult = Math.floor(Math.random() * (params - 1 + 1) + 1);
+        if (params.length > 0 && params.match(/^[0-9]+$/) && parseInt(params) > 0) {
+            var rollResult = Math.floor(Math.random() * (parseInt(params) - 1 + 1) + 1);
         } else {
             var rollResult = Math.floor(Math.random() * (100 - 1 + 1) + 1);
         }
