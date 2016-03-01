@@ -773,6 +773,14 @@ var chatCommands = [
             "\nViking Wins: " + gameStats[targetServer.name].vikWins);
     }
 },
+{ // #### YES COMMAND ####
+    command: 'yes',
+    help: "The command " + commandChar + "yes displays the untrustworthy yes-duck.\n" +
+        "\nUsage: " + commandChar + "yes",
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "http://ft.trillian.im/4d2383906547ba7d47025082cb36b88f1402eb1f/6FFRabUCqqDtTgo9Ic0tpQmI0ALWl.jpg");
+    }
+},
 // { // #### CLIENTOFF COMMAND ####
 //     command: 'clientoff',
 //     help: "The command " + commandChar + "clientoff allows admins to stop the bot from connecting to a particular server.\n" +
