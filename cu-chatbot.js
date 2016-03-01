@@ -521,6 +521,14 @@ var chatCommands = [
             "\n\nMumble Server: veilstorm.net (default port)");
     }
 },
+{ // #### NO COMMAND ####
+    command: 'no',
+    help: "The command " + commandChar + "no displays the trusty no-duck.\n" +
+        "\nUsage: " + commandChar + "no",
+    exec: function(server, room, sender, message, extras) {
+        sendReply(server, room, sender, "http://ft.trillian.im/4d2383906547ba7d47025082cb36b88f1402eb1f/6FFQEoWZtCVmHMCfbh5ZTaH2uFjTz.gif");
+    }
+},
 { // #### PLAYERS COMMAND ####
     command: 'players',
     help: "The command " + commandChar + "players displays current players on a server.\n" +
