@@ -302,7 +302,8 @@ var chatCommands = [
     help: "The command " + commandChar + "fps displays information about increasing frame rate.\n" +
         "\nUsage: " + commandChar + "fps",
     exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "If you are having issues with low FPS, please see this pinned post in the bug #4 forum on how to change your active GPU: http://bit.ly/1JmKCUR");
+        sendReply(server, room, sender, "If you are having issues with low FPS, please see this pinned post in the bug #4 forum on how to change your active GPU: http://bit.ly/1JmKCUR" +
+        "\nThere is also an issue with NVidia drivers 364.51 and 364.72 on some GPUs. Rolling back to 362.00 may help.");
     }
 },
 { // #### FRIAR COMMAND ####
