@@ -255,11 +255,11 @@ var chatCommands = [
 },
 { // #### DISCORD COMMAND ####
     command: 'discord',
-    help: "The command " + commandChar + "discord displays information about the community Discord server.\n" +
+    help: "The command " + commandChar + "discord displays information about the Camelot Unchained Discord server.\n" +
         "\nUsage: " + commandChar + "discord",
     exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "Visit the unofficial Discord chat room for voice and text chat while " +
-            "testing in Camelot Unchained: https://discord.gg/0avEENnjyCrFGDPG");
+        sendReply(server, room, sender, "For both text and voice chat related to the game, visit the unofficial Camelot Unchained Discord server:\n" +
+        "https://discord.gg/0avEENnjyCr2h19v");
     }
 },
 { // #### EVENTS COMMAND ####
@@ -315,213 +315,213 @@ var chatCommands = [
             "\n\nUnfortunately for Friarjon, the type of frying is still unknown. Get your Monkfish ready!");
     }
 },
-{ // #### LEADERBOARD COMMAND ####
-    command: 'leaderboard',
-    help: "The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n" +
-        "\nUsage: " + commandChar + "leaderboard [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                return;
-            }
-        } else {
-            var targetServer = server;
-        }
+// { // #### LEADERBOARD COMMAND ####
+//     command: 'leaderboard',
+//     help: "The command " + commandChar + "leaderboard displays players with the most kills/deaths.\n" +
+//         "\nUsage: " + commandChar + "leaderboard [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                 return;
+//             }
+//         } else {
+//             var targetServer = server;
+//         }
 
-        var pStats = playerStats[targetServer.name].concat();
+//         var pStats = playerStats[targetServer.name].concat();
 
-        // Remove bots from rankings
-        for (var i = 0; i < pStats.length; i++) {
-            if (config.botNames.indexOf(pStats[i].playerName) > -1) {
-                pStats.splice(i, 1);
-                i--;
-            }
-        }
+//         // Remove bots from rankings
+//         for (var i = 0; i < pStats.length; i++) {
+//             if (config.botNames.indexOf(pStats[i].playerName) > -1) {
+//                 pStats.splice(i, 1);
+//                 i--;
+//             }
+//         }
 
-        // Ensure at least 10 entries exist. Create dummy entries if not.
-        for (var i = 0; i < 10; i++) {
-            if (! pStats[i]) pStats[i] = {
-                playerName: 'Nobody',
-                playerFaction: 'None',
-                playerRace: 'None',
-                playerType: 'None',
-                kills: 0,
-                deaths: 0,
-                gamesPlayed: 0
-            };
-        }
+//         // Ensure at least 10 entries exist. Create dummy entries if not.
+//         for (var i = 0; i < 10; i++) {
+//             if (! pStats[i]) pStats[i] = {
+//                 playerName: 'Nobody',
+//                 playerFaction: 'None',
+//                 playerRace: 'None',
+//                 playerType: 'None',
+//                 kills: 0,
+//                 deaths: 0,
+//                 gamesPlayed: 0
+//             };
+//         }
 
-        var playersSortedByKills = pStats.concat().sort(function(a, b) { return b.kills - a.kills; });
-        var playersSortedByDeaths = pStats.concat().sort(function(a, b) { return b.deaths - a.deaths; });
+//         var playersSortedByKills = pStats.concat().sort(function(a, b) { return b.kills - a.kills; });
+//         var playersSortedByDeaths = pStats.concat().sort(function(a, b) { return b.deaths - a.deaths; });
 
-        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
-            "\n   #1 " + playersSortedByKills[0].playerName + ' (' + playersSortedByKills[0].playerRace + ') - ' + playersSortedByKills[0].kills +
-            "\n   #2 " + playersSortedByKills[1].playerName + ' (' + playersSortedByKills[1].playerRace + ') - ' + playersSortedByKills[1].kills +
-            "\n   #3 " + playersSortedByKills[2].playerName + ' (' + playersSortedByKills[2].playerRace + ') - ' + playersSortedByKills[2].kills);
-        sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
-            "\n   #1 " + playersSortedByDeaths[0].playerName + ' (' + playersSortedByDeaths[0].playerRace + ') - ' + playersSortedByDeaths[0].deaths +
-            "\n   #2 " + playersSortedByDeaths[1].playerName + ' (' + playersSortedByDeaths[1].playerRace + ') - ' + playersSortedByDeaths[1].deaths +
-            "\n   #3 " + playersSortedByDeaths[2].playerName + ' (' + playersSortedByDeaths[2].playerRace + ') - ' + playersSortedByDeaths[2].deaths);
-        sendReply(server, room, sender, "Top 10 (and more): http://chatbot-sysrage.rhcloud.com");
-    }
-},
-{ // #### MOTD COMMAND ####
-    command: 'motd',
-    help: "The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n" +
-        "\nUsage: " + commandChar + "motd [server] [new MOTD]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        if (extras && extras.motdadmin) {
-            var motdadmin = extras.motdadmin;
-        } else {
-            var motdadmin = false;
-        }
+//         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Kills:" +
+//             "\n   #1 " + playersSortedByKills[0].playerName + ' (' + playersSortedByKills[0].playerRace + ') - ' + playersSortedByKills[0].kills +
+//             "\n   #2 " + playersSortedByKills[1].playerName + ' (' + playersSortedByKills[1].playerRace + ') - ' + playersSortedByKills[1].kills +
+//             "\n   #3 " + playersSortedByKills[2].playerName + ' (' + playersSortedByKills[2].playerRace + ') - ' + playersSortedByKills[2].kills);
+//         sendReply(server, room, sender, "Current Leaderbord for " + targetServer.name + " - Deaths:" +
+//             "\n   #1 " + playersSortedByDeaths[0].playerName + ' (' + playersSortedByDeaths[0].playerRace + ') - ' + playersSortedByDeaths[0].deaths +
+//             "\n   #2 " + playersSortedByDeaths[1].playerName + ' (' + playersSortedByDeaths[1].playerRace + ') - ' + playersSortedByDeaths[1].deaths +
+//             "\n   #3 " + playersSortedByDeaths[2].playerName + ' (' + playersSortedByDeaths[2].playerRace + ') - ' + playersSortedByDeaths[2].deaths);
+//         sendReply(server, room, sender, "Top 10 (and more): http://chatbot-sysrage.rhcloud.com");
+//     }
+// },
+// { // #### MOTD COMMAND ####
+//     command: 'motd',
+//     help: "The command " + commandChar + "motd allows setting and viewing the MOTD for a server.\n" +
+//         "\nUsage: " + commandChar + "motd [server] [new MOTD]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         if (extras && extras.motdadmin) {
+//             var motdadmin = extras.motdadmin;
+//         } else {
+//             var motdadmin = false;
+//         }
 
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                // first parameter is a server name
-                params = params.slice(sn.length + 1);
-                var targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                var targetServer = server;
-            }
-        } else {
-            targetServer = server;
-        }
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 // first parameter is a server name
+//                 params = params.slice(sn.length + 1);
+//                 var targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 var targetServer = server;
+//             }
+//         } else {
+//             targetServer = server;
+//         }
 
-        if (params.length > 0) {
-            // User is trying to set a new MOTD.
-            if (motdadmin) {
-                // User is allowed - Set new MOTD.
-                fs.writeFile(targetServer.motdFile, "MOTD: " + params, function(err) {
-                    if (err) {
-                        return util.log("[ERROR] Unable to write to MOTD file.");
-                    }
-                    targetServer.motd = "MOTD: " + params;
-                    sendReply(server, room, sender, "MOTD for " + targetServer.name + " set to: " + params);
-                    util.log("[MOTD] New MOTD for server '" + targetServer.name + "' set by user '" + sender + "'.");
-                });
-            } else {
-                // User is not allowed - Send error.
-                sendReply(server, room, sender, "You do not have permission to set an MOTD.");
-            }
-        } else {
-            // User requested current MOTD.
-            if (room === 'pm') {
-                sendPM(server, targetServer.motd.toString(), sender);
-                util.log("[MOTD] MOTD sent to user '" + sender + "' on " + server.name + ".");
-            } else {
-                sendChat(server, targetServer.motd.toString(), room);
-                util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
-            }
-        }
-    }
-},
-{ // #### MOTDOFF COMMAND ####
-    command: 'motdoff',
-    help: "The command " + commandChar + "motdoff allows users to stop receiving a Message of the Day for a particular server.\n" +
-        "\nUsage: " + commandChar + "motdoff [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        var ignoredReceiver = false;
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                return;
-            }
-        } else {
-            var targetServer = server;
-        }
+//         if (params.length > 0) {
+//             // User is trying to set a new MOTD.
+//             if (motdadmin) {
+//                 // User is allowed - Set new MOTD.
+//                 fs.writeFile(targetServer.motdFile, "MOTD: " + params, function(err) {
+//                     if (err) {
+//                         return util.log("[ERROR] Unable to write to MOTD file.");
+//                     }
+//                     targetServer.motd = "MOTD: " + params;
+//                     sendReply(server, room, sender, "MOTD for " + targetServer.name + " set to: " + params);
+//                     util.log("[MOTD] New MOTD for server '" + targetServer.name + "' set by user '" + sender + "'.");
+//                 });
+//             } else {
+//                 // User is not allowed - Send error.
+//                 sendReply(server, room, sender, "You do not have permission to set an MOTD.");
+//             }
+//         } else {
+//             // User requested current MOTD.
+//             if (room === 'pm') {
+//                 sendPM(server, targetServer.motd.toString(), sender);
+//                 util.log("[MOTD] MOTD sent to user '" + sender + "' on " + server.name + ".");
+//             } else {
+//                 sendChat(server, targetServer.motd.toString(), room);
+//                 util.log("[MOTD] MOTD sent to '" + server.name + '/' + room.split('@')[0] + "' per user '" + sender + "'.");
+//             }
+//         }
+//     }
+// },
+// { // #### MOTDOFF COMMAND ####
+//     command: 'motdoff',
+//     help: "The command " + commandChar + "motdoff allows users to stop receiving a Message of the Day for a particular server.\n" +
+//         "\nUsage: " + commandChar + "motdoff [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         var ignoredReceiver = false;
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                 return;
+//             }
+//         } else {
+//             var targetServer = server;
+//         }
 
-        targetServer.motdIgnore.forEach(function(receiver) {
-            if (receiver === sender) ignoredReceiver = true;
-        });
+//         targetServer.motdIgnore.forEach(function(receiver) {
+//             if (receiver === sender) ignoredReceiver = true;
+//         });
 
-        if (! ignoredReceiver) {
-            // Add user to MOTD ignore list
-            targetServer.motdIgnore.push(sender);
-            fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
-                if (err) {
-                    return util.log("[ERROR] Unable to write to MOTD Ignore file.");
-                }
-                sendReply(server, room, sender, "User '" + sender + "' unsubscribed from " + targetServer.name + " MOTD notices.");
-                util.log("[MOTD] User '" + sender + "' added to '" + targetServer.name + "' opt-out list.");
-            });
-        } else {
-            // Tell user they already have MOTDs turned off
-            sendReply(server, room, sender, "User '" + sender + "' already unsubscribed from " + targetServer.name + " MOTD notices.");
-        }
-    }
-},
-{ // #### MOTDON COMMAND ####
-    command: 'motdon',
-    help: "The command " + commandChar + "motdon allows users to start receiving a Message of the Day for a particular server.\n" +
-        "\nUsage: " + commandChar + "motdon [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        var ignoredReceiver = false;
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                return;
-            }
-        } else {
-            var targetServer = server;
-        }
+//         if (! ignoredReceiver) {
+//             // Add user to MOTD ignore list
+//             targetServer.motdIgnore.push(sender);
+//             fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
+//                 if (err) {
+//                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
+//                 }
+//                 sendReply(server, room, sender, "User '" + sender + "' unsubscribed from " + targetServer.name + " MOTD notices.");
+//                 util.log("[MOTD] User '" + sender + "' added to '" + targetServer.name + "' opt-out list.");
+//             });
+//         } else {
+//             // Tell user they already have MOTDs turned off
+//             sendReply(server, room, sender, "User '" + sender + "' already unsubscribed from " + targetServer.name + " MOTD notices.");
+//         }
+//     }
+// },
+// { // #### MOTDON COMMAND ####
+//     command: 'motdon',
+//     help: "The command " + commandChar + "motdon allows users to start receiving a Message of the Day for a particular server.\n" +
+//         "\nUsage: " + commandChar + "motdon [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         var ignoredReceiver = false;
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                 return;
+//             }
+//         } else {
+//             var targetServer = server;
+//         }
 
-        targetServer.motdIgnore.forEach(function(receiver) {
-            if (receiver === sender) ignoredReceiver = true;
-        });
+//         targetServer.motdIgnore.forEach(function(receiver) {
+//             if (receiver === sender) ignoredReceiver = true;
+//         });
 
-        if (ignoredReceiver) {
-            // Remove user from MOTD ignore list
-            for (var i = 0; i < targetServer.motdIgnore.length; i++) {
-                if (targetServer.motdIgnore[i] === sender) {
-                    index = i;
-                    break;
-                }
-            }
-            targetServer.motdIgnore.splice(index, 1);
+//         if (ignoredReceiver) {
+//             // Remove user from MOTD ignore list
+//             for (var i = 0; i < targetServer.motdIgnore.length; i++) {
+//                 if (targetServer.motdIgnore[i] === sender) {
+//                     index = i;
+//                     break;
+//                 }
+//             }
+//             targetServer.motdIgnore.splice(index, 1);
 
-            fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
-                if (err) {
-                    return util.log("[ERROR] Unable to write to MOTD Ignore file.");
-                }
-                sendReply(server, room, sender, "User '" + sender + "' subscribed to " + targetServer.name + " MOTD notices.");
-                util.log("[MOTD] User '" + sender + "' removed from '" + targetServer.name + "' opt-out list.");
-            });
-        } else {
-            // Tell user they already have MOTDs turned on
-            sendReply(server, room, sender, "User '" + sender + "' already subscribed to " + targetServer.name + " MOTD notices.");
-        }
-    }
-},
-{ // #### MUMBLE COMMAND ####
-    command: 'mumble',
-    help: "The command " + commandChar + "mumble displays information about the community Mumble server.\n" +
-        "\nUsage: " + commandChar + "mumble",
-    exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "CSE's JB has been kind enough to provide a public Mumble server. This can be used for voice" +
-            "chat during CU test events." +
-            "\n\nMumble Server: veilstorm.net (default port)");
-    }
-},
+//             fs.writeFile(targetServer.nomotdFile, JSON.stringify(targetServer.motdIgnore), function(err) {
+//                 if (err) {
+//                     return util.log("[ERROR] Unable to write to MOTD Ignore file.");
+//                 }
+//                 sendReply(server, room, sender, "User '" + sender + "' subscribed to " + targetServer.name + " MOTD notices.");
+//                 util.log("[MOTD] User '" + sender + "' removed from '" + targetServer.name + "' opt-out list.");
+//             });
+//         } else {
+//             // Tell user they already have MOTDs turned on
+//             sendReply(server, room, sender, "User '" + sender + "' already subscribed to " + targetServer.name + " MOTD notices.");
+//         }
+//     }
+// },
+// { // #### MUMBLE COMMAND ####
+//     command: 'mumble',
+//     help: "The command " + commandChar + "mumble displays information about the community Mumble server.\n" +
+//         "\nUsage: " + commandChar + "mumble",
+//     exec: function(server, room, sender, message, extras) {
+//         sendReply(server, room, sender, "CSE's JB has been kind enough to provide a public Mumble server. This can be used for voice" +
+//             "chat during CU test events." +
+//             "\n\nMumble Server: veilstorm.net (default port)");
+//     }
+// },
 { // #### NO COMMAND ####
     command: 'no',
     help: "The command " + commandChar + "no displays the trusty no-duck.\n" +
@@ -614,56 +614,56 @@ var chatCommands = [
         sendReply(server, room, sender, "http://ft.trillian.im/a0391d171c02639213144d09cc72c78736d8357b/6F2giBxoyCusIamg4fU7Dq1928Ppw.jpg");
     }
 },
-{ // #### SCORE COMMAND ####
-    command: 'score',
-    help: "The command " + commandChar + "score displays information for the control game running a server.\n" +
-        "\nUsage: " + commandChar + "score [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                return;
-            }
-        } else {
-            var targetServer = server;
-        }
+// { // #### SCORE COMMAND ####
+//     command: 'score',
+//     help: "The command " + commandChar + "score displays information for the control game running a server.\n" +
+//         "\nUsage: " + commandChar + "score [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                 return;
+//             }
+//         } else {
+//             var targetServer = server;
+//         }
 
-        targetServer.cuRest.getControlGame().then(function(data) {
-            var artScore = data.arthurianScore;
-            var tuaScore = data.tuathaDeDanannScore;
-            var vikScore = data.vikingScore;
-            var timeLeft = data.timeLeft;
-            var minLeft = Math.floor(timeLeft / 60);
-            var secLeft = Math.floor(timeLeft % 60);
-            if (data.gameState === 0) {
-                var gameState = "Disabled";
-            } else if (data.gameState === 1) {
-                var gameState = "Waiting For Next Round";
-            } else if (data.gameState === 2) {
-                var gameState = "Basic Game Active";
-            } else if (data.gameState === 3) {
-                var gameState = "Advanced Game Active";
-            }
+//         targetServer.cuRest.getControlGame().then(function(data) {
+//             var artScore = data.arthurianScore;
+//             var tuaScore = data.tuathaDeDanannScore;
+//             var vikScore = data.vikingScore;
+//             var timeLeft = data.timeLeft;
+//             var minLeft = Math.floor(timeLeft / 60);
+//             var secLeft = Math.floor(timeLeft % 60);
+//             if (data.gameState === 0) {
+//                 var gameState = "Disabled";
+//             } else if (data.gameState === 1) {
+//                 var gameState = "Waiting For Next Round";
+//             } else if (data.gameState === 2) {
+//                 var gameState = "Basic Game Active";
+//             } else if (data.gameState === 3) {
+//                 var gameState = "Advanced Game Active";
+//             }
 
-            if (gameState === "Disabled") {
-                sendReply(server, room, sender, "The game is currently disabled.");
-            } else {
-                sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
-                    "\nGame State: " + gameState +
-                    "\nArthurian Score: " + artScore +
-                    "\nTuathaDeDanann Score: " + tuaScore +
-                    "\nViking Score: " + vikScore);
-            }
-        }, function(error) {
-            sendReply(server, room, sender, "Error accessing API. Server may be down.");
-        });
-    }
-},
+//             if (gameState === "Disabled") {
+//                 sendReply(server, room, sender, "The game is currently disabled.");
+//             } else {
+//                 sendReply(server, room, sender, "There is currently " + minLeft + " minutes and " + secLeft + " seconds left in the round." +
+//                     "\nGame State: " + gameState +
+//                     "\nArthurian Score: " + artScore +
+//                     "\nTuathaDeDanann Score: " + tuaScore +
+//                     "\nViking Score: " + vikScore);
+//             }
+//         }, function(error) {
+//             sendReply(server, room, sender, "Error accessing API. Server may be down.");
+//         });
+//     }
+// },
 { // #### SERVERS COMMAND ####
     command: 'servers',
     help: "The command " + commandChar + "servers displays currently available servers.\n" +
@@ -688,16 +688,16 @@ var chatCommands = [
         });
     }
 },
-{ // #### TEAMSPEAK COMMAND ####
-    command: 'teamspeak',
-    help: "The command " + commandChar + "teamspeak displays information about the community Teamspeak server.\n" +
-        "\nUsage: " + commandChar + "teamspeak",
-    exec: function(server, room, sender, message, extras) {
-        sendReply(server, room, sender, "Community member Xirrin has been kind enough to provide a Teamspeak server. This can be used for voice" +
-            "chat during CU test events. Request access to the appropriate channels via _global chat or a PM on the forums." +
-            "\n\nTeamspeak Server: oppositionunchained.com (default port)");
-    }
-},
+// { // #### TEAMSPEAK COMMAND ####
+//     command: 'teamspeak',
+//     help: "The command " + commandChar + "teamspeak displays information about the community Teamspeak server.\n" +
+//         "\nUsage: " + commandChar + "teamspeak",
+//     exec: function(server, room, sender, message, extras) {
+//         sendReply(server, room, sender, "Community member Xirrin has been kind enough to provide a Teamspeak server. This can be used for voice" +
+//             "chat during CU test events. Request access to the appropriate channels via _global chat or a PM on the forums." +
+//             "\n\nTeamspeak Server: oppositionunchained.com (default port)");
+//     }
+// },
 { // #### TIPS COMMAND ####
     command: 'tips',
     help: "The command " + commandChar + "tips displays tips for new Camelot Unchained users.\n" +
@@ -727,12 +727,13 @@ var chatCommands = [
             }
         }
 
-        sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/hideui perfhud' to hide the statistics window || Type '/suicide' to quickly spawn in a new location");
-        sendReply(server, room, sender, "To help increase performance on older systems type 'shadowMaxDist 0', hold Shift, and press Enter.");
+        sendReply(server, room, sender, "Quick Tips: Press V to create new spells/abilities || Press B to open spellbook to delete spells/abilities || Type '/suicide' to quickly spawn in a new location");
+        sendReply(server, room, sender, "To resize or rearrange the user interface, click the lock icon (bottom-right of screen). Use the mousewheel to resize windows.");
         sendReply(server, room, sender, "To run the game in full screen at higher resolution hold Alt while clicking the 'Play' button on the launcher and enter 'windowWidth=1920; windowHeight=1080'.");
+        // sendReply(server, room, sender, "To help increase performance on older systems type 'shadowMaxDist 0', hold Shift, and press Enter.");
         sendReply(server, room, sender, "If you have poor performance on a laptop which contains both integrated and descrete video cards, see this post: http://bit.ly/1JmKCUR");
-        sendReply(server, room, sender, "If something crashes when you do it, don't do it. -Tim");
-        sendReply(server, room, sender, "For other very useful information, please click the 'Alpha Manual' link on the game patcher.");
+        sendReply(server, room, sender, "If something crashes when you do it, don't do it. -Tim (Do report it, though!)");
+        sendReply(server, room, sender, "For other very useful information, please review the Alpha Manual. A link can be found on the forums.");
     }
 },
 { // #### TOS COMMAND ####
@@ -743,37 +744,37 @@ var chatCommands = [
         sendReply(server, room, sender, "Be sure to carefully read and abide by the Terms Of Service found here: http://bit.ly/1fLZ5Pk");
     }
 },
-{ // #### WINS COMMAND ####
-    command: 'wins',
-    help: "The command " + commandChar + "wins displays realm standings for a server.\n" +
-        "\nUsage: " + commandChar + "wins [server]\n" +
-        "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
-    exec: function(server, room, sender, message, extras) {
-        var params = getParams(this.command, message);
-        if (params.length > 0) {
-            var sn = params.split(' ')[0].toLowerCase();
-            if (indexOfServer(sn) > -1) {
-                targetServer = config.servers[indexOfServer(sn)];
-            } else {
-                sendReply(server, room, sender, "No server exists named '" + sn + "'.");
-                return;
-            }
-        } else {
-            var targetServer = server;
-        }
+// { // #### WINS COMMAND ####
+//     command: 'wins',
+//     help: "The command " + commandChar + "wins displays realm standings for a server.\n" +
+//         "\nUsage: " + commandChar + "wins [server]\n" +
+//         "\nIf [server] is specified, all actions will apply to that server. Otherwise, they will apply to the current server.",
+//     exec: function(server, room, sender, message, extras) {
+//         var params = getParams(this.command, message);
+//         if (params.length > 0) {
+//             var sn = params.split(' ')[0].toLowerCase();
+//             if (indexOfServer(sn) > -1) {
+//                 targetServer = config.servers[indexOfServer(sn)];
+//             } else {
+//                 sendReply(server, room, sender, "No server exists named '" + sn + "'.");
+//                 return;
+//             }
+//         } else {
+//             var targetServer = server;
+//         }
 
-        var firstGame = gameStats[targetServer.name].firstGame;
-        var gameNumber = gameStats[targetServer.name].gameNumber;
-        var artWins = gameStats[targetServer.name].artWins;
-        var tuaWins = gameStats[targetServer.name].tuaWins;
-        var vikWins = gameStats[targetServer.name].vikWins;
+//         var firstGame = gameStats[targetServer.name].firstGame;
+//         var gameNumber = gameStats[targetServer.name].gameNumber;
+//         var artWins = gameStats[targetServer.name].artWins;
+//         var tuaWins = gameStats[targetServer.name].tuaWins;
+//         var vikWins = gameStats[targetServer.name].vikWins;
 
-        sendReply(server, room, sender, "Out of " + gameStats[targetServer.name].gameNumber + " games played on " + targetServer.name + ", each realm has won as follows:" +
-            "\nArthurian Wins: " + gameStats[targetServer.name].artWins +
-            "\nTuathaDeDanann Wins: " + gameStats[targetServer.name].tuaWins +
-            "\nViking Wins: " + gameStats[targetServer.name].vikWins);
-    }
-},
+//         sendReply(server, room, sender, "Out of " + gameStats[targetServer.name].gameNumber + " games played on " + targetServer.name + ", each realm has won as follows:" +
+//             "\nArthurian Wins: " + gameStats[targetServer.name].artWins +
+//             "\nTuathaDeDanann Wins: " + gameStats[targetServer.name].tuaWins +
+//             "\nViking Wins: " + gameStats[targetServer.name].vikWins);
+//     }
+// },
 { // #### YES COMMAND ####
     command: 'yes',
     help: "The command " + commandChar + "yes displays the untrustworthy yes-duck.\n" +
